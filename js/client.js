@@ -1,27 +1,28 @@
-var render;
+var id_num, render;
 
 render = function(name, id, content, cls) {
   var c;
-  c = '<div><span class="name">';
+  c = '<div><nav class="name">';
   c += name;
-  c += ':</span><span class="';
+  c += '&nbsp;</nav><nav class="';
   c += cls;
   c += '" id="';
   c += id;
   c += '">';
   c += content;
-  c += '</span></div>';
+  c += '</nav></div>';
   return c;
 };
 
+id_num = 'none';
+
 window.onload = function() {
-  var id_num, socket, text_hide;
+  var socket, text_hide;
   var _this = this;
   ($('#text')).hide();
   socket = io.connect('http://localhost');
   socket.emit('set nickname', prompt('<please input your name>'));
   text_hide = true;
-  id_num = 'id';
   document.onkeypress = function(e) {
     if (e.keyCode === 13) {
       if (text_hide) {
@@ -32,19 +33,17 @@ window.onload = function() {
         ($('#text')).hide().focus();
         text_hide = true;
         socket.emit('close', id_num);
-        return id_num = 'id';
+        return id_num = 'none';
       }
     }
   };
-  $('#text').keydown(function() {
-    return setTimeout((function() {
-      var text_content;
-      text_content = ($('#text')).val();
-      return socket.emit('sync', {
-        'id': id_num,
-        'content': text_content
-      });
-    }), 20);
+  ($('#text')).bind('input', function(e) {
+    var text_content;
+    text_content = ($('#text')).val();
+    return socket.emit('sync', {
+      'id': id_num,
+      'content': text_content
+    });
   });
   socket.on('new_user', function(data) {
     return ($('#box')).append(render(data.name, data.id, '/joined/', 'done'));
@@ -52,15 +51,26 @@ window.onload = function() {
   socket.on('user_left', function(data) {
     return ($('#box')).append(render(data.name, data.id, '/left/', 'done'));
   });
-  socket.on('open', function(data) {
+  socket.on('open_self', function(data) {
     id_num = data.id;
+    ($('#box')).append(render(data.name, data.id, '', 'raw'));
+    return setTimeout((function() {
+      return ($('#text')).val('');
+    }), 0);
+  });
+  socket.on('open', function(data) {
     return ($('#box')).append(render(data.name, data.id, '', 'raw'));
   });
   socket.on('close', function(id_num) {
-    return ($('#' + id_num)).attr('class', 'done');
+    var t, tm, tmp;
+    console.log(id_num);
+    ($('#' + id_num)).attr('class', 'done');
+    t = new Date();
+    tm = t.getDate() + '-' + t.getHours() + ':' + t.getMinutes() + ':' + t.getSeconds();
+    tmp = ($('#' + id_num)).html() + '<span class="time">&nbsp;' + tm + '</span>';
+    return ($('#' + id_num)).html(tmp);
   });
   return socket.on('sync', function(data) {
-    console.log(data);
     return ($('#' + data.id)).html(data.content);
   });
 };

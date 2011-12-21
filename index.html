@@ -1,8 +1,38 @@
 <html><head><title>zhongli</title><meta charset="utf-8"/><script src="/socket.io/socket.io.js"></script><script src="js/jquery.min.js"></script><script src="js/client.js"></script><style type="text/css">body {
-  background: #f00;
+  font-family: 'wenquanyi micro hei', 'Ubuntu';
+  font-size: 15px;
+  color: #2e0505;
+  background: #e2f4fd;
+}
+.name {
+  float: left;
+  width: 100px;
+  overflow: hidden;
+}
+div {
+  height: 24px;
+}
+div:nth-child(2n) {
+  background: #d3effd;
+}
+div:nth-child(2n+1) {
+  background: #e7f6fe;
 }
 .raw {
-  border: 1px solid #000;
-  color: #000;
+  color: #c86;
+  overflow: hidden;
 }
-</style></head><body><nav id="box"><p id="zero">initial</p></nav><textarea id="text"></textarea></body></html>
+.done {
+  overflow: hidden;
+}
+#text {
+  width: 600px;
+  font-family: 'wenquanyi micro hei', 'Ubuntu';
+  font-size: 15px;
+  height: 26px;
+  border-width: 0px;
+}
+.time {
+  color: #f79c6e;
+}
+</style></head><body><nav id="box"><div id="00" class="done"></div></nav><textarea id="text"></textarea><br/><br/><br/><br/><div><span>by@ titleleaf; </span><span>source@ </span><span><a href="githubhttps://github.com/jiyinyiyong/zhongli/tree/master/js">github</a></span></div></body></html>

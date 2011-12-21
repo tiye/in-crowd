@@ -16,33 +16,41 @@ handler = (req, res) ->
 app = (require 'http').createServer handler
 app.listen 8000
 thread = 0
+last_name =''
 io = (require 'socket.io').listen app
+io.set 'log level', 1
 io.sockets.on 'connection', (socket) ->
 	socket.on 'set nickname', (name) ->
 		socket.set 'nickname', name, () ->
 			socket.emit 'ready'
 		thread += 1
+		console.log thread
 		data =
 			'name': name
 			'id': 'id'+thread
 		socket.broadcast.emit 'new_user', data
 		socket.emit 'new_user', data
 	socket.on 'disconnect', () ->
+		thread += 1
 		socket.get 'nickname', (err, name) ->
-			thread += 1
 			data =
 				'name': name
 				'id': 'id'+thread
 			socket.broadcast.emit 'user_left', data
 			socket.emit 'user_left', data
 	socket.on 'open', () ->
+		thread += 1
+		console.log 'here got "open" command, so thread = ', thread 
 		socket.get 'nickname', (err, name) ->
-			thread += 1
+			if name is last_name
+				name = ''
+			else
+				last_name = name
 			data =
 				'name': name
 				'id': 'id'+thread
 			socket.broadcast.emit 'open', data
-			socket.emit 'open', data
+			socket.emit 'open_self', data
 	socket.on 'close', (id_num) ->
 		socket.broadcast.emit 'close', id_num
 		socket.emit 'close', id_num

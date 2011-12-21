@@ -8,11 +8,43 @@ html
 		script(src='js/client.js')
 		:stylus
 			body
-				background red
+				font-family 'wenquanyi micro hei', 'Ubuntu'
+				font-size 15px
+				color hsl(0,80%,10%)
+				background hsl(200,90%,94%)
+			.name
+				float left
+				width 100px
+				overflow hidden
+			div
+				height 24px
+			div:nth-child(2n)
+				background hsl(200,90%,91%)
+			div:nth-child(2n+1)
+				background hsl(200,90%,95%)
 			.raw
-				border 1px solid black
-				color black
+				color hsl(20,50%,60%)
+				overflow hidden
+			.done
+				overflow hidden
+			#text
+				width 600px
+				font-family 'wenquanyi micro hei', 'Ubuntu'
+				font-size 15px
+				height 26px
+				border-width 0px
+			.time
+				color hsl(20,90%,70%)
 	body
 		nav(id='box')
-			p(id='zero') initial
+			div(id='00',class='done')
 		textarea(id='text')
+		br
+		br
+		br
+		br
+		div
+			span by@ titleleaf; 
+			span source@ 
+			span
+				a(href='githubhttps://github.com/jiyinyiyong/zhongli/tree/master/js') github
