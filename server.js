@@ -11,7 +11,13 @@ handler = function(req, res) {
   path = (url.parse(req.url)).pathname;
   if (path === '/') path = '/index.html';
   return fs.readFile(__dirname + path, function(err, data) {
-    return console.log('reading file', err ? (res.writeHead(500), res.end('page not found')) : (res.writeHead(200), res.end(data)));
+    if (err) {
+      res.writeHead(500);
+      return res.end('page not found');
+    } else {
+      res.writeHead(200);
+      return res.end(data);
+    }
   });
 };
 
@@ -29,6 +35,10 @@ io = (require('socket.io')).listen(app);
 
 io.set('log level', 1);
 
+io.set("transports", ["xhr-polling"]);
+
+io.set("polling duration", 10);
+
 io.sockets.on('connection', function(socket) {
   socket.on('set nickname', function(name) {
     var data;
@@ -36,7 +46,6 @@ io.sockets.on('connection', function(socket) {
       return socket.emit('ready');
     });
     thread += 1;
-    console.log(thread);
     data = {
       'name': name,
       'id': 'id' + thread
@@ -58,7 +67,6 @@ io.sockets.on('connection', function(socket) {
   });
   socket.on('open', function() {
     thread += 1;
-    console.log('here got "open" command, so thread = ', thread);
     return socket.get('nickname', function(err, name) {
       var data;
       if (name === last_name) {

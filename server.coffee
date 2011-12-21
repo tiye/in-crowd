@@ -18,10 +18,9 @@ app.listen port
 thread = 0
 last_name =''
 io = (require 'socket.io').listen app
-io.configure () ->
-	io.set 'log level', 1
-	io.set "transports", ["xhr-polling"]
-	io.set "polling duration", 10
+io.set 'log level', 1
+io.set "transports", ["xhr-polling"]
+io.set "polling duration", 10
 io.sockets.on 'connection', (socket) ->
 	socket.on 'set nickname', (name) ->
 		socket.set 'nickname', name, () ->
