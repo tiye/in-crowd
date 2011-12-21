@@ -54,16 +54,18 @@ window.onload = function() {
   socket.on('open_self', function(data) {
     id_num = data.id;
     ($('#box')).append(render(data.name, data.id, '', 'raw'));
-    return setTimeout((function() {
+    $(window).scrollTop($(document).height());
+    setTimeout((function() {
       return ($('#text')).val('');
-    }), 0);
+    }), 10);
+    return $(window).scrollTop($(document).height());
   });
   socket.on('open', function(data) {
-    return ($('#box')).append(render(data.name, data.id, '', 'raw'));
+    ($('#box')).append(render(data.name, data.id, '', 'raw'));
+    return $(window).scrollTop($(document).height());
   });
   socket.on('close', function(id_num) {
     var t, tm, tmp;
-    console.log(id_num);
     ($('#' + id_num)).attr('class', 'done');
     t = new Date();
     tm = t.getDate() + '-' + t.getHours() + ':' + t.getMinutes() + ':' + t.getSeconds();

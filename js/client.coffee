@@ -39,12 +39,14 @@ window.onload = ->
 	socket.on 'open_self', (data) ->
 		id_num = data.id
 		($ '#box').append (render data.name, data.id, '', 'raw')
+		$(window).scrollTop($(document).height())
 		setTimeout (->
-			($ '#text').val ''), 0
+			($ '#text').val ''), 10
+		$(window).scrollTop($(document).height())
 	socket.on 'open', (data) ->
 		($ '#box').append (render data.name, data.id, '', 'raw')
+		$(window).scrollTop($(document).height())
 	socket.on 'close', (id_num) ->
-		console.log id_num
 		($ '#'+id_num).attr 'class', 'done'
 		t = new Date()
 		tm = t.getDate()+'-'+t.getHours()+':'+t.getMinutes()+':'+t.getSeconds()
