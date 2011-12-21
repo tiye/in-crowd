@@ -20,7 +20,8 @@ window.onload = function() {
   var socket, text_hide;
   var _this = this;
   ($('#text')).hide();
-  socket = io.connect('http://zhongli.heroku.com');
+  socket = io.connect(window.location.hostname);
+  console.log('connect', socket);
   socket.emit('set nickname', prompt('<please input your name>'));
   text_hide = true;
   document.onkeypress = function(e) {

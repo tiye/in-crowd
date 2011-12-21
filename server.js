@@ -66,6 +66,7 @@ io.sockets.on('connection', function(socket) {
   });
   socket.on('open', function() {
     thread += 1;
+    console.log('here got "open" command, so thread = ', thread);
     return socket.get('nickname', function(err, name) {
       var data;
       if (name === last_name) {
