@@ -42,7 +42,7 @@ io.sockets.on 'connection', (socket) ->
 			socket.emit 'user_left', data
 	socket.on 'open', () ->
 		thread += 1
-		# console.log 'here got "open" command, so thread = ', thread 
+		console.log 'here got "open" command, so thread = ', thread 
 		socket.get 'nickname', (err, name) ->
 			if name is last_name
 				name = ''

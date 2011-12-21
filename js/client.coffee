@@ -13,7 +13,8 @@ render = (name, id, content, cls) ->
 id_num = 'none'
 window.onload = ->
 	($ '#text').hide()
-	socket = io.connect 'http://zhongli.heroku.com'
+	socket = io.connect window.location.hostname
+	console.log 'connect', socket
 	socket.emit 'set nickname', prompt('<please input your name>')
 	text_hide = true
 	document.onkeypress = (e) =>
