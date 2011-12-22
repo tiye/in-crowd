@@ -1,4 +1,4 @@
-var id_num, render, try_scroll;
+var id_num, last_name, render, try_scroll;
 
 render = function(name, id, content, cls) {
   var c, t, tm;
@@ -25,6 +25,8 @@ try_scroll = function() {
 };
 
 id_num = 'none';
+
+last_name = '';
 
 window.onload = function() {
   var socket, text_hide;
@@ -103,6 +105,11 @@ window.onload = function() {
     var item, _i, _len;
     for (_i = 0, _len = logs.length; _i < _len; _i++) {
       item = logs[_i];
+      if (item[0] === last_name) {
+        item[0] = '&nbsp;';
+      } else {
+        last_name = item[0];
+      }
       ($('#box')).append(render(item[0], 'raw', item[1], 'raw'));
     }
     return try_scroll();

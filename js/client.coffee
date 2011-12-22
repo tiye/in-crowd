@@ -18,6 +18,7 @@ try_scroll = () ->
 		($ window).scrollTop ($ document).height()
 		console.log 'scrolled '
 id_num = 'none'
+last_name = ''
 window.onload = ->
 	($ '#text').hide()
 	socket = io.connect window.location.hostname
@@ -74,5 +75,6 @@ window.onload = ->
 		try_scroll()
 	socket.on 'logss', (logs) ->
 		for item in logs
+			if item[0] is last_name then item[0] = '&nbsp;' else last_name = item[0]
 			($ '#box').append (render item[0], 'raw', item[1], 'raw')
 		try_scroll()
