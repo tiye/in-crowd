@@ -8,9 +8,12 @@
   float: left;
   width: 100px;
   overflow: hidden;
+  color: #ad5cd6;
 }
 div {
-  height: 24px;
+  box-sizing: border-box;
+  padding-top: 6px;
+  height: 26px;
 }
 div:nth-child(2n) {
   background: #d3effd;
@@ -19,11 +22,17 @@ div:nth-child(2n+1) {
   background: #e7f6fe;
 }
 .raw {
-  color: #c86;
+  color: #bf6a40;
   overflow: hidden;
 }
 .done {
   overflow: hidden;
+}
+#box {
+  height: 500px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid #c66;
 }
 #text {
   width: 600px;

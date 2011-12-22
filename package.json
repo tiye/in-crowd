@@ -1,6 +1,4 @@
 {
   "name": "zhongli-chat",
-  "version": "0.0.1",
-  "dependencies": {
-  }
+  "main": "./server.js"
 }

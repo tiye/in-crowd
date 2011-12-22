@@ -46,11 +46,15 @@ window.onload = function() {
         text_hide = false;
         return socket.emit('open', '');
       } else {
-        content = ($('#text')).val();
-        ($('#text')).hide().focus();
-        text_hide = true;
-        socket.emit('close', id_num, content);
-        return id_num = 'none';
+        if (($('#text')).val().length > 2) {
+          content = ($('#text')).val();
+          ($('#text')).hide().focus();
+          text_hide = true;
+          socket.emit('close', id_num, content);
+          return id_num = 'none';
+        } else {
+          return ($('#text')).val('');
+        }
       }
     } else {
       if (text_hide) {
@@ -62,11 +66,17 @@ window.onload = function() {
   };
   ($('#text')).bind('input', function(e) {
     var text_content;
-    text_content = ($('#text')).val();
+    text_content = ($('#text')).val().slice(0, 40);
     return socket.emit('sync', {
       'id': id_num,
       'content': text_content
     });
+  });
+  ($('#text')).bind('paste', function() {
+    alert('coped this string of code, do not paste');
+    return setTimeout((function() {
+      return ($('#text')).val('');
+    }), 100);
   });
   socket.on('new_user', function(data) {
     ($('#box')).append(render(data.name, data.id, '/joined/', 'sys'));
@@ -102,16 +112,22 @@ window.onload = function() {
     return try_scroll();
   });
   return socket.on('logss', function(logs) {
-    var item, _i, _len;
+    var item, _i, _len, _results;
+    _results = [];
     for (_i = 0, _len = logs.length; _i < _len; _i++) {
       item = logs[_i];
-      if (item[0] === last_name) {
-        item[0] = '&nbsp;';
+      if (item[1][0] !== '/') {
+        if (item[0] === last_name) {
+          item[0] = '&nbsp;';
+        } else {
+          last_name = item[0];
+        }
+        ($('#box')).append(render(item[0], 'raw', item[1], 'raw'));
+        _results.push(try_scroll());
       } else {
-        last_name = item[0];
+        _results.push(void 0);
       }
-      ($('#box')).append(render(item[0], 'raw', item[1], 'raw'));
     }
-    return try_scroll();
+    return _results;
   });
 };

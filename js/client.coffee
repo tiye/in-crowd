@@ -33,21 +33,28 @@ window.onload = ->
 				text_hide = false
 				socket.emit 'open', ''
 			else
-				content = ($ '#text').val()
-				($ '#text').hide().focus()
-				text_hide = true
-				socket.emit 'close', id_num, content
-				id_num = 'none'
+				if ($ '#text').val().length > 2
+					content = ($ '#text').val()
+					($ '#text').hide().focus()
+					text_hide = true
+					socket.emit 'close', id_num, content
+					id_num = 'none'
+				else
+					($ '#text').val('')
 		else
 			if text_hide
 				($ '#text').show().focus().val ''
 				text_hide = false
 				socket.emit 'open', ''
-	($ '#text').bind 'input', (e) ->
-		text_content = ($ '#text').val()
+	($ '#text').bind 'input', (e) =>
+		text_content = ($ '#text').val().slice 0, 40
 		socket.emit 'sync',
 			'id': id_num
 			'content': text_content
+	($ '#text').bind 'paste', () =>
+		alert 'coped this string of code, do not paste'
+		setTimeout (->
+			($ '#text').val ''), 100
 	socket.on 'new_user', (data) ->
 		($ '#box').append (render data.name, data.id, '/joined/', 'sys')
 		try_scroll()
@@ -75,6 +82,7 @@ window.onload = ->
 		try_scroll()
 	socket.on 'logss', (logs) ->
 		for item in logs
-			if item[0] is last_name then item[0] = '&nbsp;' else last_name = item[0]
-			($ '#box').append (render item[0], 'raw', item[1], 'raw')
-		try_scroll()
+			if item[1][0] isnt '/'
+				if item[0] is last_name then item[0] = '&nbsp;' else last_name = item[0]
+				($ '#box').append (render item[0], 'raw', item[1], 'raw')
+				try_scroll()
