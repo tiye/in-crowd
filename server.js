@@ -78,6 +78,7 @@ io.sockets.on('connection', function(socket) {
       var data;
       thread += 1;
       logs.push([name, '/left/']);
+      names.splice(names.indexOf(name), 1);
       data = {
         'name': name,
         'id': 'id' + thread
