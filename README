@@ -4,3 +4,6 @@
 我打算尝试 socket.io 完成
 	基本的聊天
 	输入内容随时同步(伪实时)
+
+相关信息可以看我的微博 http://weibo.com/1651843872/xD5E7y441
+应用放在 Heroku, 速度很慢, 勉强还能看吧 http://zhongli.heroku.com

@@ -1,6 +1,4 @@
-var app, fs, handler, io, last_name, port, thread, url;
-
-console.log('began');
+var app, fs, handler, io, last_name, logs, name_log, names, port, thread, url;
 
 fs = require('fs');
 
@@ -31,7 +29,22 @@ thread = 0;
 
 last_name = '';
 
+names = [];
+
+name_log = function(name) {
+  var n, _i, _len;
+  for (_i = 0, _len = names.length; _i < _len; _i++) {
+    n = names[_i];
+    if (n === name) return false;
+  }
+  return true;
+};
+
 io = (require('socket.io')).listen(app);
+
+logs = [];
+
+io.set('log level', 1);
 
 io.configure(function() {
   io.set("transports", ["xhr-polling"]);
@@ -41,21 +54,30 @@ io.configure(function() {
 io.sockets.on('connection', function(socket) {
   socket.on('set nickname', function(name) {
     var data;
-    socket.set('nickname', name, function() {
-      return socket.emit('ready');
-    });
-    thread += 1;
-    data = {
-      'name': name,
-      'id': 'id' + thread
-    };
-    socket.broadcast.emit('new_user', data);
-    return socket.emit('new_user', data);
+    if (name_log(name)) {
+      socket.set('nickname', name, function() {
+        socket.emit('ready');
+        return socket.emit('logss', logs);
+      });
+      thread += 1;
+      last_name = name;
+      names.push(name);
+      logs.push([name, '/joined/']);
+      data = {
+        'name': name,
+        'id': 'id' + thread
+      };
+      socket.broadcast.emit('new_user', data);
+      return socket.emit('new_user', data);
+    } else {
+      return socket.emit('unready');
+    }
   });
   socket.on('disconnect', function() {
-    thread += 1;
     return socket.get('nickname', function(err, name) {
       var data;
+      thread += 1;
+      logs.push([name, '/left/']);
       data = {
         'name': name,
         'id': 'id' + thread
@@ -66,25 +88,29 @@ io.sockets.on('connection', function(socket) {
   });
   socket.on('open', function() {
     thread += 1;
-    console.log('here got "open" command, so thread = ', thread);
     return socket.get('nickname', function(err, name) {
       var data;
-      if (name === last_name) {
-        name = '';
-      } else {
-        last_name = name;
+      if (name) {
+        if (name === last_name) {
+          name = '';
+        } else {
+          last_name = name;
+        }
+        data = {
+          'name': name,
+          'id': 'id' + thread
+        };
+        socket.broadcast.emit('open', data);
+        return socket.emit('open_self', data);
       }
-      data = {
-        'name': name,
-        'id': 'id' + thread
-      };
-      socket.broadcast.emit('open', data);
-      return socket.emit('open_self', data);
     });
   });
-  socket.on('close', function(id_num) {
+  socket.on('close', function(id_num, content) {
     socket.broadcast.emit('close', id_num);
-    return socket.emit('close', id_num);
+    socket.emit('close', id_num);
+    return socket.get('nickname', function(err, name) {
+      return logs.push([name, content]);
+    });
   });
   return socket.on('sync', function(data) {
     socket.broadcast.emit('sync', data);

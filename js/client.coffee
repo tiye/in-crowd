@@ -13,11 +13,14 @@ render = (name, id, content, cls) ->
 	c+= ' </span>'+tm
 	c+= '</nav></div>'
 	return c
+try_scroll = () ->
+	if ($ window).scrollTop() + ($ window).height() + 10 > ($ document).height()
+		($ window).scrollTop ($ document).height()
+		console.log 'scrolled '
 id_num = 'none'
 window.onload = ->
 	($ '#text').hide()
 	socket = io.connect window.location.hostname
-	socket.emit 'logs'
 	socket.emit 'set nickname', prompt 'Please input your name:'
 	socket.on 'unready', () ->
 		socket.emit 'set nickname', prompt 'Name used, pleas choose another one:'
@@ -46,30 +49,30 @@ window.onload = ->
 			'content': text_content
 	socket.on 'new_user', (data) ->
 		($ '#box').append (render data.name, data.id, '/joined/', 'sys')
+		try_scroll()
 	socket.on 'user_left', (data) ->
 		($ '#box').append (render data.name, data.id, '/left/', 'sys')
+		try_scroll()
 	socket.on 'open_self', (data) ->
 		id_num = data.id
 		($ '#box').append (render data.name, data.id, '', 'raw')
-		$(window).scrollTop($(document).height())
 		setTimeout (->
 			($ '#text').val ''), 10
-		$(window).scrollTop($(document).height())
+		try_scroll()
 	socket.on 'open', (data) ->
 		console.log 'on open'
 		($ '#box').append (render data.name, data.id, '', 'raw')
-		$(window).scrollTop($(document).height())
+		try_scroll()
 	socket.on 'close', (id_num) ->
 		($ '#'+id_num).attr 'class', 'done'
 	socket.on 'sync', (data) ->
-		# console.log data
 		t = new Date()
 		tm = t.getDate()+'-'+t.getHours()+':'+t.getMinutes()+':'+t.getSeconds()
 		tmp = '<span class="time">&nbsp;' + tm + '</span>'
 		($ '#'+data.id).text data.content
 		($ '#'+data.id).append tmp
-	socket.on 'loging', (logs) ->
-		console.log 'got: ', logs
+		try_scroll()
+	socket.on 'logss', (logs) ->
 		for item in logs
-			console.log item
 			($ '#box').append (render item[0], 'raw', item[1], 'raw')
+		try_scroll()

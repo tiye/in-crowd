@@ -1,5 +1,4 @@
 
-console.log 'began'
 fs = require 'fs'
 url = require 'url'
 handler = (req, res) ->
@@ -33,6 +32,7 @@ io.sockets.on 'connection', (socket) ->
 		if (name_log name)
 			socket.set 'nickname', name, () ->
 				socket.emit 'ready'
+				socket.emit 'logss', logs
 			thread += 1
 			last_name = name
 			names.push name
@@ -47,7 +47,7 @@ io.sockets.on 'connection', (socket) ->
 	socket.on 'disconnect', () ->
 		socket.get 'nickname', (err, name) ->
 			thread += 1
-			logs.push name, '/left/'
+			logs.push [name, '/left/']
 			data =
 				'name': name
 				'id': 'id'+thread
@@ -55,7 +55,6 @@ io.sockets.on 'connection', (socket) ->
 			socket.emit 'user_left', data
 	socket.on 'open', () ->
 		thread += 1
-		console.log 'here got "open" command, so thread = ', thread 
 		socket.get 'nickname', (err, name) ->
 			if name
 				if name is last_name
@@ -72,10 +71,6 @@ io.sockets.on 'connection', (socket) ->
 		socket.emit 'close', id_num
 		socket.get 'nickname', (err, name) ->
 			logs.push [name, content]
-			console.log logs
 	socket.on 'sync', (data) ->
 		socket.broadcast.emit 'sync', data
 		socket.emit 'sync', data
-	socket.on 'logs', () ->
-		console.log 'sending logs', logs
-		socket.emit 'loging', logs
