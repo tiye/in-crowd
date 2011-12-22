@@ -54,14 +54,14 @@ html
 	body
 		nav(id='box')
 			div
-				nav(class='name') author
-				nav(class='done')
+				nav(class='name')
 					a(href='http://weibo.com/1651843872/xD5E7y441') @题叶
-					a(href='https://github.com/jiyinyiyong/zhongli') @github
+				nav(class='done')
+					a(href='https://github.com/jiyinyiyong/zhongli') socket.io 聊天室, 代码看@github
 			div
 				nav(class='name') &nbsp;
-				nav(class='done') just type to talk, synchronous, finish with Enter.
+				nav(class='done') 按下回车后会出现输入框, 结束时回车提交, 要求字数大于二
 			div
 				nav(class='name') &nbsp;
-				nav(class='done') 探测输入法真头疼, 于是中文回车然后输入然后回车
+				nav(class='done') 打算探测 e.keyCode 让输入字符开头省一次回车, 失败了, 怎么办呢?
 		textarea(id='text')

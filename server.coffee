@@ -31,6 +31,7 @@ io.sockets.on 'connection', (socket) ->
 			socket.set 'nickname', name, () ->
 				socket.emit 'ready'
 				socket.emit 'logss', logs
+				@
 			thread += 1
 			last_name = name
 			names.push name
@@ -41,6 +42,7 @@ io.sockets.on 'connection', (socket) ->
 			socket.emit 'new_user', data
 		else
 			socket.emit 'unready'
+		@
 	socket.on 'disconnect', () ->
 		socket.get 'nickname', (err, name) ->
 			thread += 1
@@ -51,6 +53,7 @@ io.sockets.on 'connection', (socket) ->
 				'id': 'id'+thread
 			socket.broadcast.emit 'user_left', data
 			socket.emit 'user_left', data
+			@
 	socket.on 'open', () ->
 		thread += 1
 		socket.get 'nickname', (err, name) ->
@@ -64,11 +67,16 @@ io.sockets.on 'connection', (socket) ->
 					'id': 'id'+thread
 				socket.broadcast.emit 'open', data
 				socket.emit 'open_self', data
+			@
 	socket.on 'close', (id_num, content) ->
 		socket.broadcast.emit 'close', id_num
 		socket.emit 'close', id_num
 		socket.get 'nickname', (err, name) ->
 			logs.push [name, content]
+			@
+		@
 	socket.on 'sync', (data) ->
 		socket.broadcast.emit 'sync', data
 		socket.emit 'sync', data
+		@
+	@
