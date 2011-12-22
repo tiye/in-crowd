@@ -4,7 +4,7 @@ html
 		title zhongli
 		meta(charset='utf-8')
 		script(src='/socket.io/socket.io.js')
-		script(src='js/jquery.min.js')
+		script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
 		script(src='js/client.js')
 		:stylus
 			body
@@ -33,18 +33,23 @@ html
 				font-size 15px
 				height 26px
 				border-width 0px
+				margin-left 100px
 			.time
 				color hsl(20,90%,70%)
+				font-size 12px
+			.sys
+				color hsl(0,60%,70%)
 	body
 		nav(id='box')
-			div(id='00',class='done')
+			div
+				nav(class='name') author
+				nav(class='done')
+					a(href='http://weibo.com/jiyinyiyong') @titleleaf;
+					a(href='https://github.com/jiyinyiyong/zhongli') @github
+			div
+				nav(class='name') &nbsp;
+				nav(class='done') press Enter to see textbox, then type in words, see syncing?
+			div
+				nav(class='name') &nbsp;
+				nav(class='done') hit Enter to complete, press Enter to continus...
 		textarea(id='text')
-		br
-		br
-		br
-		br
-		div
-			span by@ titleleaf; 
-			span source@ 
-			span
-				a(href='githubhttps://github.com/jiyinyiyong/zhongli/tree/master/js') github
