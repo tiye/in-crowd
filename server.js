@@ -1,4 +1,4 @@
-var app, fs, handler, io, last_name, logs, name_log, names, port, thread, url;
+var app, fs, handler, io, last_name, logs, name_log, names, thread, url;
 
 fs = require('fs');
 
@@ -21,9 +21,7 @@ handler = function(req, res) {
 
 app = (require('http')).createServer(handler);
 
-port = process.env.PORT || 8000;
-
-app.listen(port);
+app.listen(80);
 
 thread = 0;
 
@@ -43,13 +41,6 @@ name_log = function(name) {
 io = (require('socket.io')).listen(app);
 
 logs = [];
-
-io.set('log level', 1);
-
-io.configure(function() {
-  io.set("transports", ["xhr-polling"]);
-  return io.set("polling duration", 10);
-});
 
 io.sockets.on('connection', function(socket) {
   socket.on('set nickname', function(name) {

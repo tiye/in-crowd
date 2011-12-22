@@ -12,8 +12,7 @@ handler = (req, res) ->
 			res.writeHead 200
 			res.end data
 app = (require 'http').createServer handler
-port = process.env.PORT || 8000
-app.listen port
+app.listen 80
 thread = 0
 last_name =''
 names = []
@@ -23,10 +22,9 @@ name_log = (name) ->
 	true
 io = (require 'socket.io').listen app
 logs = []
-io.set 'log level', 1
-io.configure () ->
-	io.set "transports", ["xhr-polling"]
-	io.set "polling duration", 10
+# io.set 'log level', 1
+# io.set "transports", ["xhr-polling"]
+# io.set "polling duration", 10
 io.sockets.on 'connection', (socket) ->
 	socket.on 'set nickname', (name) ->
 		if (name_log name)
