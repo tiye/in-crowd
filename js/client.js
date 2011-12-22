@@ -38,8 +38,9 @@ window.onload = function() {
   });
   text_hide = true;
   document.onkeypress = function(e) {
-    var content;
-    if (e.keyCode === 13) {
+    var content, key;
+    key = e.keyCode;
+    if (key === 13) {
       if (text_hide) {
         ($('#text')).slideDown(200).focus().val('');
         text_hide = false;
@@ -56,7 +57,7 @@ window.onload = function() {
         }
       }
     } else {
-      if (text_hide) {
+      if (key >= 48 && key <= 90) {
         ($('#text')).slideDown(200).focus().val('');
         text_hide = false;
         return socket.emit('open', '');

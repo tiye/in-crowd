@@ -26,7 +26,8 @@ window.onload = ->
 		socket.emit 'set nickname', prompt 'Name used, pleas choose another one:'
 	text_hide = true
 	document.onkeypress = (e) =>
-		if e.keyCode is 13
+		key = e.keyCode
+		if key is 13
 			if text_hide
 				($ '#text').slideDown(200).focus().val ''
 				text_hide = false
@@ -41,7 +42,7 @@ window.onload = ->
 				else
 					($ '#text').val('')
 		else
-			if text_hide
+			if key >= 48 and key <= 90
 				($ '#text').slideDown(200).focus().val ''
 				text_hide = false
 				socket.emit 'open', ''
