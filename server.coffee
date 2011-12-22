@@ -12,7 +12,7 @@ handler = (req, res) ->
 			res.writeHead 200
 			res.end data
 app = (require 'http').createServer handler
-app.listen 80
+app.listen 8000
 thread = 0
 last_name =''
 names = []
@@ -45,6 +45,7 @@ io.sockets.on 'connection', (socket) ->
 		socket.get 'nickname', (err, name) ->
 			thread += 1
 			names.splice (names.indexOf name), 1
+			last_name = name
 			data =
 				'name': name
 				'id': 'id'+thread

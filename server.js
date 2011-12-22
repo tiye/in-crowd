@@ -21,7 +21,7 @@ handler = function(req, res) {
 
 app = (require('http')).createServer(handler);
 
-app.listen(80);
+app.listen(8000);
 
 thread = 0;
 
@@ -72,6 +72,7 @@ io.sockets.on('connection', function(socket) {
       var data;
       thread += 1;
       names.splice(names.indexOf(name), 1);
+      last_name = name;
       data = {
         'name': name,
         'id': 'id' + thread
