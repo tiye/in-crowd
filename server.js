@@ -42,6 +42,10 @@ io = (require('socket.io')).listen(app);
 
 logs = [];
 
+io.set("transports", ["xhr-polling"]);
+
+io.set("polling duration", 10);
+
 io.sockets.on('connection', function(socket) {
   socket.on('set nickname', function(name) {
     var data;
@@ -53,7 +57,6 @@ io.sockets.on('connection', function(socket) {
       thread += 1;
       last_name = name;
       names.push(name);
-      logs.push([name, '/joined/']);
       data = {
         'name': name,
         'id': 'id' + thread
@@ -68,7 +71,6 @@ io.sockets.on('connection', function(socket) {
     return socket.get('nickname', function(err, name) {
       var data;
       thread += 1;
-      logs.push([name, '/left/']);
       names.splice(names.indexOf(name), 1);
       data = {
         'name': name,
