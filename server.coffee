@@ -23,8 +23,8 @@ name_log = (name) ->
 io = (require 'socket.io').listen app
 logs = []
 # io.set 'log level', 1
-# io.set "transports", ["xhr-polling"]
-# io.set "polling duration", 10
+io.set "transports", ["xhr-polling"]
+io.set "polling duration", 10
 io.sockets.on 'connection', (socket) ->
 	socket.on 'set nickname', (name) ->
 		if (name_log name)
@@ -34,7 +34,6 @@ io.sockets.on 'connection', (socket) ->
 			thread += 1
 			last_name = name
 			names.push name
-			logs.push [name, '/joined/']
 			data =
 				'name': name
 				'id': 'id'+thread
@@ -45,7 +44,6 @@ io.sockets.on 'connection', (socket) ->
 	socket.on 'disconnect', () ->
 		socket.get 'nickname', (err, name) ->
 			thread += 1
-			logs.push [name, '/left/']
 			names.splice (names.indexOf name), 1
 			data =
 				'name': name
