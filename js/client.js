@@ -33,8 +33,9 @@ window.onload = function() {
   ($('#text')).hide();
   socket = io.connect(window.location.hostname);
   socket.emit('set nickname', prompt('Please input your name:'));
+  socket.emit('who');
   socket.on('unready', function() {
-    socket.emit('set nickname', prompt('Name used, pleas choose another one:'));
+    socket.emit('set nickname', prompt('Name used, another one:'));
     return this;
   });
   text_hide = true;
@@ -46,6 +47,16 @@ window.onload = function() {
         text_hide = false;
         socket.emit('open', '');
       } else {
+        if (($('#text')).val()[0] === '/') {
+          switch (($('#text')).val()) {
+            case '/who':
+              socket.emit('who');
+              break;
+            case '/clear':
+              console.log('do');
+              ($('#box')).empty();
+          }
+        }
         if (($('#text')).val().length > 2) {
           content = ($('#text')).val();
           ($('#text')).slideUp(200).focus();
@@ -89,7 +100,6 @@ window.onload = function() {
     return this;
   });
   socket.on('open', function(data) {
-    console.log('open', data.time);
     render(data.name, data.id, '', 'raw', data.time);
     return this;
   });
@@ -105,9 +115,10 @@ window.onload = function() {
     return this;
   });
   socket.on('logs', function(logs) {
-    var item, _i, _len;
-    for (_i = 0, _len = logs.length; _i < _len; _i++) {
-      item = logs[_i];
+    var item, _i, _len, _ref;
+    _ref = logs.slice(-5);
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      item = _ref[_i];
       if (item[0] === last_name) {
         item[0] = '&nbsp;';
       } else {
@@ -116,6 +127,9 @@ window.onload = function() {
       render(item[0], 'raw', item[1], 'raw', item[2]);
     }
     return this;
+  });
+  socket.on('who', function(msg, time) {
+    return render('/who', 'raw', msg, 'raw', time);
   });
   return this;
 };

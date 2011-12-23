@@ -23,8 +23,9 @@ window.onload = ->
 	($ '#text').hide()
 	socket = io.connect window.location.hostname
 	socket.emit 'set nickname', prompt 'Please input your name:'
+	socket.emit 'who'
 	socket.on 'unready', () ->
-		socket.emit 'set nickname', prompt 'Name used, pleas choose another one:'
+		socket.emit 'set nickname', prompt 'Name used, another one:'
 		@
 	text_hide = true
 	document.onkeypress = (e) ->
@@ -34,14 +35,19 @@ window.onload = ->
 				text_hide = false
 				socket.emit 'open', ''
 			else
+				if ($ '#text').val()[0] is '/'
+					switch ($ '#text').val()
+						when '/who' then socket.emit 'who'
+						when '/clear'
+							console.log 'do'
+							($ '#box').empty()
 				if ($ '#text').val().length > 2
 					content = ($ '#text').val()
 					($ '#text').slideUp(200).focus()
 					text_hide = true
 					socket.emit 'close', id_num, content
 					id_num = 'none'
-				else
-					($ '#text').val('')
+				else ($ '#text').val('')
 		@
 	($ '#text').bind 'input', (e) ->
 		t = $ '#text'
@@ -77,8 +83,10 @@ window.onload = ->
 		($ '#'+data.id).append tmp
 		@
 	socket.on 'logs', (logs) ->
-		for item in logs
+		for item in (logs.slice -5)
 			if item[0] is last_name then item[0] = '&nbsp;' else last_name = item[0]
 			render item[0], 'raw', item[1], 'raw', item[2]
 		@
+	socket.on 'who', (msg, time) ->
+		render '/who', 'raw', msg, 'raw', time
 	@

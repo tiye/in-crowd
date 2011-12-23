@@ -23,7 +23,7 @@ name_log = (name) ->
 	true
 timestamp = () ->
 	t = new Date()
-	tm = t.getDate()+'-'+t.getHours()+':'+t.getMinutes()+':'+t.getSeconds()
+	tm = t.getHours()+':'+t.getMinutes()+':'+t.getSeconds()
 io = (require 'socket.io').listen app
 logs = []
 io.set 'log level', 1
@@ -79,12 +79,16 @@ io.sockets.on 'connection', (socket) ->
 		socket.emit 'close', id_num
 		socket.get 'nickname', (err, name) ->
 			logs.push [name, content, timestamp()]
-			console.log logs
 			@
 		@
 	socket.on 'sync', (data) ->
 		data['time'] = timestamp()
 		socket.broadcast.emit 'sync', data
 		socket.emit 'sync', data
+		@
+	socket.on 'who', () ->
+		msg = names+'...'+names.length if names.length < 3
+		msg = (names.slice 0, 3)+'...'+names.length if names.length >=3
+		socket.emit 'who', msg, timestamp()
 		@
 	@

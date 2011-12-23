@@ -1,4 +1,4 @@
-var app, fs, handler, io, last_name, logs, name_log, names, thread, url;
+var app, fs, handler, io, last_name, logs, name_log, names, thread, timestamp, url;
 
 fs = require('fs');
 
@@ -31,6 +31,7 @@ names = [];
 
 name_log = function(name) {
   var n, _i, _len;
+  if (name.length > 10) return false;
   for (_i = 0, _len = names.length; _i < _len; _i++) {
     n = names[_i];
     if (n === name) return false;
@@ -38,9 +39,17 @@ name_log = function(name) {
   return true;
 };
 
+timestamp = function() {
+  var t, tm;
+  t = new Date();
+  return tm = t.getHours() + ':' + t.getMinutes() + ':' + t.getSeconds();
+};
+
 io = (require('socket.io')).listen(app);
 
 logs = [];
+
+io.set('log level', 1);
 
 io.set("transports", ["xhr-polling"]);
 
@@ -52,20 +61,23 @@ io.sockets.on('connection', function(socket) {
     if (name_log(name)) {
       socket.set('nickname', name, function() {
         socket.emit('ready');
-        return socket.emit('logss', logs);
+        socket.emit('logs', logs);
+        return this;
       });
       thread += 1;
       last_name = name;
       names.push(name);
       data = {
         'name': name,
-        'id': 'id' + thread
+        'id': 'id' + thread,
+        'time': timestamp()
       };
       socket.broadcast.emit('new_user', data);
-      return socket.emit('new_user', data);
+      socket.emit('new_user', data);
     } else {
-      return socket.emit('unready');
+      socket.emit('unready');
     }
+    return this;
   });
   socket.on('disconnect', function() {
     return socket.get('nickname', function(err, name) {
@@ -75,10 +87,11 @@ io.sockets.on('connection', function(socket) {
       last_name = name;
       data = {
         'name': name,
-        'id': 'id' + thread
+        'id': 'id' + thread,
+        'time': timestamp()
       };
       socket.broadcast.emit('user_left', data);
-      return socket.emit('user_left', data);
+      return this;
     });
   });
   socket.on('open', function() {
@@ -93,22 +106,36 @@ io.sockets.on('connection', function(socket) {
         }
         data = {
           'name': name,
-          'id': 'id' + thread
+          'id': 'id' + thread,
+          'time': timestamp()
         };
         socket.broadcast.emit('open', data);
-        return socket.emit('open_self', data);
+        socket.emit('open_self', data);
       }
+      return this;
     });
   });
   socket.on('close', function(id_num, content) {
     socket.broadcast.emit('close', id_num);
     socket.emit('close', id_num);
-    return socket.get('nickname', function(err, name) {
-      return logs.push([name, content]);
+    socket.get('nickname', function(err, name) {
+      logs.push([name, content, timestamp()]);
+      return this;
     });
+    return this;
   });
-  return socket.on('sync', function(data) {
+  socket.on('sync', function(data) {
+    data['time'] = timestamp();
     socket.broadcast.emit('sync', data);
-    return socket.emit('sync', data);
+    socket.emit('sync', data);
+    return this;
   });
+  socket.on('who', function() {
+    var msg;
+    if (names.length < 3) msg = names + '...' + names.length;
+    if (names.length >= 3) msg = (names.slice(0, 3)) + '...' + names.length;
+    socket.emit('who', msg, timestamp());
+    return this;
+  });
+  return this;
 });
