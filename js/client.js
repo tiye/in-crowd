@@ -39,14 +39,22 @@ get_name = function(strns) {
   while (!(a.length > 0 && a.length < 10)) {
     a = prompt(strns);
   }
+  document.cookie = 'zhongli_name=' + (encodeURI(a));
   return a;
 };
 
 window.onload = function() {
-  var socket, text_hide;
+  var arr, socket, text_hide;
   ($('#text')).hide();
   socket = io.connect(window.location.hostname);
-  socket.emit('set nickname', get_name('输入一个长度合适的名字'));
+  arr = document.cookie.match(/zhongli_name=([0-9]|[a-z]|[A-Z]|%)+/);
+  console.log(arr);
+  console.log(document.cookie);
+  if (arr) {
+    socket.emit('set nickname', decodeURI(arr[0].slice(13)));
+  } else {
+    socket.emit('set nickname', get_name('输入一个长度合适的名字'));
+  }
   socket.emit('who');
   socket.on('unready', function() {
     socket.emit('set nickname', get_name('被占了, 换个试试'));
@@ -142,7 +150,8 @@ window.onload = function() {
     return this;
   });
   socket.on('who', function(msg, time) {
-    return render('/who', 'raw', msg, 'raw', time);
+    render('/who', 'raw', msg, 'raw', time);
+    return this;
   });
   return this;
 };
