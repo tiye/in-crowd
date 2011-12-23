@@ -82,13 +82,17 @@ io.sockets.on 'connection', (socket) ->
 			@
 		@
 	socket.on 'sync', (data) ->
-		data['time'] = timestamp()
-		socket.broadcast.emit 'sync', data
-		socket.emit 'sync', data
+		socket.get 'nickname', (err, name) ->
+			if err then return @
+			data['time'] = timestamp()
+			data['name'] = name
+			socket.broadcast.emit 'sync', data
+			socket.emit 'sync', data
+			@
 		@
 	socket.on 'who', () ->
-		msg = names+'...'+names.length if names.length < 3
-		msg = (names.slice 0, 3)+'...'+names.length if names.length >=3
+		msg = names+'...'+names.length if names.length < 8
+		msg = (names.slice 0, 8)+'...'+names.length if names.length >= 8
 		socket.emit 'who', msg, timestamp()
 		@
 	@

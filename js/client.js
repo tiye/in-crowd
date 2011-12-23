@@ -109,9 +109,14 @@ window.onload = function() {
   });
   socket.on('sync', function(data) {
     var tmp;
-    tmp = '<span class="time">&nbsp;' + data.time + '</span>';
-    ($('#' + data.id)).text(data.content);
-    ($('#' + data.id)).append(tmp);
+    console.log($('#' + data.id));
+    if ($('#' + data.id)) {
+      tmp = '<span class="time">&nbsp;' + data.time + '</span>';
+      ($('#' + data.id)).text(data.content);
+      ($('#' + data.id)).append(tmp);
+    } else {
+      render(data.name, data.id, data.content, 'raw', data.time);
+    }
     return this;
   });
   socket.on('logs', function(logs) {

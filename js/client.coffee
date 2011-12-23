@@ -78,9 +78,12 @@ window.onload = ->
 		($ '#'+id_num).attr 'class', 'done'
 		@
 	socket.on 'sync', (data) ->
-		tmp = '<span class="time">&nbsp;' + data.time + '</span>'
-		($ '#'+data.id).text data.content
-		($ '#'+data.id).append tmp
+		console.log ($ '#'+data.id)
+		if ($ '#'+data.id)
+			tmp = '<span class="time">&nbsp;' + data.time + '</span>'
+			($ '#'+data.id).text data.content
+			($ '#'+data.id).append tmp
+		else render data.name, data.id, data.content, 'raw', data.time
 		@
 	socket.on 'logs', (logs) ->
 		for item in (logs.slice -5)

@@ -125,15 +125,20 @@ io.sockets.on('connection', function(socket) {
     return this;
   });
   socket.on('sync', function(data) {
-    data['time'] = timestamp();
-    socket.broadcast.emit('sync', data);
-    socket.emit('sync', data);
+    socket.get('nickname', function(err, name) {
+      if (err) return this;
+      data['time'] = timestamp();
+      data['name'] = name;
+      socket.broadcast.emit('sync', data);
+      socket.emit('sync', data);
+      return this;
+    });
     return this;
   });
   socket.on('who', function() {
     var msg;
-    if (names.length < 3) msg = names + '...' + names.length;
-    if (names.length >= 3) msg = (names.slice(0, 3)) + '...' + names.length;
+    if (names.length < 8) msg = names + '...' + names.length;
+    if (names.length >= 8) msg = (names.slice(0, 8)) + '...' + names.length;
     socket.emit('who', msg, timestamp());
     return this;
   });
