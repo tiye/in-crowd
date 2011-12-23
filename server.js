@@ -1,4 +1,4 @@
-var app, fs, handler, io, last_name, logs, name_log, names, thread, timestamp, url;
+var app, fs, handler, io, logs, name_log, names, thread, timestamp, url;
 
 fs = require('fs');
 
@@ -24,8 +24,6 @@ app = (require('http')).createServer(handler);
 app.listen(8000);
 
 thread = 0;
-
-last_name = '';
 
 names = [];
 
@@ -65,7 +63,6 @@ io.sockets.on('connection', function(socket) {
         return this;
       });
       thread += 1;
-      last_name = name;
       names.push(name);
       data = {
         'name': name,
@@ -84,7 +81,6 @@ io.sockets.on('connection', function(socket) {
       var data;
       thread += 1;
       names.splice(names.indexOf(name), 1);
-      last_name = name;
       data = {
         'name': name,
         'id': 'id' + thread,
@@ -99,11 +95,6 @@ io.sockets.on('connection', function(socket) {
     return socket.get('nickname', function(err, name) {
       var data;
       if (name) {
-        if (name === last_name) {
-          name = '';
-        } else {
-          last_name = name;
-        }
         data = {
           'name': name,
           'id': 'id' + thread,
@@ -127,8 +118,9 @@ io.sockets.on('connection', function(socket) {
   socket.on('sync', function(data) {
     socket.get('nickname', function(err, name) {
       if (err) return this;
-      data['time'] = timestamp();
-      data['name'] = name;
+      data.time = timestamp();
+      data.name = name;
+      data.content = data.content.slice(0, 60);
       socket.broadcast.emit('sync', data);
       socket.emit('sync', data);
       return this;
