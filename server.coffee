@@ -14,7 +14,6 @@ handler = (req, res) ->
 app = (require 'http').createServer handler
 app.listen 8000
 thread = 0
-last_name =''
 names = []
 name_log = (name) ->
 	if name.length > 10 then return false
@@ -37,7 +36,6 @@ io.sockets.on 'connection', (socket) ->
 				socket.emit 'logs', logs
 				@
 			thread += 1
-			last_name = name
 			names.push name
 			data =
 				'name': name
@@ -52,7 +50,6 @@ io.sockets.on 'connection', (socket) ->
 		socket.get 'nickname', (err, name) ->
 			thread += 1
 			names.splice (names.indexOf name), 1
-			last_name = name
 			data =
 				'name': name
 				'id': 'id'+thread
@@ -63,10 +60,6 @@ io.sockets.on 'connection', (socket) ->
 		thread += 1
 		socket.get 'nickname', (err, name) ->
 			if name
-				if name is last_name
-					name = ''
-				else
-					last_name = name
 				data =
 					'name': name
 					'id': 'id'+thread
@@ -84,8 +77,9 @@ io.sockets.on 'connection', (socket) ->
 	socket.on 'sync', (data) ->
 		socket.get 'nickname', (err, name) ->
 			if err then return @
-			data['time'] = timestamp()
-			data['name'] = name
+			data.time = timestamp()
+			data.name = name
+			data.content = data.content.slice 0, 60
 			socket.broadcast.emit 'sync', data
 			socket.emit 'sync', data
 			@

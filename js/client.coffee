@@ -1,5 +1,8 @@
 
+last_name = ''
+id_num = ''
 render = (name, id, content, cls, time) ->
+	if name is last_name then name = '' else last_name = name
 	c = '<div><nav class="name">'
 	c+= name
 	c+= '&nbsp;</nav><nav class="'
@@ -17,15 +20,18 @@ try_scroll = () ->
 	if ($ '#box').scrollTop() + ($ '#box').height() + 200 > ($ '#box')[0].scrollHeight
 		($ '#box').scrollTop ($ '#box')[0].scrollHeight
 	@
-id_num = 'none'
-last_name = ''
+get_name = (strns) ->
+	a = ''
+	until a.length>0 and a.length<10
+		a = prompt strns
+	a
 window.onload = ->
 	($ '#text').hide()
 	socket = io.connect window.location.hostname
-	socket.emit 'set nickname', prompt 'Please input your name:'
+	socket.emit 'set nickname', get_name '输入一个长度合适的名字'
 	socket.emit 'who'
 	socket.on 'unready', () ->
-		socket.emit 'set nickname', prompt 'Name used, another one:'
+		socket.emit 'set nickname', get_name '被占了, 换个试试'
 		@
 	text_hide = true
 	document.onkeypress = (e) ->
@@ -39,14 +45,14 @@ window.onload = ->
 					switch ($ '#text').val()
 						when '/who' then socket.emit 'who'
 						when '/clear'
-							console.log 'do'
 							($ '#box').empty()
-				if ($ '#text').val().length > 2
+							last_name = ''
+				if ($ '#text').val().length > 1
 					content = ($ '#text').val()
 					($ '#text').slideUp(200).focus()
 					text_hide = true
 					socket.emit 'close', id_num, content
-					id_num = 'none'
+					id_num = ''
 				else ($ '#text').val('')
 		@
 	($ '#text').bind 'input', (e) ->
@@ -78,7 +84,6 @@ window.onload = ->
 		($ '#'+id_num).attr 'class', 'done'
 		@
 	socket.on 'sync', (data) ->
-		console.log ($ '#'+data.id)
 		if ($ '#'+data.id)
 			tmp = '<span class="time">&nbsp;' + data.time + '</span>'
 			($ '#'+data.id).text data.content
@@ -87,7 +92,6 @@ window.onload = ->
 		@
 	socket.on 'logs', (logs) ->
 		for item in (logs.slice -5)
-			if item[0] is last_name then item[0] = '&nbsp;' else last_name = item[0]
 			render item[0], 'raw', item[1], 'raw', item[2]
 		@
 	socket.on 'who', (msg, time) ->

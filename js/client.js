@@ -1,7 +1,16 @@
-var id_num, last_name, render, try_scroll;
+var get_name, id_num, last_name, render, try_scroll;
+
+last_name = '';
+
+id_num = '';
 
 render = function(name, id, content, cls, time) {
   var c;
+  if (name === last_name) {
+    name = '';
+  } else {
+    last_name = name;
+  }
   c = '<div><nav class="name">';
   c += name;
   c += '&nbsp;</nav><nav class="';
@@ -24,18 +33,23 @@ try_scroll = function() {
   return this;
 };
 
-id_num = 'none';
-
-last_name = '';
+get_name = function(strns) {
+  var a;
+  a = '';
+  while (!(a.length > 0 && a.length < 10)) {
+    a = prompt(strns);
+  }
+  return a;
+};
 
 window.onload = function() {
   var socket, text_hide;
   ($('#text')).hide();
   socket = io.connect(window.location.hostname);
-  socket.emit('set nickname', prompt('Please input your name:'));
+  socket.emit('set nickname', get_name('输入一个长度合适的名字'));
   socket.emit('who');
   socket.on('unready', function() {
-    socket.emit('set nickname', prompt('Name used, another one:'));
+    socket.emit('set nickname', get_name('被占了, 换个试试'));
     return this;
   });
   text_hide = true;
@@ -53,16 +67,16 @@ window.onload = function() {
               socket.emit('who');
               break;
             case '/clear':
-              console.log('do');
               ($('#box')).empty();
+              last_name = '';
           }
         }
-        if (($('#text')).val().length > 2) {
+        if (($('#text')).val().length > 1) {
           content = ($('#text')).val();
           ($('#text')).slideUp(200).focus();
           text_hide = true;
           socket.emit('close', id_num, content);
-          id_num = 'none';
+          id_num = '';
         } else {
           ($('#text')).val('');
         }
@@ -109,7 +123,6 @@ window.onload = function() {
   });
   socket.on('sync', function(data) {
     var tmp;
-    console.log($('#' + data.id));
     if ($('#' + data.id)) {
       tmp = '<span class="time">&nbsp;' + data.time + '</span>';
       ($('#' + data.id)).text(data.content);
@@ -124,11 +137,6 @@ window.onload = function() {
     _ref = logs.slice(-5);
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       item = _ref[_i];
-      if (item[0] === last_name) {
-        item[0] = '&nbsp;';
-      } else {
-        last_name = item[0];
-      }
       render(item[0], 'raw', item[1], 'raw', item[2]);
     }
     return this;
