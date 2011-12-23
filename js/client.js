@@ -1,7 +1,7 @@
 var id_num, last_name, render, try_scroll;
 
-render = function(name, id, content, cls) {
-  var c, t, tm;
+render = function(name, id, content, cls, time) {
+  var c;
   c = '<div><nav class="name">';
   c += name;
   c += '&nbsp;</nav><nav class="';
@@ -9,12 +9,12 @@ render = function(name, id, content, cls) {
   c += '" id="';
   c += id;
   c += '">';
-  c += content + '<span class="time">';
-  t = new Date();
-  tm = t.getDate() + '-' + t.getHours() + ':' + t.getMinutes() + ':' + t.getSeconds();
-  c += ' </span>' + tm;
+  c += content + '<span class="time">' + time;
+  c += ' </span>';
   c += '</nav></div>';
-  return c;
+  ($('#box')).append(c);
+  try_scroll();
+  return this;
 };
 
 try_scroll = function() {
@@ -75,26 +75,22 @@ window.onload = function() {
     return this;
   });
   socket.on('new_user', function(data) {
-    ($('#box')).append(render(data.name, data.id, '/joined/', 'sys'));
-    try_scroll();
+    render(data.name, data.id, '/joined/', 'sys', data.time);
     return this;
   });
   socket.on('user_left', function(data) {
-    ($('#box')).append(render(data.name, data.id, '/left/', 'sys'));
-    try_scroll();
+    render(data.name, data.id, '/left/', 'sys', data.time);
     return this;
   });
   socket.on('open_self', function(data) {
     id_num = data.id;
-    ($('#box')).append(render(data.name, data.id, '', 'raw'));
+    render(data.name, data.id, '', 'raw', data.time);
     ($('#text')).val('');
-    try_scroll();
     return this;
   });
   socket.on('open', function(data) {
-    console.log('on open');
-    ($('#box')).append(render(data.name, data.id, '', 'raw'));
-    try_scroll();
+    console.log('open', data.time);
+    render(data.name, data.id, '', 'raw', data.time);
     return this;
   });
   socket.on('close', function(id_num) {
@@ -102,15 +98,13 @@ window.onload = function() {
     return this;
   });
   socket.on('sync', function(data) {
-    var t, tm, tmp;
-    t = new Date();
-    tm = t.getDate() + '-' + t.getHours() + ':' + t.getMinutes() + ':' + t.getSeconds();
-    tmp = '<span class="time">&nbsp;' + tm + '</span>';
+    var tmp;
+    tmp = '<span class="time">&nbsp;' + data.time + '</span>';
     ($('#' + data.id)).text(data.content);
     ($('#' + data.id)).append(tmp);
     return this;
   });
-  socket.on('logss', function(logs) {
+  socket.on('logs', function(logs) {
     var item, _i, _len;
     for (_i = 0, _len = logs.length; _i < _len; _i++) {
       item = logs[_i];
@@ -119,8 +113,7 @@ window.onload = function() {
       } else {
         last_name = item[0];
       }
-      ($('#box')).append(render(item[0], 'raw', item[1], 'raw'));
-      try_scroll();
+      render(item[0], 'raw', item[1], 'raw', item[2]);
     }
     return this;
   });

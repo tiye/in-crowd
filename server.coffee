@@ -17,12 +17,16 @@ thread = 0
 last_name =''
 names = []
 name_log = (name) ->
+	if name.length > 10 then return false
 	for n in names
 		if n is name then return false
 	true
+timestamp = () ->
+	t = new Date()
+	tm = t.getDate()+'-'+t.getHours()+':'+t.getMinutes()+':'+t.getSeconds()
 io = (require 'socket.io').listen app
 logs = []
-# io.set 'log level', 1
+io.set 'log level', 1
 io.set "transports", ["xhr-polling"]
 io.set "polling duration", 10
 io.sockets.on 'connection', (socket) ->
@@ -30,7 +34,7 @@ io.sockets.on 'connection', (socket) ->
 		if (name_log name)
 			socket.set 'nickname', name, () ->
 				socket.emit 'ready'
-				socket.emit 'logss', logs
+				socket.emit 'logs', logs
 				@
 			thread += 1
 			last_name = name
@@ -38,6 +42,7 @@ io.sockets.on 'connection', (socket) ->
 			data =
 				'name': name
 				'id': 'id'+thread
+				'time': timestamp()
 			socket.broadcast.emit 'new_user', data
 			socket.emit 'new_user', data
 		else
@@ -51,8 +56,8 @@ io.sockets.on 'connection', (socket) ->
 			data =
 				'name': name
 				'id': 'id'+thread
+				'time': timestamp()
 			socket.broadcast.emit 'user_left', data
-			socket.emit 'user_left', data
 			@
 	socket.on 'open', () ->
 		thread += 1
@@ -65,6 +70,7 @@ io.sockets.on 'connection', (socket) ->
 				data =
 					'name': name
 					'id': 'id'+thread
+					'time': timestamp()
 				socket.broadcast.emit 'open', data
 				socket.emit 'open_self', data
 			@
@@ -72,10 +78,12 @@ io.sockets.on 'connection', (socket) ->
 		socket.broadcast.emit 'close', id_num
 		socket.emit 'close', id_num
 		socket.get 'nickname', (err, name) ->
-			logs.push [name, content]
+			logs.push [name, content, timestamp()]
+			console.log logs
 			@
 		@
 	socket.on 'sync', (data) ->
+		data['time'] = timestamp()
 		socket.broadcast.emit 'sync', data
 		socket.emit 'sync', data
 		@
