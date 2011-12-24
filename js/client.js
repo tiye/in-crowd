@@ -47,11 +47,9 @@ window.onload = function() {
   var arr, socket, text_hide;
   ($('#text')).hide();
   socket = io.connect(window.location.hostname);
-  arr = document.cookie.match(/zhongli_name=([0-9]|[a-z]|[A-Z]|%)+/);
-  console.log(arr);
-  console.log(document.cookie);
+  arr = document.cookie.match(/zhongli_name=([^;]*)(;|$)/);
   if (arr) {
-    socket.emit('set nickname', decodeURI(arr[0].slice(13)));
+    socket.emit('set nickname', decodeURI(arr[1]));
   } else {
     socket.emit('set nickname', get_name('输入一个长度合适的名字'));
   }

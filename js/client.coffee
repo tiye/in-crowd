@@ -29,10 +29,8 @@ get_name = (strns) ->
 window.onload = ->
 	($ '#text').hide()
 	socket = io.connect window.location.hostname
-	arr = document.cookie.match ///zhongli_name=([0-9]|[a-z]|[A-Z]|%)+///
-	console.log arr
-	console.log document.cookie
-	if arr then socket.emit 'set nickname', (decodeURI (arr[0].slice 13))
+	arr = document.cookie.match ///zhongli_name=([^;]*)(;|$)///
+	if arr then socket.emit 'set nickname', (decodeURI arr[1])
 	else socket.emit 'set nickname', get_name '输入一个长度合适的名字'
 	socket.emit 'who'
 	socket.on 'unready', () ->
