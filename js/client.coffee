@@ -25,7 +25,7 @@ get_name = (strns) ->
 	until a.length>0 and a.length<10
 		a = prompt strns
 	document.cookie = 'zhongli_name='+(encodeURI a)
-	a
+	return a
 window.onload = ->
 	($ '#text').hide()
 	socket = io.connect window.location.hostname
@@ -34,7 +34,7 @@ window.onload = ->
 	else socket.emit 'set nickname', get_name '输入一个长度合适的名字'
 	socket.emit 'who'
 	socket.on 'unready', () ->
-		socket.emit 'set nickname', get_name '被占了, 换个试试'
+		socket.emit 'set nickname', get_name '看来需要换个名字'
 		@
 	text_hide = true
 	document.onkeypress = (e) ->
@@ -45,11 +45,14 @@ window.onload = ->
 				socket.emit 'open', ''
 			else
 				if ($ '#text').val()[0] is '/'
-					switch ($ '#text').val()
+					cmd = ($ '#text').val()
+					switch cmd
 						when '/who' then socket.emit 'who'
 						when '/clear'
 							($ '#box').empty()
 							last_name = ''
+						when '/forget' then document.cookie = 'zhongli_name=tolongtoberemmembered!!!'
+						when '/history' then socket.emit 'history', ''
 				if ($ '#text').val().length > 1
 					content = ($ '#text').val()
 					($ '#text').slideUp(200).focus()
@@ -94,10 +97,14 @@ window.onload = ->
 		else render data.name, data.id, data.content, 'raw', data.time
 		@
 	socket.on 'logs', (logs) ->
-		for item in (logs.slice -5)
+		for item in logs
 			render item[0], 'raw', item[1], 'raw', item[2]
 		@
 	socket.on 'who', (msg, time) ->
 		render '/who', 'raw', msg, 'raw', time
+		@
+	socket.on 'history', (logs) ->
+		for item in logs
+			render item[0], 'raw', item[1], 'raw', item[2]
 		@
 	@

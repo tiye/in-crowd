@@ -33,7 +33,7 @@ io.sockets.on 'connection', (socket) ->
 		if (name_log name)
 			socket.set 'nickname', name, () ->
 				socket.emit 'ready'
-				socket.emit 'logs', logs
+				socket.emit 'logs', logs.slice -6
 				@
 			thread += 1
 			names.push name
@@ -85,8 +85,10 @@ io.sockets.on 'connection', (socket) ->
 			@
 		@
 	socket.on 'who', () ->
-		msg = names+'...'+names.length if names.length < 8
-		msg = (names.slice 0, 8)+'...'+names.length if names.length >= 8
+		msg = names+'...总数'+names.length if names.length < 8
+		msg = (names.slice 0, 8)+'...总数'+names.length if names.length >= 8
 		socket.emit 'who', msg, timestamp()
 		@
+	socket.on 'history', () ->
+		socket.emit 'history', logs
 	@

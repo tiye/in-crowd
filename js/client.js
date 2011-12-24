@@ -55,12 +55,12 @@ window.onload = function() {
   }
   socket.emit('who');
   socket.on('unready', function() {
-    socket.emit('set nickname', get_name('被占了, 换个试试'));
+    socket.emit('set nickname', get_name('看来需要换个名字'));
     return this;
   });
   text_hide = true;
   document.onkeypress = function(e) {
-    var content;
+    var cmd, content;
     if (e.keyCode === 13) {
       if (text_hide) {
         ($('#text')).slideDown(200).focus().val('');
@@ -68,13 +68,20 @@ window.onload = function() {
         socket.emit('open', '');
       } else {
         if (($('#text')).val()[0] === '/') {
-          switch (($('#text')).val()) {
+          cmd = ($('#text')).val();
+          switch (cmd) {
             case '/who':
               socket.emit('who');
               break;
             case '/clear':
               ($('#box')).empty();
               last_name = '';
+              break;
+            case '/forget':
+              document.cookie = 'zhongli_name=tolongtoberemmembered!!!';
+              break;
+            case '/history':
+              socket.emit('history', '');
           }
         }
         if (($('#text')).val().length > 1) {
@@ -139,16 +146,23 @@ window.onload = function() {
     return this;
   });
   socket.on('logs', function(logs) {
-    var item, _i, _len, _ref;
-    _ref = logs.slice(-5);
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      item = _ref[_i];
+    var item, _i, _len;
+    for (_i = 0, _len = logs.length; _i < _len; _i++) {
+      item = logs[_i];
       render(item[0], 'raw', item[1], 'raw', item[2]);
     }
     return this;
   });
   socket.on('who', function(msg, time) {
     render('/who', 'raw', msg, 'raw', time);
+    return this;
+  });
+  socket.on('history', function(logs) {
+    var item, _i, _len;
+    for (_i = 0, _len = logs.length; _i < _len; _i++) {
+      item = logs[_i];
+      render(item[0], 'raw', item[1], 'raw', item[2]);
+    }
     return this;
   });
   return this;
