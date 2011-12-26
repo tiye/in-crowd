@@ -9,7 +9,6 @@ handler = function(req, res) {
   path = (url.parse(req.url)).pathname;
   if (path === '/') path = '/public/index.html';
   return fs.readFile(__dirname + path, function(err, data) {
-    console.log(__dirname + path);
     if (err) {
       res.writeHead(500);
       return res.end('page not found');
@@ -55,88 +54,91 @@ io.set("transports", ["xhr-polling"]);
 io.set("polling duration", 10);
 
 io.sockets.on('connection', function(socket) {
-  socket.on('set nickname', function(name) {
+  var name, room;
+  room = '0';
+  name = 'undefind_name';
+  socket.on('set nickname', function(set_name) {
     var data;
-    if (name_log(name)) {
+    if (name_log(set_name)) {
+      name = set_name;
+      names.push(name);
       socket.set('nickname', name, function() {
-        socket.emit('ready');
-        socket.emit('logs', logs.slice(-6));
-        return this;
+        (io.sockets["in"](room)).emit('ready');
+        return (io.sockets["in"](room)).emit('logs', logs.slice(-6));
       });
       thread += 1;
-      names.push(name);
       data = {
         'name': name,
         'id': 'id' + thread,
         'time': timestamp()
       };
-      socket.broadcast.emit('new_user', data);
-      socket.emit('new_user', data);
+      (io.sockets["in"](room)).emit('new_user', data);
+      return socket.join(room);
     } else {
-      socket.emit('unready');
+      return (io.sockets["in"](room)).emit('unready');
     }
-    return this;
   });
   socket.on('disconnect', function() {
-    return socket.get('nickname', function(err, name) {
-      var data;
-      thread += 1;
-      names.splice(names.indexOf(name), 1);
+    var data;
+    thread += 1;
+    names.splice(names.indexOf(name), 1);
+    data = {
+      'name': name,
+      'id': 'id' + thread,
+      'time': timestamp()
+    };
+    return socket.broadcast.emit('user_left', data);
+  });
+  socket.on('open', function() {
+    var data;
+    thread += 1;
+    if (name) {
       data = {
         'name': name,
         'id': 'id' + thread,
         'time': timestamp()
       };
-      socket.broadcast.emit('user_left', data);
-      return this;
-    });
-  });
-  socket.on('open', function() {
-    thread += 1;
-    return socket.get('nickname', function(err, name) {
-      var data;
-      if (name) {
-        data = {
-          'name': name,
-          'id': 'id' + thread,
-          'time': timestamp()
-        };
-        socket.broadcast.emit('open', data);
-        socket.emit('open_self', data);
-      }
-      return this;
-    });
+      (io.sockets["in"](room)).emit('open', data);
+      return socket.emit('change_id', data.id);
+    }
   });
   socket.on('close', function(id_num, content) {
-    socket.broadcast.emit('close', id_num);
-    socket.emit('close', id_num);
-    socket.get('nickname', function(err, name) {
-      logs.push([name, content, timestamp()]);
-      return this;
-    });
-    return this;
+    (io.sockets["in"](room)).emit('close', id_num);
+    return logs.push([name, content, timestamp()]);
   });
   socket.on('sync', function(data) {
-    socket.get('nickname', function(err, name) {
-      if (err) return this;
-      data.time = timestamp();
-      data.name = name;
-      data.content = data.content.slice(0, 60);
-      socket.broadcast.emit('sync', data);
-      socket.emit('sync', data);
-      return this;
-    });
-    return this;
+    data.time = timestamp();
+    data.name = name;
+    data.content = data.content.slice(0, 60);
+    return (io.sockets["in"](room)).emit('sync', data);
   });
   socket.on('who', function() {
     var msg;
-    if (names.length < 8) msg = names + '...总数' + names.length;
-    if (names.length >= 8) msg = (names.slice(0, 8)) + '...总数' + names.length;
-    socket.emit('who', msg, timestamp());
-    return this;
+    if (names.length < 8) msg = '::' + names + '...总数' + names.length + ' @';
+    if (names.length >= 8) {
+      msg = '::' + (names.slice(0, 8)) + '...总数' + names.length + ' @';
+    }
+    return (io.sockets["in"](room)).emit('who', msg, timestamp());
   });
   socket.on('history', function() {
-    return socket.emit('history', logs);
+    return (io.sockets["in"](room)).emit('history', logs);
   });
-  return this;
+  return socket.on('join', function(matching) {
+    var data;
+    if (matching === room) return this;
+    thread += 1;
+    data = {
+      'name': name,
+      'id': 'id' + thread,
+      'time': timestamp(),
+      'room': room
+    };
+    (io.sockets["in"](room)).emit('user_left', data);
+    socket.leave(room);
+    room = matching;
+    thread += 1;
+    socket.join(room);
+    data.room = room;
+    return (io.sockets["in"](room)).emit('new_user', data);
+  });
 });
