@@ -7,8 +7,9 @@ url = require('url');
 handler = function(req, res) {
   var path;
   path = (url.parse(req.url)).pathname;
-  if (path === '/') path = '/index.html';
+  if (path === '/') path = '/public/index.html';
   return fs.readFile(__dirname + path, function(err, data) {
+    console.log(__dirname + path);
     if (err) {
       res.writeHead(500);
       return res.end('page not found');
@@ -59,7 +60,7 @@ io.sockets.on('connection', function(socket) {
     if (name_log(name)) {
       socket.set('nickname', name, function() {
         socket.emit('ready');
-        socket.emit('logs', logs);
+        socket.emit('logs', logs.slice(-6));
         return this;
       });
       thread += 1;
@@ -129,10 +130,13 @@ io.sockets.on('connection', function(socket) {
   });
   socket.on('who', function() {
     var msg;
-    if (names.length < 8) msg = names + '...' + names.length;
-    if (names.length >= 8) msg = (names.slice(0, 8)) + '...' + names.length;
+    if (names.length < 8) msg = names + '...总数' + names.length;
+    if (names.length >= 8) msg = (names.slice(0, 8)) + '...总数' + names.length;
     socket.emit('who', msg, timestamp());
     return this;
+  });
+  socket.on('history', function() {
+    return socket.emit('history', logs);
   });
   return this;
 });

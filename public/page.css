@@ -1,0 +1,11 @@
+body{font-family:'wenquanyi micro hei','Ubuntu';font-size:14px;color:#2e0505;background:#e2f4fd}
+.name{float:left;width:100px;overflow:hidden;color:#ad5cd6}
+div{padding-top:6px;height:26px}
+div:nth-child(2n){background:#d3effd}
+div:nth-child(2n+1){background:#e7f6fe}
+.raw{color:#bf6a40;overflow:hidden}
+.done{overflow:hidden}
+#box{height:500px;overflow-x:hidden;overflow-y:auto;border:1px solid #d98c8c}
+#text{width:1000px;font-family:'wenquanyi micro hei','Ubuntu';font-size:15px;height:26px;border-width:0;margin-left:100px;border:1px solid #d98c8c}
+.time{color:#f79c6e;font-size:12px}
+.sys{color:#e08585}
