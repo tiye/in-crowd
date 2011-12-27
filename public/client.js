@@ -48,7 +48,7 @@ window.onload = function() {
   arr = document.cookie.match(/zhongli_name=([^;]+)(;|$)/);
   room_arr = document.cookie.match(/zhongli_room=([^;]+)(;|$)/);
   if (room_arr) {
-    socket.emit('room0', room_arr[1]);
+    socket.emit('room0', decodeURI(room_arr[1]));
   } else {
     socket.emit('room0', prompt('which room?'));
   }
@@ -121,7 +121,7 @@ window.onload = function() {
   });
   socket.on('new_user', function(data) {
     render(data.name, data.id, '::进入了群组: ' + data.room + ' @', 'sys', data.time, data.room);
-    return document.cookie = 'zhongli_room=' + data.room;
+    return document.cookie = 'zhongli_room=' + (encodeURI(data.room));
   });
   socket.on('user_left', function(data) {
     return render(data.name, data.id, '::离开了群组: ' + data.room + ' @', 'sys', data.time, data.room);
