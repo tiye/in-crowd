@@ -91,14 +91,15 @@ window.onload = ->
 		else render data.name, data.id, data.content, 'raw', data.time
 	socket.on 'logs', (logs) ->
 		for item in logs
-			render item[0], 'raw', item[1], 'raw', item[2], item[3]
+			render item[0], 'sys', item[1], 'raw', item[2], item[3]
 	socket.on 'who', (msg, time) ->
-		render '/who', 'raw', msg, 'sys', time, ''
+		for i in msg
+			render '/who', 'sys', i, 'sys', time, ''
 	socket.on 'history', (logs) ->
 		for item in logs
-			render item[0], 'raw', item[1], 'sys', item[2], item[3]
+			render item[0], 'sys', item[1], 'sys', item[2], item[3]
 	socket.on 'where', (room_name, time) ->
-		render '/where', 'raw', '::'+room_name+'@', 'sys', time, ''
+		render '/where', 'sys', '::正在'+room_name+'群@', 'sys', time, ''
 	socket.on 'groups', (data, time) ->
 		for item in data.name
-			render '/groups', 'sys', '::'+item+'::'+data[item]+'@', 'sys', time, ''
+			render '/groups', 'sys', '::群名'+item+'::人数'+data[item]+'@', 'sys', time, ''

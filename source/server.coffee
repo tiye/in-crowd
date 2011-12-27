@@ -88,9 +88,7 @@ io.sockets.on 'connection', (socket) ->
 		data.content = data.content.slice 0, 60
 		(io.sockets.in room).emit 'sync', data
 	socket.on 'who', () ->
-		msg = '::'+names+'...总数'+names.length+' @' if names.length < 8
-		msg = '::'+(names.slice 0, 8)+'...总数'+names.length+' @' if names.length >= 8
-		socket.emit 'who', msg, timestamp()
+		socket.emit 'who', names, timestamp()
 	socket.on 'history', () ->
 		socket.emit 'history', logs
 	socket.on 'room0', (room0) ->

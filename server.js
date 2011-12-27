@@ -134,12 +134,7 @@ io.sockets.on('connection', function(socket) {
     return (io.sockets["in"](room)).emit('sync', data);
   });
   socket.on('who', function() {
-    var msg;
-    if (names.length < 8) msg = '::' + names + '...总数' + names.length + ' @';
-    if (names.length >= 8) {
-      msg = '::' + (names.slice(0, 8)) + '...总数' + names.length + ' @';
-    }
-    return socket.emit('who', msg, timestamp());
+    return socket.emit('who', names, timestamp());
   });
   socket.on('history', function() {
     return socket.emit('history', logs);

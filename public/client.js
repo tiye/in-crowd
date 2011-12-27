@@ -150,24 +150,30 @@ window.onload = function() {
     _results = [];
     for (_i = 0, _len = logs.length; _i < _len; _i++) {
       item = logs[_i];
-      _results.push(render(item[0], 'raw', item[1], 'raw', item[2], item[3]));
+      _results.push(render(item[0], 'sys', item[1], 'raw', item[2], item[3]));
     }
     return _results;
   });
   socket.on('who', function(msg, time) {
-    return render('/who', 'raw', msg, 'sys', time, '');
+    var i, _i, _len, _results;
+    _results = [];
+    for (_i = 0, _len = msg.length; _i < _len; _i++) {
+      i = msg[_i];
+      _results.push(render('/who', 'sys', i, 'sys', time, ''));
+    }
+    return _results;
   });
   socket.on('history', function(logs) {
     var item, _i, _len, _results;
     _results = [];
     for (_i = 0, _len = logs.length; _i < _len; _i++) {
       item = logs[_i];
-      _results.push(render(item[0], 'raw', item[1], 'sys', item[2], item[3]));
+      _results.push(render(item[0], 'sys', item[1], 'sys', item[2], item[3]));
     }
     return _results;
   });
   socket.on('where', function(room_name, time) {
-    return render('/where', 'raw', '::' + room_name + '@', 'sys', time, '');
+    return render('/where', 'sys', '::正在' + room_name + '群@', 'sys', time, '');
   });
   return socket.on('groups', function(data, time) {
     var item, _i, _len, _ref, _results;
@@ -175,7 +181,7 @@ window.onload = function() {
     _results = [];
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       item = _ref[_i];
-      _results.push(render('/groups', 'sys', '::' + item + '::' + data[item] + '@', 'sys', time, ''));
+      _results.push(render('/groups', 'sys', '::群名' + item + '::人数' + data[item] + '@', 'sys', time, ''));
     }
     return _results;
   });
