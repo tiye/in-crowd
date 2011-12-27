@@ -4,7 +4,7 @@ last_name = '';
 
 id_num = '';
 
-render = function(name, id, content, cls, time) {
+render = function(name, id, content, cls, time, room) {
   var c;
   if (name === last_name) {
     name = '';
@@ -18,7 +18,7 @@ render = function(name, id, content, cls, time) {
   c += '" id="';
   c += id;
   c += '">';
-  c += content + '<span class="time">' + time;
+  c += content + '<span class="time">' + time + '@' + room;
   c += ' </span>';
   c += '</nav></div>';
   ($('#box')).append(c);
@@ -78,10 +78,16 @@ window.onload = function() {
               document.cookie = 'zhongli_name=tolongtoberemmembered!!!';
               break;
             case '/history':
-              socket.emit('history', '');
+              socket.emit('history');
+              break;
+            case '/where':
+              socket.emit('where');
+              break;
+            case '/groups':
+              socket.emit('groups');
           }
         }
-        if (matching = ($('#text')).val().match(/\/join (\w)+/)) {
+        if (matching = ($('#text')).val().match(/\/join (\S+)/)) {
           socket.emit('join', matching[1]);
         }
         if (($('#text')).val().length > 0) {
@@ -108,13 +114,13 @@ window.onload = function() {
     return alert('coped this string of code, do not paste');
   });
   socket.on('new_user', function(data) {
-    return render(data.name, data.id, '::进入了群组: ' + data.room + ' @', 'sys', data.time);
+    return render(data.name, data.id, '::进入了群组: ' + data.room + ' @', 'sys', data.time, data.room);
   });
   socket.on('user_left', function(data) {
-    return render(data.name, data.id, '::离开了群组: ' + data.room + ' @', 'sys', data.time);
+    return render(data.name, data.id, '::离开了群组: ' + data.room + ' @', 'sys', data.time, data.room);
   });
   socket.on('open', function(data) {
-    return render(data.name, data.id, '', 'raw', data.time);
+    return render(data.name, data.id, '', 'raw', data.time, data.room);
   });
   socket.on('change_id', function(new_id) {
     return id_num = new_id;
@@ -125,7 +131,7 @@ window.onload = function() {
   socket.on('sync', function(data) {
     var tmp;
     if ($('#' + data.id)) {
-      tmp = '<span class="time">&nbsp;' + data.time + '</span>';
+      tmp = '<span class="time">&nbsp;' + data.time + '@' + data.room + '</span>';
       ($('#' + data.id)).text(data.content);
       return ($('#' + data.id)).append(tmp);
     } else {
@@ -137,19 +143,32 @@ window.onload = function() {
     _results = [];
     for (_i = 0, _len = logs.length; _i < _len; _i++) {
       item = logs[_i];
-      _results.push(render(item[0], 'raw', item[1], 'raw', item[2]));
+      _results.push(render(item[0], 'raw', item[1], 'raw', item[2], item[3]));
     }
     return _results;
   });
   socket.on('who', function(msg, time) {
-    return render('/who', 'raw', msg, 'sys', time);
+    return render('/who', 'raw', msg, 'sys', time, '');
   });
-  return socket.on('history', function(logs) {
+  socket.on('history', function(logs) {
     var item, _i, _len, _results;
     _results = [];
     for (_i = 0, _len = logs.length; _i < _len; _i++) {
       item = logs[_i];
-      _results.push(render(item[0], 'raw', item[1], 'sys', item[2]));
+      _results.push(render(item[0], 'raw', item[1], 'sys', item[2], item[3]));
+    }
+    return _results;
+  });
+  socket.on('where', function(room_name, time) {
+    return render('/where', 'raw', '::' + room_name + '@', 'sys', time, '');
+  });
+  return socket.on('groups', function(data, time) {
+    var item, _i, _len, _ref, _results;
+    _ref = data.name;
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      item = _ref[_i];
+      _results.push(render('/groups', 'sys', '::' + item + '::' + data[item] + '@', 'sys', time, ''));
     }
     return _results;
   });

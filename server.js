@@ -54,12 +54,30 @@ io.set("transports", ["xhr-polling"]);
 io.set("polling duration", 10);
 
 io.sockets.on('connection', function(socket) {
-  var name, room;
+  var name, room, room_log, rooms;
+  rooms = {
+    'name': ['0'],
+    '0': 0
+  };
   room = '0';
+  room_log = function(action, room_name) {
+    if (action === 'join') {
+      if ((rooms.name.indexOf(room_name)) >= 0) {
+        return rooms[room_name] += 1;
+      } else {
+        rooms[room_name] = 1;
+        return rooms.name.push(room_name);
+      }
+    } else if (action === 'leave') {
+      return rooms[room_name] -= 1;
+    }
+  };
   name = 'undefind_name';
   socket.on('set nickname', function(set_name) {
     var data;
     if (name_log(set_name)) {
+      socket.join(room);
+      room_log('join', room);
       name = set_name;
       names.push(name);
       socket.set('nickname', name, function() {
@@ -70,10 +88,10 @@ io.sockets.on('connection', function(socket) {
       data = {
         'name': name,
         'id': 'id' + thread,
-        'time': timestamp()
+        'time': timestamp(),
+        'room': room
       };
-      (io.sockets["in"](room)).emit('new_user', data);
-      return socket.join(room);
+      return (io.sockets["in"](room)).emit('new_user', data);
     } else {
       return (io.sockets["in"](room)).emit('unready');
     }
@@ -85,7 +103,8 @@ io.sockets.on('connection', function(socket) {
     data = {
       'name': name,
       'id': 'id' + thread,
-      'time': timestamp()
+      'time': timestamp(),
+      'room': room
     };
     return socket.broadcast.emit('user_left', data);
   });
@@ -96,7 +115,8 @@ io.sockets.on('connection', function(socket) {
       data = {
         'name': name,
         'id': 'id' + thread,
-        'time': timestamp()
+        'time': timestamp(),
+        'room': room
       };
       (io.sockets["in"](room)).emit('open', data);
       return socket.emit('change_id', data.id);
@@ -104,11 +124,12 @@ io.sockets.on('connection', function(socket) {
   });
   socket.on('close', function(id_num, content) {
     (io.sockets["in"](room)).emit('close', id_num);
-    return logs.push([name, content, timestamp()]);
+    return logs.push([name, content, timestamp(), room]);
   });
   socket.on('sync', function(data) {
     data.time = timestamp();
     data.name = name;
+    data.room = room;
     data.content = data.content.slice(0, 60);
     return (io.sockets["in"](room)).emit('sync', data);
   });
@@ -118,12 +139,12 @@ io.sockets.on('connection', function(socket) {
     if (names.length >= 8) {
       msg = '::' + (names.slice(0, 8)) + '...总数' + names.length + ' @';
     }
-    return (io.sockets["in"](room)).emit('who', msg, timestamp());
+    return socket.emit('who', msg, timestamp());
   });
   socket.on('history', function() {
-    return (io.sockets["in"](room)).emit('history', logs);
+    return socket.emit('history', logs);
   });
-  return socket.on('join', function(matching) {
+  socket.on('join', function(matching) {
     var data;
     if (matching === room) return this;
     thread += 1;
@@ -135,10 +156,18 @@ io.sockets.on('connection', function(socket) {
     };
     (io.sockets["in"](room)).emit('user_left', data);
     socket.leave(room);
+    room_log('leave', room);
     room = matching;
     thread += 1;
     socket.join(room);
     data.room = room;
-    return (io.sockets["in"](room)).emit('new_user', data);
+    (io.sockets["in"](room)).emit('new_user', data);
+    return room_log('join', room);
+  });
+  socket.on('where', function() {
+    return socket.emit('where', room, timestamp());
+  });
+  return socket.on('groups', function() {
+    return socket.emit('groups', rooms, timestamp());
   });
 });
