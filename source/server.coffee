@@ -67,7 +67,7 @@ io.sockets.on 'connection', (socket) ->
 			'id': 'id'+thread
 			'time': timestamp()
 			'room': room
-		socket.broadcast.emit 'user_left', data
+		(io.sockets.in room).emit 'user_left', data
 	socket.on 'open', () ->
 		thread += 1
 		if name
@@ -93,6 +93,9 @@ io.sockets.on 'connection', (socket) ->
 		socket.emit 'who', msg, timestamp()
 	socket.on 'history', () ->
 		socket.emit 'history', logs
+	socket.on 'room0', (room0) ->
+		room = room0
+		room_log room
 	socket.on 'join', (matching) ->
 		if matching is room then return @
 		thread += 1

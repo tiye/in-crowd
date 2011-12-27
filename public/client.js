@@ -42,10 +42,16 @@ get_name = function(strns) {
 };
 
 window.onload = function() {
-  var arr, socket, text_hide;
+  var arr, room_arr, socket, text_hide;
   ($('#text')).hide();
   socket = io.connect(window.location.hostname);
-  arr = document.cookie.match(/zhongli_name=([^;]*)(;|$)/);
+  arr = document.cookie.match(/zhongli_name=([^;]+)(;|$)/);
+  room_arr = document.cookie.match(/zhongli_room=([^;]+)(;|$)/);
+  if (room_arr) {
+    socket.emit('room0', room_arr[1]);
+  } else {
+    socket.emit('room0', prompt('which room?'));
+  }
   if (arr) {
     socket.emit('set nickname', decodeURI(arr[1]));
   } else {
@@ -114,7 +120,8 @@ window.onload = function() {
     return alert('coped this string of code, do not paste');
   });
   socket.on('new_user', function(data) {
-    return render(data.name, data.id, '::进入了群组: ' + data.room + ' @', 'sys', data.time, data.room);
+    render(data.name, data.id, '::进入了群组: ' + data.room + ' @', 'sys', data.time, data.room);
+    return document.cookie = 'zhongli_room=' + data.room;
   });
   socket.on('user_left', function(data) {
     return render(data.name, data.id, '::离开了群组: ' + data.room + ' @', 'sys', data.time, data.room);

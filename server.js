@@ -106,7 +106,7 @@ io.sockets.on('connection', function(socket) {
       'time': timestamp(),
       'room': room
     };
-    return socket.broadcast.emit('user_left', data);
+    return (io.sockets["in"](room)).emit('user_left', data);
   });
   socket.on('open', function() {
     var data;
@@ -143,6 +143,10 @@ io.sockets.on('connection', function(socket) {
   });
   socket.on('history', function() {
     return socket.emit('history', logs);
+  });
+  socket.on('room0', function(room0) {
+    room = room0;
+    return room_log(room);
   });
   socket.on('join', function(matching) {
     var data;

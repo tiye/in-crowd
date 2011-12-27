@@ -27,7 +27,10 @@ get_name = (strns) ->
 window.onload = ->
 	($ '#text').hide()
 	socket = io.connect window.location.hostname
-	arr = document.cookie.match ///zhongli_name=([^;]*)(;|$)///
+	arr = document.cookie.match ///zhongli_name=([^;]+)(;|$)///
+	room_arr = document.cookie.match ///zhongli_room=([^;]+)(;|$)///
+	if room_arr then socket.emit 'room0', room_arr[1]
+	else socket.emit 'room0', prompt 'which room?'
 	if arr then socket.emit 'set nickname', (decodeURI arr[1])
 	else socket.emit 'set nickname', get_name '输入一个长度合适的名字'
 	socket.emit 'who'
@@ -71,6 +74,7 @@ window.onload = ->
 		alert 'coped this string of code, do not paste'
 	socket.on 'new_user', (data) ->
 		render data.name, data.id, '::进入了群组: '+data.room+' @', 'sys', data.time, data.room
+		document.cookie = 'zhongli_room='+data.room
 	socket.on 'user_left', (data) ->
 		render data.name, data.id, '::离开了群组: '+data.room+' @', 'sys', data.time, data.room
 	socket.on 'open', (data) ->
