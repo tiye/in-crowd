@@ -1,4 +1,4 @@
-var app, fs, handler, io, logs, name_log, names, thread, timestamp, url;
+var app, fs, handler, io, logs, name_log, names, room_log, room_names, rooms, thread, timestamp, url;
 
 fs = require('fs');
 
@@ -27,14 +27,32 @@ thread = 0;
 
 names = [];
 
+room_names = [];
+
+rooms = {};
+
 name_log = function(name) {
   var n, _i, _len;
   if (name.length > 10) return false;
+  if (name.length < 1) return false;
   for (_i = 0, _len = names.length; _i < _len; _i++) {
     n = names[_i];
     if (n === name) return false;
   }
   return true;
+};
+
+room_log = function(action, room_name) {
+  if (action === 'join') {
+    if ((room_names.indexOf(room_name)) >= 0) {
+      return rooms[room_name] += 1;
+    } else {
+      rooms[room_name] = 1;
+      return room_names.push(room_name);
+    }
+  } else if (action === 'leave') {
+    return rooms[room_name] -= 1;
+  }
 };
 
 timestamp = function() {
@@ -54,24 +72,8 @@ io.set("transports", ["xhr-polling"]);
 io.set("polling duration", 10);
 
 io.sockets.on('connection', function(socket) {
-  var name, room, room_log, rooms;
-  rooms = {
-    'name': ['0'],
-    '0': 0
-  };
-  room = '0';
-  room_log = function(action, room_name) {
-    if (action === 'join') {
-      if ((rooms.name.indexOf(room_name)) >= 0) {
-        return rooms[room_name] += 1;
-      } else {
-        rooms[room_name] = 1;
-        return rooms.name.push(room_name);
-      }
-    } else if (action === 'leave') {
-      return rooms[room_name] -= 1;
-    }
-  };
+  var name, room;
+  room = 'undefind_room';
   name = 'undefind_name';
   socket.on('set nickname', function(set_name) {
     var data;
@@ -93,7 +95,7 @@ io.sockets.on('connection', function(socket) {
       };
       return (io.sockets["in"](room)).emit('new_user', data);
     } else {
-      return (io.sockets["in"](room)).emit('unready');
+      return socket.emit('unready');
     }
   });
   socket.on('disconnect', function() {
@@ -106,7 +108,8 @@ io.sockets.on('connection', function(socket) {
       'time': timestamp(),
       'room': room
     };
-    return (io.sockets["in"](room)).emit('user_left', data);
+    (io.sockets["in"](room)).emit('user_left', data);
+    return room_log('leave', room);
   });
   socket.on('open', function() {
     var data;
@@ -140,8 +143,7 @@ io.sockets.on('connection', function(socket) {
     return socket.emit('history', logs);
   });
   socket.on('room0', function(room0) {
-    room = room0;
-    return room_log(room);
+    return room = room0;
   });
   socket.on('join', function(matching) {
     var data;
@@ -167,6 +169,6 @@ io.sockets.on('connection', function(socket) {
     return socket.emit('where', room, timestamp());
   });
   return socket.on('groups', function() {
-    return socket.emit('groups', rooms, timestamp());
+    return socket.emit('groups', room_names, rooms, timestamp());
   });
 });
