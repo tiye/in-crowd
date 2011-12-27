@@ -27,12 +27,16 @@ get_name = (strns) ->
 window.onload = ->
 	($ '#text').hide()
 	socket = io.connect window.location.hostname
-	arr = document.cookie.match ///zhongli_name=([^;]+)(;|$)///
-	room_arr = document.cookie.match ///zhongli_room=([^;]+)(;|$)///
-	if room_arr then socket.emit 'room0', (decodeURI room_arr[1])
-	else socket.emit 'room0', prompt 'which room?'
-	if arr then socket.emit 'set nickname', (decodeURI arr[1])
-	else socket.emit 'set nickname', get_name '输入一个长度合适的名字'
+	room_arr = document.cookie.match ///zhongli_room=([^;]*)(;|$)///
+	if room_arr
+		socket.emit 'room0', (decodeURI room_arr[1])
+	else
+		socket.emit 'room0', prompt 'which room?'
+	arr = document.cookie.match ///zhongli_name=([^;]*)(;|$)///
+	if arr
+		socket.emit 'set nickname', (decodeURI arr[1])
+	else
+		socket.emit 'set nickname', get_name '输入一个长度合适的名字'
 	socket.emit 'who'
 	socket.on 'unready', () ->
 		socket.emit 'set nickname', get_name '看来需要换个名字'
@@ -100,6 +104,6 @@ window.onload = ->
 			render item[0], 'sys', item[1], 'sys', item[2], item[3]
 	socket.on 'where', (room_name, time) ->
 		render '/where', 'sys', '::正在'+room_name+'群@', 'sys', time, ''
-	socket.on 'groups', (data, time) ->
-		for item in data.name
+	socket.on 'groups', (names, data, time) ->
+		for item in names
 			render '/groups', 'sys', '::群名'+item+'::人数'+data[item]+'@', 'sys', time, ''

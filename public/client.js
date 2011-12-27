@@ -45,13 +45,13 @@ window.onload = function() {
   var arr, room_arr, socket, text_hide;
   ($('#text')).hide();
   socket = io.connect(window.location.hostname);
-  arr = document.cookie.match(/zhongli_name=([^;]+)(;|$)/);
-  room_arr = document.cookie.match(/zhongli_room=([^;]+)(;|$)/);
+  room_arr = document.cookie.match(/zhongli_room=([^;]*)(;|$)/);
   if (room_arr) {
     socket.emit('room0', decodeURI(room_arr[1]));
   } else {
     socket.emit('room0', prompt('which room?'));
   }
+  arr = document.cookie.match(/zhongli_name=([^;]*)(;|$)/);
   if (arr) {
     socket.emit('set nickname', decodeURI(arr[1]));
   } else {
@@ -175,12 +175,11 @@ window.onload = function() {
   socket.on('where', function(room_name, time) {
     return render('/where', 'sys', '::正在' + room_name + '群@', 'sys', time, '');
   });
-  return socket.on('groups', function(data, time) {
-    var item, _i, _len, _ref, _results;
-    _ref = data.name;
+  return socket.on('groups', function(names, data, time) {
+    var item, _i, _len, _results;
     _results = [];
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      item = _ref[_i];
+    for (_i = 0, _len = names.length; _i < _len; _i++) {
+      item = names[_i];
       _results.push(render('/groups', 'sys', '::群名' + item + '::人数' + data[item] + '@', 'sys', time, ''));
     }
     return _results;

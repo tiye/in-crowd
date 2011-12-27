@@ -15,11 +15,23 @@ app = (require 'http').createServer handler
 app.listen 8000
 thread = 0
 names = []
+room_names = []
+rooms = {}
 name_log = (name) ->
 	if name.length > 10 then return false
+	if name.length < 1 then return false
 	for n in names
 		if n is name then return false
-	true
+	true	
+room_log = (action, room_name) ->
+	if action is 'join'
+		if (room_names.indexOf room_name) >= 0
+			rooms[room_name] += 1
+		else
+			rooms[room_name] = 1
+			room_names.push room_name
+	else if action is 'leave'
+		rooms[room_name] -= 1
 timestamp = () ->
 	t = new Date()
 	tm = t.getHours()+':'+t.getMinutes()+':'+t.getSeconds()
@@ -29,18 +41,7 @@ io.set 'log level', 1
 io.set "transports", ["xhr-polling"]
 io.set "polling duration", 10
 io.sockets.on 'connection', (socket) ->
-	rooms =
-		'name': ['0']
-		'0': 0
-	room = '0'
-	room_log = (action, room_name) ->
-		if action is 'join'
-			if (rooms.name.indexOf room_name) >= 0
-				rooms[room_name]+=1
-			else
-				rooms[room_name] = 1
-				rooms.name.push room_name
-		else if action is 'leave' then rooms[room_name]-=1
+	room = 'undefind_room'
 	name = 'undefind_name'
 	socket.on 'set nickname', (set_name) ->
 		if (name_log set_name)
@@ -58,7 +59,7 @@ io.sockets.on 'connection', (socket) ->
 				'time': timestamp()
 				'room': room
 			(io.sockets.in room).emit 'new_user', data
-		else (io.sockets.in room).emit 'unready'
+		else socket.emit 'unready'
 	socket.on 'disconnect', () ->
 		thread += 1
 		names.splice (names.indexOf name), 1
@@ -68,6 +69,7 @@ io.sockets.on 'connection', (socket) ->
 			'time': timestamp()
 			'room': room
 		(io.sockets.in room).emit 'user_left', data
+		room_log 'leave', room
 	socket.on 'open', () ->
 		thread += 1
 		if name
@@ -93,7 +95,7 @@ io.sockets.on 'connection', (socket) ->
 		socket.emit 'history', logs
 	socket.on 'room0', (room0) ->
 		room = room0
-		room_log room
+		# room_log 'join', room
 	socket.on 'join', (matching) ->
 		if matching is room then return @
 		thread += 1
@@ -114,4 +116,4 @@ io.sockets.on 'connection', (socket) ->
 	socket.on 'where', () ->
 		socket.emit 'where', room, timestamp()
 	socket.on 'groups', () ->
-		socket.emit 'groups', rooms, timestamp()
+		socket.emit 'groups', room_names, rooms, timestamp()
