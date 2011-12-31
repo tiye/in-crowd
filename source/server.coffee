@@ -95,7 +95,6 @@ io.sockets.on 'connection', (socket) ->
 		socket.emit 'history', logs
 	socket.on 'room0', (room0) ->
 		room = room0
-		# room_log 'join', room
 	socket.on 'join', (matching) ->
 		if matching is room then return @
 		thread += 1

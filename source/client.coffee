@@ -31,7 +31,7 @@ window.onload = ->
 	if room_arr
 		socket.emit 'room0', (decodeURI room_arr[1])
 	else
-		socket.emit 'room0', prompt 'which room?'
+		socket.emit 'room0', '0'
 	arr = document.cookie.match ///zhongli_name=([^;]*)(;|$)///
 	if arr
 		socket.emit 'set nickname', (decodeURI arr[1])
