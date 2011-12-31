@@ -16,6 +16,7 @@
 	可以下载代码运行, 或者访问 http://zhonglichat.cnodejs.net
 	输入昵称进入, 按下回车后可以找到输入框, 再按回车提交
 	注意输入字符个数限制, (<2) 无法提交
+	run.sh 脚本用来修改, 运行直接 $ node server.js
 想做不一定能做到的
 	mongodb 存储, NAE 支持该数据库, 尝试去学
 	频道, 当前只有一个, socket.io 有多个频道的用法
