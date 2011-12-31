@@ -98,10 +98,15 @@ window.onload = function() {
         }
         if (($('#text')).val().length > 0) {
           content = ($('#text')).val();
-          ($('#text')).slideUp(200).focus();
+          ($('#text')).slideUp(200).focus().val();
           text_hide = true;
           socket.emit('close', id_num, content);
           return id_num = '';
+        } else {
+          console.log('send to pass');
+          socket.emit('pass', id_num);
+          ($('#text')).slideUp(200).focus().val('');
+          return text_hide = true;
         }
       }
     }
@@ -175,7 +180,7 @@ window.onload = function() {
   socket.on('where', function(room_name, time) {
     return render('/where', 'sys', '::正在' + room_name + '群@', 'sys', time, '');
   });
-  return socket.on('groups', function(names, data, time) {
+  socket.on('groups', function(names, data, time) {
     var item, _i, _len, _results;
     _results = [];
     for (_i = 0, _len = names.length; _i < _len; _i++) {
@@ -183,5 +188,9 @@ window.onload = function() {
       _results.push(render('/groups', 'sys', '::群名' + item + '::人数' + data[item] + '@', 'sys', time, ''));
     }
     return _results;
+  });
+  return socket.on('pass', function(pass_id) {
+    ($('#' + pass_id)).parent().remove();
+    return console.log('received');
   });
 };

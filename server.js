@@ -168,7 +168,11 @@ io.sockets.on('connection', function(socket) {
   socket.on('where', function() {
     return socket.emit('where', room, timestamp());
   });
-  return socket.on('groups', function() {
+  socket.on('groups', function() {
     return socket.emit('groups', room_names, rooms, timestamp());
+  });
+  return socket.on('pass', function(id_num) {
+    console.log('passed', id_num);
+    return (io.sockets["in"](room)).emit('pass', id_num);
   });
 });

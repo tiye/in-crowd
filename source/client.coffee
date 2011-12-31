@@ -63,10 +63,14 @@ window.onload = ->
 					socket.emit 'join', matching[1]
 				if ($ '#text').val().length > 0
 					content = ($ '#text').val()
-					($ '#text').slideUp(200).focus()
+					($ '#text').slideUp(200).focus().val()
 					text_hide = true
 					socket.emit 'close', id_num, content
 					id_num = ''
+				else
+					socket.emit 'pass', id_num
+					($ '#text').slideUp(200).focus().val('')
+					text_hide = true
 	($ '#text').bind 'input', (e) ->
 		t = $ '#text'
 		if t.val()[0] is '\n' then t.val (t.val().slice 1)
@@ -107,3 +111,5 @@ window.onload = ->
 	socket.on 'groups', (names, data, time) ->
 		for item in names
 			render '/groups', 'sys', '::群名'+item+'::人数'+data[item]+'@', 'sys', time, ''
+	socket.on 'pass', (pass_id) ->
+		($ '#'+pass_id).parent().remove()

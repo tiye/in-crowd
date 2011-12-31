@@ -116,3 +116,5 @@ io.sockets.on 'connection', (socket) ->
 		socket.emit 'where', room, timestamp()
 	socket.on 'groups', () ->
 		socket.emit 'groups', room_names, rooms, timestamp()
+	socket.on 'pass', (id_num) ->
+		(io.sockets.in room).emit 'pass', id_num
