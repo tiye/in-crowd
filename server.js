@@ -83,8 +83,8 @@ io.sockets.on('connection', function(socket) {
       name = set_name;
       names.push(name);
       socket.set('nickname', name, function() {
-        (io.sockets["in"](room)).emit('ready');
-        return (io.sockets["in"](room)).emit('logs', logs.slice(-6));
+        socket.emit('ready');
+        return socket.emit('logs', logs.slice(-6));
       });
       thread += 1;
       data = {

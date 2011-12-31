@@ -50,8 +50,8 @@ io.sockets.on 'connection', (socket) ->
 			name = set_name
 			names.push name
 			socket.set 'nickname', name, () ->
-				(io.sockets.in room).emit 'ready'
-				(io.sockets.in room).emit 'logs', logs.slice -6
+				socket.emit 'ready'
+				socket.emit 'logs', logs.slice -6
 			thread += 1
 			data =
 				'name': name
