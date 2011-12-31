@@ -9,6 +9,7 @@
 		尝试改名命令, 逻辑太复杂, 放弃, 换用 /forget 破坏 cookie
 	添加 /history /who /groups /where 等查询命令
 	群组基本实现, 并且可以自动登陆
+	添加功能, 发布为空的时候自动删除
 技术应用
 	Node.js 版本 0.4.7 和 0.6.1 用过没问题
 	socket.io , Fireifox 对 websocket 支持不好, 我默认关的
