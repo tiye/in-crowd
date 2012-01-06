@@ -1,4 +1,4 @@
-var main, render_login_page, render_nickname_page, render_post, socket, text_box_off, try_scroll;
+var main, render_groups, render_login_page, render_nickname_page, render_post, socket, text_box_off, try_scroll;
 
 text_box_off = true;
 
@@ -12,17 +12,22 @@ main = function() {
   document.onkeypress = function(e) {
     if (e.keyCode === 13) {
       if (text_box_off) {
-        ($('#post')).slideDown(100).focus().val('');
+        ($('#post')).show().focus();
         text_box_off = false;
-        return socket.emit('open post');
+        socket.emit('open post');
+        return setTimeout((function() {
+          return ($('#post')).val('');
+        }), 2);
       } else {
         socket.emit('close post', my_thread, ($('#post')).val());
         text_box_off = true;
-        return ($('#post')).slideUp(200).focus().val();
+        return ($('#post')).hide().focus();
       }
     }
   };
   ($('#post')).bind('input', function(e) {
+    var post_content;
+    post_content = ($('#post')).val();
     return socket.emit('sync', my_thread, ($('#post')).val());
   });
   socket.on('open post', function(thread_id, timestamp, username) {
@@ -38,13 +43,20 @@ main = function() {
       return ($('#post_id' + my_thread)).children().first().attr('class', 'posted_content');
     }
   });
-  return socket.on('sync', function(sync_id, sync_data, timestamp, username) {
+  socket.on('sync', function(sync_id, sync_data, timestamp, username) {
     var elem;
     if ($('#post_id' + sync_id)) {
       elem = ($('#post_id' + sync_id)).children().first();
       elem.text(sync_data);
       return elem.append("<span class='time'> @ " + timestamp + "</span>");
     }
+  });
+  socket.on('list groups', function(groups_data) {
+    console.log('got msg to list groups');
+    return render_groups(groups_data);
+  });
+  return socket.on('already logout', function() {
+    return render_login_page();
   });
 };
 
@@ -88,6 +100,16 @@ try_scroll = function() {
       return ($('#right')).scrollTop(($('#right'))[0].scrollHeight);
     }
   }
+};
+
+render_groups = function(groups_data) {
+  ($('#left')).empty();
+  ($('#left')).append("<nav>jiyinyiyong, time<br/>hi my google</nav>");
+  ($('#left')).append("<nav id='logout'>click to logout</nav>");
+  return ($('#logout')).click(function() {
+    navigator.id.logout();
+    return socket.emit('logout');
+  });
 };
 
 window.onload = main;

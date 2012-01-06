@@ -20,6 +20,9 @@ new_thread = () ->
 timestamp = () ->
 	t = new Date()
 	tm = t.getMonth()+'-'+t.getDate()+' '+t.getHours()+':'+t.getMinutes()+':'+t.getSeconds()
+groups_data = [
+	['content', 'jiyinyiyong@gmail.com', 'time']
+	]
 io = (require 'socket.io').listen app
 io.set 'log level', 1
 io.set "transports", ["xhr-polling"]
@@ -43,21 +46,7 @@ io.sockets.on 'connection', (socket) ->
 				'audience': 'http://localhost:8000'
 		request options, (err, request_res, body) ->
 			username = body.email
-			console.log body.email
-	socket.on 'set nickname', (set_name) ->
-		if (name_log set_name)
-			socket.join room
-			room_log 'join', room
-			name = set_name
-			names.push name
-			socket.set 'nickname', name, () ->
-				socket.emit 'ready'
-				socket.emit 'logs', logs.slice -6
-			thread += 1
-			data =
-				'name': name
-				'id': 'id'+thread
-				'time': timestamp()
-				'room': room
-			(io.sockets.in room).emit 'new_user', data
-		else socket.emit 'unready'
+			socket.emit 'list groups', groups_data
+	socket.on 'logout', () ->
+		username = 'name_missing'
+		socket.emit 'already logout'

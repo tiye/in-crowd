@@ -1,4 +1,4 @@
-var app, fs, handler, io, new_thread, request, thread, timestamp, url;
+var app, fs, groups_data, handler, io, new_thread, request, thread, timestamp, url;
 
 request = require('request');
 
@@ -38,6 +38,8 @@ timestamp = function() {
   return tm = t.getMonth() + '-' + t.getDate() + ' ' + t.getHours() + ':' + t.getMinutes() + ':' + t.getSeconds();
 };
 
+groups_data = [['content', 'jiyinyiyong@gmail.com', 'time']];
+
 io = (require('socket.io')).listen(app);
 
 io.set('log level', 1);
@@ -72,30 +74,11 @@ io.sockets.on('connection', function(socket) {
     };
     return request(options, function(err, request_res, body) {
       username = body.email;
-      return console.log(body.email);
+      return socket.emit('list groups', groups_data);
     });
   });
-  return socket.on('set nickname', function(set_name) {
-    var data, name;
-    if (name_log(set_name)) {
-      socket.join(room);
-      room_log('join', room);
-      name = set_name;
-      names.push(name);
-      socket.set('nickname', name, function() {
-        socket.emit('ready');
-        return socket.emit('logs', logs.slice(-6));
-      });
-      thread += 1;
-      data = {
-        'name': name,
-        'id': 'id' + thread,
-        'time': timestamp(),
-        'room': room
-      };
-      return (io.sockets["in"](room)).emit('new_user', data);
-    } else {
-      return socket.emit('unready');
-    }
+  return socket.on('logout', function() {
+    username = 'name_missing';
+    return socket.emit('already logout');
   });
 });

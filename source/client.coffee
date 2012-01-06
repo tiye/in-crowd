@@ -7,14 +7,17 @@ main = ->
 	document.onkeypress = (e) ->
 		if e.keyCode is 13
 			if text_box_off
-				($ '#post').slideDown(100).focus().val('')
+				($ '#post').show().focus()
 				text_box_off = false
 				socket.emit 'open post'
+				# for Chrome, will add an Enter, took me an hour..
+				setTimeout (-> ($ '#post').val ''), 2
 			else
 				socket.emit 'close post', my_thread, ($ '#post').val()
 				text_box_off = true
-				($ '#post').slideUp(200).focus().val()
+				($ '#post').hide().focus()
 	($ '#post').bind 'input', (e) ->
+		post_content = ($ '#post').val()
 		socket.emit 'sync', my_thread, ($ '#post').val()
 	socket.on 'open post', (thread_id, timestamp, username) ->
 		my_thread = thread_id
@@ -31,6 +34,11 @@ main = ->
 			elem = ($ '#post_id'+sync_id).children().first()
 			elem.text sync_data
 			elem.append  "<span class='time'> @ #{timestamp}</span>"
+	socket.on 'list groups', (groups_data) ->
+		console.log 'got msg to list groups'
+		render_groups groups_data
+	socket.on 'already logout', () ->
+		render_login_page()
 
 render_login_page = () ->
 	($ '#left').empty()
@@ -58,5 +66,12 @@ try_scroll = () ->
 	if text_box_off
 		if ($ '#right').scrollTop() + ($ '#right').height() + 200 > ($ '#right')[0].scrollHeight
 			($ '#right').scrollTop ($ '#right')[0].scrollHeight
+render_groups = (groups_data) ->
+	($ '#left').empty()
+	($ '#left').append "<nav>jiyinyiyong, time<br/>hi my google</nav>"
+	($ '#left').append "<nav id='logout'>click to logout</nav>"
+	($ '#logout').click () ->
+		navigator.id.logout()
+		socket.emit 'logout'
 
 window.onload = main
