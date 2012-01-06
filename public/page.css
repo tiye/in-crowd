@@ -1,11 +1,12 @@
-body{font-family:'wenquanyi micro hei','Ubuntu';font-size:14px;color:#2e0505;background:#e2f4fd}
-.name{float:left;width:100px;overflow:hidden;color:#ad5cd6}
-div{padding-top:6px;height:26px}
-div:nth-child(2n){background:#d3effd}
-div:nth-child(2n+1){background:#e7f6fe}
-.raw{color:#bf6a40;overflow:hidden}
-.done{overflow:hidden}
-#box{height:500px;overflow-x:hidden;overflow-y:auto;border:1px solid #d98c8c}
-#text{width:1000px;font-family:'wenquanyi micro hei','Ubuntu';font-size:15px;height:26px;border-width:0;margin-left:100px;border:1px solid #d98c8c}
-.time{color:#f79c6e;font-size:12px}
-.sys{color:#a8a8f0}
+body{font-family:'wenquanyi micro hei','Ubuntu';font-size:14px;line-height:26px}
+#box{width:1160px;height:660px;margin:20px auto;background:#b34d4d}
+#left,#right{height:660px;overflow-x:hidden;overflow-y:scroll}
+#left{padding:-13px 0;width:40%;float:left;background:#fad1df}
+#right{float:right;width:60%;background:#faecd1}
+#login_image{margin:260px}
+#login_nickname{margin:240px 100px}
+#post{position:relative;left:464px;bottom:200px;width:682px;height:28px;line-height:26px;font-size:13px;border:0;resize:none}
+.posted_box{width:100%}
+.posted_content,.posted_content_raw{overflow-x:hidden;float:left;width:600px;padding-left:13px}
+.posted_content_raw{color:#eb4747}
+.posted_username{float:left;width:69px;overflow-x:hidden}

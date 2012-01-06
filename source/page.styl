@@ -1,46 +1,49 @@
-
-
 body
 	font-family 'wenquanyi micro hei', 'Ubuntu'
 	font-size 14px
-	color hsl(0,80%,10%)
-	background hsl(200,90%,94%)
-.name
-	float left
-	width 100px
-	overflow hidden
-	color hsl(280,60%,60%)
-div
-	padding-top 6px
-	height 26px
-div:nth-child(2n)
-	background hsl(200,90%,91%)
-div:nth-child(2n+1)
-	background hsl(200,90%,95%)
-.raw
-	width = 1000px
-	height = 26px
-	color hsl(20,50%,50%)
-	overflow hidden
-.done
-	width = 1000px
-	height = 26px
-	overflow hidden
+	line-height 26px
 #box
-	height 500px
+	width 1160px
+	height 660px
+	margin 20px auto
+	background hsl(0,40%,50%)
+#left, #right
+	height 660px
 	overflow-x hidden
-	overflow-y auto
-	border 1px solid hsl(0,50%,70%)
-#text
-	width 1000px
-	font-family 'wenquanyi micro hei', 'Ubuntu'
-	font-size 15px
-	height 26px
-	border-width 0px
-	margin-left 100px
-	border 1px solid hsl(0,50%,70%)
-.time
-	color hsl(20,90%,70%)
-	font-size 12px
-.sys
-	color hsl(240,70%,80%)
+	overflow-y scroll
+#left
+	padding -13px 0px
+	width 40%
+	float left
+	background hsl(340,80%,90%)
+#right
+	float right
+	width 60%
+	background hsl(40,80%,90%)
+#login_image
+	margin 260px
+#login_nickname
+	margin 240px 100px
+#post
+	position relative
+	left 464px
+	bottom 200px
+	width 682px
+	height 28px
+	line-height 26px
+	font-size 13px
+	border 0px
+	resize none
+.posted_box
+	width 100%
+.posted_content, .posted_content_raw
+	overflow-x hidden
+	float left
+	width 600px
+	padding-left 13px
+.posted_content_raw
+	color hsl(0,80%,60%)
+.posted_username
+	float left
+	width 69px
+	overflow-x hidden

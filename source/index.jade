@@ -1,27 +1,16 @@
 
 html
 	head
-		title 众里
+		title qingtan
 		meta(charset='utf-8')
 		link(rel='shortcut icon',href='public/favicon.icon')
 		script(src='/socket.io/socket.io.js')
 		script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
 		script(src='public/client.js')
+		script(src='https://browserid.org/include.js')
 		link(rel='stylesheet',href='public/page.css')
 	body
-		nav(id='box')
-			div
-				nav(class='name')
-					a(href='http://weibo.com/1651843872/xD5E7y441',target='_blank') @题叶
-				nav(class='done')
-					a(href='https://github.com/jiyinyiyong/zhongli',target='_blank') socket.io 伪实时聊天室, 打字时自动同步
-			div
-				nav(class='name') &nbsp;
-				nav(class='done') 回车打开文本框, /clear 清屏, /forget 破坏 cookies 用户名记录
-			div
-				nav(class='name') &nbsp;
-				nav(class='done') /groups 查看群组名称, /join a 加入 a 群(默认 0 群)
-			div
-				nav(class='name') &nbsp;
-				nav(class='done') /history 查看全局记录, /who 查看在线名册
-		textarea(id='text')
+		#box
+			#left
+			#right
+			textarea#post
