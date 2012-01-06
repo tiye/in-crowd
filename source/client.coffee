@@ -19,6 +19,8 @@ main = ->
 	($ '#post').bind 'input', (e) ->
 		post_content = ($ '#post').val()
 		socket.emit 'sync', my_thread, ($ '#post').val()
+		if post_content.length > 30
+			($ '#post').val (post_content.slice 0, 30)
 	socket.on 'open post', (thread_id, timestamp, username) ->
 		my_thread = thread_id
 		render_post thread_id, timestamp, username
@@ -39,6 +41,10 @@ main = ->
 		render_groups groups_data
 	socket.on 'already logout', () ->
 		render_login_page()
+	socket.on 'add title', (title_data, list_id) ->
+		($ '#left').append "<nav id='list_id#{list_id}'>#{title_data}</nav>"
+		($ "#list_id#{list_id}").click () ->
+			socket.emit 'join', "list_id#{list_id}"
 
 render_login_page = () ->
 	($ '#left').empty()
@@ -68,8 +74,14 @@ try_scroll = () ->
 			($ '#right').scrollTop ($ '#right')[0].scrollHeight
 render_groups = (groups_data) ->
 	($ '#left').empty()
-	($ '#left').append "<nav>jiyinyiyong, time<br/>hi my google</nav>"
+	($ '#left').append "<nav id='list_id00'>jiyinyiyong, time<br/>hi my google</nav>"
+	($ '#list_id00').click () ->
+		socket.emit 'join', "list_id00"
 	($ '#left').append "<nav id='logout'>click to logout</nav>"
+	($ '#left').append "<nav><textarea id='add_title'></textarea><br/><button id='send_title'>send</button></nav>"
+	($ '#send_title').click () ->
+			socket.emit 'add title', ($ '#add_title').val()
+			($ '#add_title').val ''
 	($ '#logout').click () ->
 		navigator.id.logout()
 		socket.emit 'logout'

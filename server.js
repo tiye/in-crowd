@@ -1,4 +1,4 @@
-var app, fs, groups_data, handler, io, new_thread, request, thread, timestamp, url;
+var app, fs, groups_data, handler, io, list_thread, new_list_thread, new_thread, request, thread, timestamp, url;
 
 request = require('request');
 
@@ -30,6 +30,13 @@ thread = 0;
 new_thread = function() {
   thread += 1;
   return thread;
+};
+
+list_thread = 0;
+
+new_list_thread = function() {
+  list_thread += 1;
+  return list_thread;
 };
 
 timestamp = function() {
@@ -74,11 +81,22 @@ io.sockets.on('connection', function(socket) {
     };
     return request(options, function(err, request_res, body) {
       username = body.email;
-      return socket.emit('list groups', groups_data);
+      socket.emit('list groups', groups_data);
+      socket.leave('name_missing');
+      socket.join('list');
+      return socket.join('list_id00');
     });
   });
-  return socket.on('logout', function() {
+  socket.on('logout', function() {
     username = 'name_missing';
-    return socket.emit('already logout');
+    socket.emit('already logout');
+    return socket.leave('list');
+  });
+  socket.on('add title', function(title_data) {
+    return (io.sockets["in"]('list')).emit('add title', title_data, new_thread());
+  });
+  return socket.on('join', function(list_name) {
+    socket.join(list_name);
+    return console.log(list_name);
   });
 });

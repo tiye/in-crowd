@@ -17,6 +17,10 @@ thread = 0
 new_thread = () ->
 	thread += 1
 	return thread
+list_thread = 0
+new_list_thread = () ->
+	list_thread += 1
+	return list_thread
 timestamp = () ->
 	t = new Date()
 	tm = t.getMonth()+'-'+t.getDate()+' '+t.getHours()+':'+t.getMinutes()+':'+t.getSeconds()
@@ -47,6 +51,16 @@ io.sockets.on 'connection', (socket) ->
 		request options, (err, request_res, body) ->
 			username = body.email
 			socket.emit 'list groups', groups_data
+			socket.leave 'name_missing'
+			socket.join 'list'
+			socket.join 'list_id00'
 	socket.on 'logout', () ->
 		username = 'name_missing'
 		socket.emit 'already logout'
+		socket.leave 'list'
+	socket.on 'add title', (title_data) ->
+		(io.sockets.in 'list').emit 'add title', title_data, new_thread()
+	socket.on 'join', (list_name) ->
+		socket.join list_name
+		socket.leave current_room
+		current_room = list_name

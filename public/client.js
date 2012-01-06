@@ -28,7 +28,10 @@ main = function() {
   ($('#post')).bind('input', function(e) {
     var post_content;
     post_content = ($('#post')).val();
-    return socket.emit('sync', my_thread, ($('#post')).val());
+    socket.emit('sync', my_thread, ($('#post')).val());
+    if (post_content.length > 30) {
+      return ($('#post')).val(post_content.slice(0, 30));
+    }
   });
   socket.on('open post', function(thread_id, timestamp, username) {
     my_thread = thread_id;
@@ -55,8 +58,14 @@ main = function() {
     console.log('got msg to list groups');
     return render_groups(groups_data);
   });
-  return socket.on('already logout', function() {
+  socket.on('already logout', function() {
     return render_login_page();
+  });
+  return socket.on('add title', function(title_data, list_id) {
+    ($('#left')).append("<nav id='list_id" + list_id + "'>" + title_data + "</nav>");
+    return ($("#list_id" + list_id)).click(function() {
+      return socket.emit('join', "list_id" + list_id);
+    });
   });
 };
 
@@ -104,8 +113,16 @@ try_scroll = function() {
 
 render_groups = function(groups_data) {
   ($('#left')).empty();
-  ($('#left')).append("<nav>jiyinyiyong, time<br/>hi my google</nav>");
+  ($('#left')).append("<nav id='list_id00'>jiyinyiyong, time<br/>hi my google</nav>");
+  ($('#list_id00')).click(function() {
+    return socket.emit('join', "list_id00");
+  });
   ($('#left')).append("<nav id='logout'>click to logout</nav>");
+  ($('#left')).append("<nav><textarea id='add_title'></textarea><br/><button id='send_title'>send</button></nav>");
+  ($('#send_title')).click(function() {
+    socket.emit('add title', ($('#add_title')).val());
+    return ($('#add_title')).val('');
+  });
   return ($('#logout')).click(function() {
     navigator.id.logout();
     return socket.emit('logout');
