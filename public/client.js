@@ -1,4 +1,6 @@
-var main, render_groups, render_login_page, render_nickname_page, render_post, socket, text_box_off, try_scroll;
+var main, o, render_groups, render_login_page, render_nickname_page, render_post, socket, text_box_off, try_scroll;
+
+o = console.log;
 
 text_box_off = true;
 
@@ -58,14 +60,34 @@ main = function() {
     console.log('got msg to list groups');
     return render_groups(groups_data);
   });
-  socket.on('already logout', function() {
-    return render_login_page();
+  socket.on('already logout', function(post_data) {
+    var item, _i, _len, _results;
+    render_login_page();
+    ($('#right')).empty();
+    _results = [];
+    for (_i = 0, _len = post_data.length; _i < _len; _i++) {
+      item = post_data[_i];
+      _results.push(render_post(item[1], item[3], item[4], item[2]));
+    }
+    return _results;
   });
-  return socket.on('add title', function(title_data, list_id) {
+  socket.on('add title', function(title_data, list_id) {
     ($('#left')).append("<nav id='list_id" + list_id + "'>" + title_data + "</nav>");
     return ($("#list_id" + list_id)).click(function() {
       return socket.emit('join', "list_id" + list_id);
     });
+  });
+  return socket.on('join', function(post_data) {
+    var item, _i, _len, _results;
+    ($('#right')).empty();
+    o(':: join :: post_data', post_data);
+    _results = [];
+    for (_i = 0, _len = post_data.length; _i < _len; _i++) {
+      item = post_data[_i];
+      o("new try to see each item: ", item);
+      _results.push(render_post(item[1], item[3], item[4], item[2]));
+    }
+    return _results;
   });
 };
 
@@ -94,10 +116,11 @@ render_nickname_page = function(arg) {
   return ($('#left')).append(login_page_content);
 };
 
-render_post = function(thread_id, timestamp, username) {
+render_post = function(thread_id, timestamp, username, content) {
   var render_content;
+  if (content == null) content = '';
   render_content = "<nav id='post_id" + thread_id + "' class='posted_box'>";
-  render_content += "<nav class='posted_content_raw'> @ " + timestamp + "</nav>";
+  render_content += "<nav class='posted_content_raw'>" + content + " @ " + timestamp + "</nav>";
   render_content += "<nav class='posted_username'>" + username + "</nav></nav>";
   ($('#right')).append(render_content);
   return try_scroll();

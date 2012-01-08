@@ -1,3 +1,4 @@
+o = console.log
 text_box_off = true
 socket = io.connect window.location.hostname
 main = ->
@@ -39,12 +40,21 @@ main = ->
 	socket.on 'list groups', (groups_data) ->
 		console.log 'got msg to list groups'
 		render_groups groups_data
-	socket.on 'already logout', () ->
+	socket.on 'already logout', (post_data) ->
 		render_login_page()
+		($ '#right').empty()
+		for item in post_data
+			render_post item[1], item[3], item[4], item[2]
 	socket.on 'add title', (title_data, list_id) ->
 		($ '#left').append "<nav id='list_id#{list_id}'>#{title_data}</nav>"
 		($ "#list_id#{list_id}").click () ->
 			socket.emit 'join', "list_id#{list_id}"
+	socket.on 'join', (post_data) ->
+		($ '#right').empty()
+		o ':: join :: post_data', post_data
+		for item in post_data
+			o "new try to see each item: ", item
+			render_post item[1], item[3], item[4], item[2]
 
 render_login_page = () ->
 	($ '#left').empty()
@@ -62,9 +72,9 @@ render_nickname_page = (arg) ->
 	if arg then render_content += "<br/>#{arg}"
 	login_page_content += '</nav>'
 	($ '#left').append login_page_content
-render_post = (thread_id, timestamp, username) ->
+render_post = (thread_id, timestamp, username, content='') ->
 	render_content =  "<nav id='post_id#{thread_id}' class='posted_box'>"
-	render_content += "<nav class='posted_content_raw'> @ #{timestamp}</nav>"
+	render_content += "<nav class='posted_content_raw'>#{content} @ #{timestamp}</nav>"
 	render_content += "<nav class='posted_username'>#{username}</nav></nav>"
 	($ '#right').append render_content
 	try_scroll()  
