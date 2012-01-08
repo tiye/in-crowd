@@ -1,4 +1,4 @@
-var main, o, render_groups, render_login_page, render_nickname_page, render_post, socket, text_box_off, try_scroll;
+var main, o, render_groups, render_login_page, render_nickname_page, render_post, render_posts_from, socket, text_box_off, try_scroll;
 
 o = console.log;
 
@@ -64,15 +64,8 @@ main = function() {
     return render_groups(topics);
   });
   socket.on('already logout', function(post_data) {
-    var item, _i, _len, _results;
     render_login_page();
-    ($('#right')).empty();
-    _results = [];
-    for (_i = 0, _len = post_data.length; _i < _len; _i++) {
-      item = post_data[_i];
-      _results.push(render_post(item[1], item[3], item[4], item[2]));
-    }
-    return _results;
+    return render_posts_from(post_data);
   });
   socket.on('add title', function(title_data, topic_id) {
     ($('#left')).append("<nav id='topic_id" + topic_id + "'>" + title_data + "</nav>");
@@ -81,25 +74,11 @@ main = function() {
     });
   });
   socket.on('join', function(post_data) {
-    var item, _i, _len, _results;
-    ($('#right')).empty();
-    _results = [];
-    for (_i = 0, _len = post_data.length; _i < _len; _i++) {
-      item = post_data[_i];
-      _results.push(render_post(item[1], item[3], item[4], item[2]));
-    }
-    return _results;
+    return render_posts_from(post_data);
   });
   socket.emit('begin');
   return socket.on('render begin', function(post_data) {
-    var item, _i, _len, _results;
-    ($('#right')).empty();
-    _results = [];
-    for (_i = 0, _len = post_data.length; _i < _len; _i++) {
-      item = post_data[_i];
-      _results.push(render_post(item[1], item[3], item[4], item[2]));
-    }
-    return _results;
+    return render_posts_from(post_data);
   });
 };
 
@@ -170,6 +149,17 @@ render_groups = function(topics) {
     _results.push(($("#topic_id" + item[0])).click(function() {
       return socket.emit('join', "topic_id" + item[0]);
     }));
+  }
+  return _results;
+};
+
+render_posts_from = function(post_data) {
+  var item, _i, _len, _results;
+  ($('#right')).empty();
+  _results = [];
+  for (_i = 0, _len = post_data.length; _i < _len; _i++) {
+    item = post_data[_i];
+    _results.push(render_post(item[1], item[3], item[4], item[2]));
   }
   return _results;
 };

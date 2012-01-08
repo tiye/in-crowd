@@ -21,6 +21,7 @@ main = ->
 				($ '#post').hide()
 	($ '#post').bind 'input', (e) ->
 		post_content = ($ '#post').val()
+		# for Chrome, add if to filter if empty was synced..
 		if post_content.length > 0
 			socket.emit 'sync', my_thread, ($ '#post').val()
 		if post_content.length > 30
@@ -41,26 +42,19 @@ main = ->
 			elem.text sync_data
 			elem.append  "<span class='time'> @ #{timestamp}</span>"
 	socket.on 'list groups', (topics) ->
-		console.log 'got msg to list groups'
 		render_groups topics
 	socket.on 'already logout', (post_data) ->
 		render_login_page()
-		($ '#right').empty()
-		for item in post_data
-			render_post item[1], item[3], item[4], item[2]
+		render_posts_from post_data
 	socket.on 'add title', (title_data, topic_id) ->
 		($ '#left').append "<nav id='topic_id#{topic_id}'>#{title_data}</nav>"
 		($ "#topic_id#{topic_id}").click () ->
 			socket.emit 'join', "topic_id#{topic_id}"
 	socket.on 'join', (post_data) ->
-		($ '#right').empty()
-		for item in post_data
-			render_post item[1], item[3], item[4], item[2]
+		render_posts_from post_data
 	socket.emit 'begin'
 	socket.on 'render begin', (post_data) ->
-		($ '#right').empty()
-		for item in post_data
-			render_post item[1], item[3], item[4], item[2]
+		render_posts_from post_data
 
 render_login_page = () ->
 	($ '#left').empty()
@@ -83,7 +77,7 @@ render_post = (thread_id, timestamp, username, content='') ->
 	render_content += "<nav class='posted_content_raw'>#{content} @ #{timestamp}</nav>"
 	render_content += "<nav class='posted_username'>#{username}</nav></nav>"
 	($ '#right').append render_content
-	try_scroll()  
+	try_scroll()
 try_scroll = () ->
 	if text_box_off
 		if ($ '#right').scrollTop() + ($ '#right').height() + 200 > ($ '#right')[0].scrollHeight
@@ -105,5 +99,9 @@ render_groups = (topics) ->
 		($ '#left').append "<nav id='topic_id#{item[0]}'>#{item[1]}, #{item[2]}<br/>#{item[3]}</nav>"
 		($ "#topic_id#{item[0]}").click () ->
 			socket.emit 'join', "topic_id#{item[0]}"
+render_posts_from = (post_data) ->
+	($ '#right').empty()
+	for item in post_data
+		render_post item[1], item[3], item[4], item[2]
 
 window.onload = main
