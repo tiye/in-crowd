@@ -30,6 +30,12 @@ filter_posts = (room_name) ->
 		if item[0] is room_name
 			new_list.push item
 	return new_list
+nicknames = []
+check_nickname = (nickname, email) ->
+	for item in nicknames
+		if item[0] is nickname
+			return false
+	nicknames.push [nickname, email]
 
 io = (require 'socket.io').listen app
 io.set 'log level', 1
@@ -60,10 +66,15 @@ io.sockets.on 'connection', (socket) ->
 				'audience': 'http://localhost:8000'
 		request options, (err, request_res, body) ->
 			username = body.email
+			socket.emit 'get nickname', 'A nickname:'
+	socket.on 'nickname', (nickname) ->
+		if check_nickname(nickname, username)
 			socket.join 'list'
 			socket.emit 'list groups', topics
 			join_room 'topic_id00'
 			socket.emit 'join', (filter_posts current_room)
+		else
+			socket.emit 'get nickname', 'Name Repeated..'
 	socket.on 'logout', () ->
 		username = 'name_missing'
 		socket.leave 'list'

@@ -60,7 +60,6 @@ main = function() {
     }
   });
   socket.on('list groups', function(topics) {
-    console.log('got msg to list groups');
     return render_groups(topics);
   });
   socket.on('already logout', function(post_data) {
@@ -77,8 +76,11 @@ main = function() {
     return render_posts_from(post_data);
   });
   socket.emit('begin');
-  return socket.on('render begin', function(post_data) {
+  socket.on('render begin', function(post_data) {
     return render_posts_from(post_data);
+  });
+  return socket.on('get nickname', function(arg) {
+    return render_nickname_page(arg);
   });
 };
 
@@ -100,11 +102,12 @@ render_login_page = function() {
 render_nickname_page = function(arg) {
   var render_content;
   ($('#left')).empty();
-  render_content = '<nav id="login_nickname"><textarea id="text_nickname">';
-  render_content += '</textarea><button id="send_nickname">send</button>';
-  if (arg) render_content += "<br/>" + arg;
-  login_page_content += '</nav>';
-  return ($('#left')).append(login_page_content);
+  render_content = "<nav id='login_nickname'>" + arg + "<br/><textarea id='text_nickname'>";
+  render_content += '</textarea><button id="send_nickname">send</button></nav>';
+  ($('#left')).append(render_content);
+  return ($('#send_nickname')).click(function() {
+    return socket.emit('nickname', ($('#left')).val());
+  });
 };
 
 render_post = function(thread_id, timestamp, username, content) {

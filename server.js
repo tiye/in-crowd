@@ -1,4 +1,4 @@
-var app, filter_posts, fs, handler, io, new_thread, new_topic, o, post_data, request, thread, timestamp, topic_id, topics, url;
+var app, check_nickname, filter_posts, fs, handler, io, new_thread, new_topic, nicknames, o, post_data, request, thread, timestamp, topic_id, topics, url;
 
 request = require('request');
 
@@ -59,6 +59,17 @@ filter_posts = function(room_name) {
   return new_list;
 };
 
+nicknames = [];
+
+check_nickname = function(nickname, email) {
+  var item, _i, _len;
+  for (_i = 0, _len = nicknames.length; _i < _len; _i++) {
+    item = nicknames[_i];
+    if (item[0] === nickname) return false;
+  }
+  return nicknames.push([nickname, email]);
+};
+
 io = (require('socket.io')).listen(app);
 
 io.set('log level', 1);
@@ -101,11 +112,18 @@ io.sockets.on('connection', function(socket) {
     };
     return request(options, function(err, request_res, body) {
       username = body.email;
+      return socket.emit('get nickname', 'A nickname:');
+    });
+  });
+  socket.on('nickname', function(nickname) {
+    if (check_nickname(nickname, username)) {
       socket.join('list');
       socket.emit('list groups', topics);
       join_room('topic_id00');
       return socket.emit('join', filter_posts(current_room));
-    });
+    } else {
+      return socket.emit('get nickname', 'Name Repeated..');
+    }
   });
   socket.on('logout', function() {
     username = 'name_missing';
@@ -123,7 +141,9 @@ io.sockets.on('connection', function(socket) {
       return socket.emit('join', filter_posts(current_room));
     }
   });
-  return socket.on('begin', function() {
+  socket.on('begin', function() {
     return socket.emit('render begin', filter_posts(current_room));
   });
+  o('herehr');
+  return socket.emit('get nickname', 'A nickname:');
 });

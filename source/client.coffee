@@ -55,6 +55,8 @@ main = ->
 	socket.emit 'begin'
 	socket.on 'render begin', (post_data) ->
 		render_posts_from post_data
+	socket.on 'get nickname', (arg) ->
+		render_nickname_page(arg)
 
 render_login_page = () ->
 	($ '#left').empty()
@@ -67,11 +69,11 @@ render_login_page = () ->
 			{allowPersistent: true}
 render_nickname_page = (arg) ->
 	($ '#left').empty()
-	render_content = '<nav id="login_nickname"><textarea id="text_nickname">'
-	render_content += '</textarea><button id="send_nickname">send</button>'
-	if arg then render_content += "<br/>#{arg}"
-	login_page_content += '</nav>'
-	($ '#left').append login_page_content
+	render_content = "<nav id='login_nickname'>#{arg}<br/><textarea id='text_nickname'>"
+	render_content += '</textarea><button id="send_nickname">send</button></nav>'
+	($ '#left').append render_content
+	($ '#send_nickname').click () ->
+		socket.emit 'nickname', ($ '#left').val()
 render_post = (thread_id, timestamp, username, content='') ->
 	render_content =  "<nav id='post_id#{thread_id}' class='posted_box'>"
 	render_content += "<nav class='posted_content_raw'>#{content} @ #{timestamp}</nav>"
