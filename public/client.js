@@ -9,12 +9,13 @@ socket = io.connect(window.location.hostname);
 main = function() {
   var my_thread;
   render_login_page();
-  ($('#post')).hide();
+  ($('#post')).hide().focus();
   my_thread = null;
   document.onkeypress = function(e) {
     if (e.keyCode === 13) {
       if (text_box_off) {
-        ($('#post')).show().focus();
+        ($('#post')).show();
+        document.getElementById('post').focus();
         text_box_off = false;
         socket.emit('open post');
         return setTimeout((function() {
@@ -23,14 +24,16 @@ main = function() {
       } else {
         socket.emit('close post', my_thread, ($('#post')).val());
         text_box_off = true;
-        return ($('#post')).hide().focus();
+        return ($('#post')).hide();
       }
     }
   };
   ($('#post')).bind('input', function(e) {
     var post_content;
     post_content = ($('#post')).val();
-    socket.emit('sync', my_thread, ($('#post')).val());
+    if (post_content.length > 0) {
+      socket.emit('sync', my_thread, ($('#post')).val());
+    }
     if (post_content.length > 30) {
       return ($('#post')).val(post_content.slice(0, 30));
     }
@@ -56,9 +59,9 @@ main = function() {
       return elem.append("<span class='time'> @ " + timestamp + "</span>");
     }
   });
-  socket.on('list groups', function(groups_data) {
+  socket.on('list groups', function(topics) {
     console.log('got msg to list groups');
-    return render_groups(groups_data);
+    return render_groups(topics);
   });
   socket.on('already logout', function(post_data) {
     var item, _i, _len, _results;
@@ -71,20 +74,29 @@ main = function() {
     }
     return _results;
   });
-  socket.on('add title', function(title_data, list_id) {
-    ($('#left')).append("<nav id='list_id" + list_id + "'>" + title_data + "</nav>");
-    return ($("#list_id" + list_id)).click(function() {
-      return socket.emit('join', "list_id" + list_id);
+  socket.on('add title', function(title_data, topic_id) {
+    ($('#left')).append("<nav id='topic_id" + topic_id + "'>" + title_data + "</nav>");
+    return ($("#topic_id" + topic_id)).click(function() {
+      return socket.emit('join', "topic_id" + topic_id);
     });
   });
-  return socket.on('join', function(post_data) {
+  socket.on('join', function(post_data) {
     var item, _i, _len, _results;
     ($('#right')).empty();
-    o(':: join :: post_data', post_data);
     _results = [];
     for (_i = 0, _len = post_data.length; _i < _len; _i++) {
       item = post_data[_i];
-      o("new try to see each item: ", item);
+      _results.push(render_post(item[1], item[3], item[4], item[2]));
+    }
+    return _results;
+  });
+  socket.emit('begin');
+  return socket.on('render begin', function(post_data) {
+    var item, _i, _len, _results;
+    ($('#right')).empty();
+    _results = [];
+    for (_i = 0, _len = post_data.length; _i < _len; _i++) {
+      item = post_data[_i];
       _results.push(render_post(item[1], item[3], item[4], item[2]));
     }
     return _results;
@@ -134,11 +146,12 @@ try_scroll = function() {
   }
 };
 
-render_groups = function(groups_data) {
+render_groups = function(topics) {
+  var item, _i, _len, _results;
   ($('#left')).empty();
-  ($('#left')).append("<nav id='list_id00'>jiyinyiyong, time<br/>hi my google</nav>");
-  ($('#list_id00')).click(function() {
-    return socket.emit('join', "list_id00");
+  ($('#left')).append("<nav id='topic_id00'>Name, Time<br/>Content_of_posts</nav>");
+  ($('#topic_id00')).click(function() {
+    return socket.emit('join', "topic_id00");
   });
   ($('#left')).append("<nav id='logout'>click to logout</nav>");
   ($('#left')).append("<nav><textarea id='add_title'></textarea><br/><button id='send_title'>send</button></nav>");
@@ -146,10 +159,19 @@ render_groups = function(groups_data) {
     socket.emit('add title', ($('#add_title')).val());
     return ($('#add_title')).val('');
   });
-  return ($('#logout')).click(function() {
+  ($('#logout')).click(function() {
     navigator.id.logout();
     return socket.emit('logout');
   });
+  _results = [];
+  for (_i = 0, _len = topics.length; _i < _len; _i++) {
+    item = topics[_i];
+    ($('#left')).append("<nav id='topic_id" + item[0] + "'>" + item[1] + ", " + item[2] + "<br/>" + item[3] + "</nav>");
+    _results.push(($("#topic_id" + item[0])).click(function() {
+      return socket.emit('join', "topic_id" + item[0]);
+    }));
+  }
+  return _results;
 };
 
 window.onload = main;

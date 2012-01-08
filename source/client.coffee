@@ -3,23 +3,26 @@ text_box_off = true
 socket = io.connect window.location.hostname
 main = ->
 	render_login_page()
-	($ '#post').hide()
+	($ '#post').hide().focus()
 	my_thread = null
 	document.onkeypress = (e) ->
 		if e.keyCode is 13
 			if text_box_off
-				($ '#post').show().focus()
+				($ '#post').show()
+				document.getElementById('post').focus()
 				text_box_off = false
 				socket.emit 'open post'
 				# for Chrome, will add an Enter, took me an hour..
-				setTimeout (-> ($ '#post').val ''), 2
+				setTimeout (->
+					($ '#post').val ''), 2
 			else
 				socket.emit 'close post', my_thread, ($ '#post').val()
 				text_box_off = true
-				($ '#post').hide().focus()
+				($ '#post').hide()
 	($ '#post').bind 'input', (e) ->
 		post_content = ($ '#post').val()
-		socket.emit 'sync', my_thread, ($ '#post').val()
+		if post_content.length > 0
+			socket.emit 'sync', my_thread, ($ '#post').val()
 		if post_content.length > 30
 			($ '#post').val (post_content.slice 0, 30)
 	socket.on 'open post', (thread_id, timestamp, username) ->
@@ -37,23 +40,26 @@ main = ->
 			elem = ($ '#post_id'+sync_id).children().first()
 			elem.text sync_data
 			elem.append  "<span class='time'> @ #{timestamp}</span>"
-	socket.on 'list groups', (groups_data) ->
+	socket.on 'list groups', (topics) ->
 		console.log 'got msg to list groups'
-		render_groups groups_data
+		render_groups topics
 	socket.on 'already logout', (post_data) ->
 		render_login_page()
 		($ '#right').empty()
 		for item in post_data
 			render_post item[1], item[3], item[4], item[2]
-	socket.on 'add title', (title_data, list_id) ->
-		($ '#left').append "<nav id='list_id#{list_id}'>#{title_data}</nav>"
-		($ "#list_id#{list_id}").click () ->
-			socket.emit 'join', "list_id#{list_id}"
+	socket.on 'add title', (title_data, topic_id) ->
+		($ '#left').append "<nav id='topic_id#{topic_id}'>#{title_data}</nav>"
+		($ "#topic_id#{topic_id}").click () ->
+			socket.emit 'join', "topic_id#{topic_id}"
 	socket.on 'join', (post_data) ->
 		($ '#right').empty()
-		o ':: join :: post_data', post_data
 		for item in post_data
-			o "new try to see each item: ", item
+			render_post item[1], item[3], item[4], item[2]
+	socket.emit 'begin'
+	socket.on 'render begin', (post_data) ->
+		($ '#right').empty()
+		for item in post_data
 			render_post item[1], item[3], item[4], item[2]
 
 render_login_page = () ->
@@ -82,11 +88,11 @@ try_scroll = () ->
 	if text_box_off
 		if ($ '#right').scrollTop() + ($ '#right').height() + 200 > ($ '#right')[0].scrollHeight
 			($ '#right').scrollTop ($ '#right')[0].scrollHeight
-render_groups = (groups_data) ->
+render_groups = (topics) ->
 	($ '#left').empty()
-	($ '#left').append "<nav id='list_id00'>jiyinyiyong, time<br/>hi my google</nav>"
-	($ '#list_id00').click () ->
-		socket.emit 'join', "list_id00"
+	($ '#left').append "<nav id='topic_id00'>Name, Time<br/>Content_of_posts</nav>"
+	($ '#topic_id00').click () ->
+		socket.emit 'join', "topic_id00"
 	($ '#left').append "<nav id='logout'>click to logout</nav>"
 	($ '#left').append "<nav><textarea id='add_title'></textarea><br/><button id='send_title'>send</button></nav>"
 	($ '#send_title').click () ->
@@ -95,5 +101,9 @@ render_groups = (groups_data) ->
 	($ '#logout').click () ->
 		navigator.id.logout()
 		socket.emit 'logout'
+	for item in topics
+		($ '#left').append "<nav id='topic_id#{item[0]}'>#{item[1]}, #{item[2]}<br/>#{item[3]}</nav>"
+		($ "#topic_id#{item[0]}").click () ->
+			socket.emit 'join', "topic_id#{item[0]}"
 
 window.onload = main

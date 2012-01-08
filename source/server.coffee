@@ -16,29 +16,33 @@ app = (require 'http').createServer handler
 app.listen 8000
 
 thread = 0
-new_thread = () ->
-	thread += 1
-	return thread
-list_thread = 0
-new_list_thread = () ->
-	list_thread += 1
-	return list_thread
+topic_id = 0
+new_thread = () -> thread += 1
+new_topic = () -> topic_id += 1
 timestamp = () ->
 	t = new Date()
 	tm = t.getMonth()+'-'+t.getDate()+' '+t.getHours()+':'+t.getMinutes()+':'+t.getSeconds()
-groups_data = [
-	['content', 'jiyinyiyong@gmail.com', 'time']
-	]
+topics = []
 post_data =[]
+filter_posts = (room_name) ->
+	new_list = []
+	for item in post_data
+		if item[0] is room_name
+			new_list.push item
+	return new_list
 
 io = (require 'socket.io').listen app
 io.set 'log level', 1
 io.set "transports", ["xhr-polling"]
 io.set "polling duration", 10
 io.sockets.on 'connection', (socket) ->
-	current_room = 'public room'
 	username = 'name_missing'
+	current_room = 'public room'
 	socket.join current_room
+	join_room = (room) ->
+		socket.leave current_room
+		current_room = room
+		socket.join current_room
 	socket.on 'open post', () ->
 		(io.sockets.in current_room).emit 'open post', new_thread(), timestamp(), username
 	socket.on 'close post', (thread_id, post_content) ->
@@ -56,46 +60,21 @@ io.sockets.on 'connection', (socket) ->
 				'audience': 'http://localhost:8000'
 		request options, (err, request_res, body) ->
 			username = body.email
-			socket.emit 'list groups', groups_data
-			socket.leave 'public room'
 			socket.join 'list'
-			socket.join 'list_id00'
-			current_room = 'list_id00'
-			new_list = []
-			for item in post_data
-				if item[0] is current_room
-					new_list.push item
-			socket.emit 'join', new_list
-	# auto login while debugging
-	###
-	setTimeout (->
-		username = 'jiyinyiyong@gmail'
-		socket.emit 'list groups', groups_data
-		socket.leave 'public room'
-		socket.join 'list'
-		o 'sent list groups msg'
-		socket.join 'list_id00'), 200
-	# finish auto login here
-	###
+			socket.emit 'list groups', topics
+			join_room 'topic_id00'
+			socket.emit 'join', (filter_posts current_room)
 	socket.on 'logout', () ->
 		username = 'name_missing'
 		socket.leave 'list'
-		current_room = 'public room'
-		socket.join current_room
-		new_list =[]
-		for item in post_data
-			if item[0] is current_room
-				new_list.push item
-		socket.emit 'already logout', new_list
+		join_room 'public room'
+		socket.emit 'already logout', (filter_posts current_room)
 	socket.on 'add title', (title_data) ->
-		(io.sockets.in 'list').emit 'add title', title_data, new_thread()
-	socket.on 'join', (list_name) ->
-		unless list_name is current_room
-			socket.join list_name
-			socket.leave current_room
-			current_room = list_name
-			new_list = []
-			for item in post_data
-				if item[0] is current_room
-					new_list.push item
-			socket.emit 'join', new_list
+		(io.sockets.in 'list').emit 'add title', title_data, new_topic()
+		topics.push [topic_id, username, timestamp(), title_data]
+	socket.on 'join', (topic_room) ->
+		unless topic_room is current_room
+			join_room topic_room
+			socket.emit 'join', (filter_posts current_room)
+	socket.on 'begin', () ->
+		socket.emit 'render begin', (filter_posts current_room)

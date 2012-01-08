@@ -1,4 +1,4 @@
-var app, fs, groups_data, handler, io, list_thread, new_list_thread, new_thread, o, post_data, request, thread, timestamp, url;
+var app, filter_posts, fs, handler, io, new_thread, new_topic, o, post_data, request, thread, timestamp, topic_id, topics, url;
 
 request = require('request');
 
@@ -29,16 +29,14 @@ app.listen(8000);
 
 thread = 0;
 
+topic_id = 0;
+
 new_thread = function() {
-  thread += 1;
-  return thread;
+  return thread += 1;
 };
 
-list_thread = 0;
-
-new_list_thread = function() {
-  list_thread += 1;
-  return list_thread;
+new_topic = function() {
+  return topic_id += 1;
 };
 
 timestamp = function() {
@@ -47,9 +45,19 @@ timestamp = function() {
   return tm = t.getMonth() + '-' + t.getDate() + ' ' + t.getHours() + ':' + t.getMinutes() + ':' + t.getSeconds();
 };
 
-groups_data = [['content', 'jiyinyiyong@gmail.com', 'time']];
+topics = [];
 
 post_data = [];
+
+filter_posts = function(room_name) {
+  var item, new_list, _i, _len;
+  new_list = [];
+  for (_i = 0, _len = post_data.length; _i < _len; _i++) {
+    item = post_data[_i];
+    if (item[0] === room_name) new_list.push(item);
+  }
+  return new_list;
+};
 
 io = (require('socket.io')).listen(app);
 
@@ -60,10 +68,15 @@ io.set("transports", ["xhr-polling"]);
 io.set("polling duration", 10);
 
 io.sockets.on('connection', function(socket) {
-  var current_room, username;
-  current_room = 'public room';
+  var current_room, join_room, username;
   username = 'name_missing';
+  current_room = 'public room';
   socket.join(current_room);
+  join_room = function(room) {
+    socket.leave(current_room);
+    current_room = room;
+    return socket.join(current_room);
+  };
   socket.on('open post', function() {
     return (io.sockets["in"](current_room)).emit('open post', new_thread(), timestamp(), username);
   });
@@ -87,59 +100,30 @@ io.sockets.on('connection', function(socket) {
       }
     };
     return request(options, function(err, request_res, body) {
-      var item, new_list, _i, _len;
       username = body.email;
-      socket.emit('list groups', groups_data);
-      socket.leave('public room');
       socket.join('list');
-      socket.join('list_id00');
-      current_room = 'list_id00';
-      new_list = [];
-      for (_i = 0, _len = post_data.length; _i < _len; _i++) {
-        item = post_data[_i];
-        if (item[0] === current_room) new_list.push(item);
-      }
-      return socket.emit('join', new_list);
+      socket.emit('list groups', topics);
+      join_room('topic_id00');
+      return socket.emit('join', filter_posts(current_room));
     });
   });
-  /*
-  	setTimeout (->
-  		username = 'jiyinyiyong@gmail'
-  		socket.emit 'list groups', groups_data
-  		socket.leave 'public room'
-  		socket.join 'list'
-  		o 'sent list groups msg'
-  		socket.join 'list_id00'), 200
-  	# finish auto login here
-  */
   socket.on('logout', function() {
-    var item, new_list, _i, _len;
     username = 'name_missing';
     socket.leave('list');
-    current_room = 'public room';
-    socket.join(current_room);
-    new_list = [];
-    for (_i = 0, _len = post_data.length; _i < _len; _i++) {
-      item = post_data[_i];
-      if (item[0] === current_room) new_list.push(item);
-    }
-    return socket.emit('already logout', new_list);
+    join_room('public room');
+    return socket.emit('already logout', filter_posts(current_room));
   });
   socket.on('add title', function(title_data) {
-    return (io.sockets["in"]('list')).emit('add title', title_data, new_thread());
+    (io.sockets["in"]('list')).emit('add title', title_data, new_topic());
+    return topics.push([topic_id, username, timestamp(), title_data]);
   });
-  return socket.on('join', function(list_name) {
-    var item, new_list, _i, _len;
-    if (list_name !== current_room) {
-      socket.join(list_name);
-      socket.leave(current_room);
-      current_room = list_name;
-      new_list = [];
-      for (_i = 0, _len = post_data.length; _i < _len; _i++) {
-        item = post_data[_i];
-        if (item[0] === current_room) new_list.push(item);
-      }
-      return socket.emit('join', new_list);
+  socket.on('join', function(topic_room) {
+    if (topic_room !== current_room) {
+      join_room(topic_room);
+      return socket.emit('join', filter_posts(current_room));
     }
+  });
+  return socket.on('begin', function() {
+    return socket.emit('render begin', filter_posts(current_room));
   });
 });
