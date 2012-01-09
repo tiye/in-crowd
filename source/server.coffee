@@ -15,13 +15,6 @@ handler = (req, res) ->
 app = (require 'http').createServer handler
 app.listen 8000
 
-thread = 0
-topic_id = 0
-new_thread = () -> thread += 1
-new_topic = () -> topic_id += 1
-timestamp = () ->
-	t = new Date()
-	tm = t.getMonth()+'-'+t.getDate()+' '+t.getHours()+':'+t.getMinutes()+':'+t.getSeconds()
 topics = []
 post_data = []
 filter_posts = (room_name) ->
@@ -42,12 +35,19 @@ check_email = (email) ->
 		if item[1] is email
 			return item[0]
 	return false
+timestamp = () ->
+	t = new Date()
+	tm = t.getMonth()+'-'+t.getDate()+' '+t.getHours()+':'+t.getMinutes()+':'+t.getSeconds()
 
 io = (require 'socket.io').listen app
 io.set 'log level', 1
 io.set "transports", ["xhr-polling"]
 io.set "polling duration", 10
 io.sockets.on 'connection', (socket) ->
+	thread = 0
+	topic_id = 0
+	new_thread = () -> thread += 1
+	new_topic = () -> topic_id += 1
 	email = 'email_missing'
 	username = '游客'
 	current_room = 'public room'

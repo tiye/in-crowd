@@ -1,4 +1,4 @@
-var app, check_email, check_nickname, filter_posts, fs, handler, io, new_thread, new_topic, nicknames, o, post_data, request, thread, timestamp, topic_id, topics, url;
+var app, check_email, check_nickname, filter_posts, fs, handler, io, nicknames, o, post_data, request, timestamp, topics, url;
 
 request = require('request');
 
@@ -26,24 +26,6 @@ handler = function(req, res) {
 app = (require('http')).createServer(handler);
 
 app.listen(8000);
-
-thread = 0;
-
-topic_id = 0;
-
-new_thread = function() {
-  return thread += 1;
-};
-
-new_topic = function() {
-  return topic_id += 1;
-};
-
-timestamp = function() {
-  var t, tm;
-  t = new Date();
-  return tm = t.getMonth() + '-' + t.getDate() + ' ' + t.getHours() + ':' + t.getMinutes() + ':' + t.getSeconds();
-};
 
 topics = [];
 
@@ -80,6 +62,12 @@ check_email = function(email) {
   return false;
 };
 
+timestamp = function() {
+  var t, tm;
+  t = new Date();
+  return tm = t.getMonth() + '-' + t.getDate() + ' ' + t.getHours() + ':' + t.getMinutes() + ':' + t.getSeconds();
+};
+
 io = (require('socket.io')).listen(app);
 
 io.set('log level', 1);
@@ -89,7 +77,15 @@ io.set("transports", ["xhr-polling"]);
 io.set("polling duration", 10);
 
 io.sockets.on('connection', function(socket) {
-  var current_room, email, join_room, username;
+  var current_room, email, join_room, new_thread, new_topic, thread, topic_id, username;
+  thread = 0;
+  topic_id = 0;
+  new_thread = function() {
+    return thread += 1;
+  };
+  new_topic = function() {
+    return topic_id += 1;
+  };
   email = 'email_missing';
   username = '游客';
   current_room = 'public room';
