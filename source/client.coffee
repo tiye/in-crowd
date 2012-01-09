@@ -29,7 +29,6 @@ main = ->
 	socket.on 'open post', (thread_id, timestamp, username) ->
 		my_thread = thread_id
 		render_post thread_id, timestamp, username
-		try_scroll()
 	socket.on 'close post', (id_num, post_content) ->
 		console.log ($ '#post_id'+my_thread).children().first().text()
 		if post_content is ''
@@ -70,7 +69,7 @@ render_login_page = () ->
 render_nickname_page = (arg) ->
 	($ '#left').empty()
 	render_content = "<nav id='login_nickname'>#{arg}<br/><textarea id='text_nickname'>"
-	render_content += '</textarea><button id="send_nickname">send</button></nav>'
+	render_content += '</textarea><button id="send_nickname">用这个昵称</button></nav>'
 	($ '#left').append render_content
 	($ '#send_nickname').click () ->
 		socket.emit 'nickname', ($ '#text_nickname').val()
@@ -81,19 +80,19 @@ render_post = (thread_id, timestamp, username, content='') ->
 	($ '#right').append render_content
 	try_scroll()
 try_scroll = () ->
-	if text_box_off
-		if ($ '#right').scrollTop() + ($ '#right').height() + 200 > ($ '#right')[0].scrollHeight
-			($ '#right').scrollTop ($ '#right')[0].scrollHeight
+	# if text_box_off
+	if ($ '#right').scrollTop() + ($ '#right').height() + 200 > ($ '#right')[0].scrollHeight
+		($ '#right').scrollTop ($ '#right')[0].scrollHeight
 render_groups = (topics) ->
 	($ '#left').empty()
-	($ '#left').append "<nav id='logout'>click to logout</nav>"
-	($ '#left').append "<nav id='topic_id00'>Name, Time<br/>Content_of_posts</nav>"
+	($ '#left').append "<nav id='logout'>点击这个区域退出登陆</nav>"
+	($ '#left').append "<nav id='topic_id00'>注册昵称, 时间戳<br/>这里是登陆后默认群组, 点击按钮一下每一栏都是一个群</nav>"
 	($ '#topic_id00').click () ->
 		socket.emit 'join', "topic_id00"
 	($ '#logout').click () ->
 		navigator.id.logout()
 		socket.emit 'logout'
-	($ '#left').append "<nav><textarea id='add_title'></textarea><br/><button id='send_title'>send</button></nav>"
+	($ '#left').append "<nav>添加一个话题作为群组<br/><textarea id='add_title'></textarea><br/><button id='send_title'>添加此话题</button></nav>"
 	($ '#send_title').click () ->
 			socket.emit 'add title', ($ '#add_title').val()
 			($ '#add_title').val ''

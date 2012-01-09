@@ -91,7 +91,7 @@ io.set("polling duration", 10);
 io.sockets.on('connection', function(socket) {
   var current_room, email, join_room, username;
   email = 'email_missing';
-  username = 'name_missing';
+  username = '游客';
   current_room = 'public room';
   socket.join(current_room);
   join_room = function(room) {
@@ -126,7 +126,7 @@ io.sockets.on('connection', function(socket) {
       email = body.email;
       already_username = check_email(email);
       if (!already_username) {
-        return socket.emit('get nickname', 'A nickname:');
+        return socket.emit('get nickname', '在下面输入一个昵称:');
       } else {
         username = already_username;
         socket.join('list');
@@ -144,7 +144,7 @@ io.sockets.on('connection', function(socket) {
       join_room('topic_id00');
       return socket.emit('join', filter_posts(current_room));
     } else {
-      return socket.emit('get nickname', 'Name Repeated..');
+      return socket.emit('get nickname', '被占用了.. 换一个试试');
     }
   });
   socket.on('logout', function() {

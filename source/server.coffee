@@ -49,7 +49,7 @@ io.set "transports", ["xhr-polling"]
 io.set "polling duration", 10
 io.sockets.on 'connection', (socket) ->
 	email = 'email_missing'
-	username = 'name_missing'
+	username = '游客'
 	current_room = 'public room'
 	socket.join current_room
 	join_room = (room) ->
@@ -75,7 +75,7 @@ io.sockets.on 'connection', (socket) ->
 			email = body.email
 			already_username = check_email email
 			unless already_username
-				socket.emit 'get nickname', 'A nickname:'
+				socket.emit 'get nickname', '在下面输入一个昵称:'
 			else
 				username = already_username
 				socket.join 'list'
@@ -91,7 +91,7 @@ io.sockets.on 'connection', (socket) ->
 			join_room 'topic_id00'
 			socket.emit 'join', (filter_posts current_room)
 		else
-			socket.emit 'get nickname', 'Name Repeated..'
+			socket.emit 'get nickname', '被占用了.. 换一个试试'
 	socket.on 'logout', () ->
 		email = 'email_missing'
 		username = 'name_missing'

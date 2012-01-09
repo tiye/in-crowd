@@ -40,8 +40,7 @@ main = function() {
   });
   socket.on('open post', function(thread_id, timestamp, username) {
     my_thread = thread_id;
-    render_post(thread_id, timestamp, username);
-    return try_scroll();
+    return render_post(thread_id, timestamp, username);
   });
   socket.on('close post', function(id_num, post_content) {
     console.log(($('#post_id' + my_thread)).children().first().text());
@@ -103,7 +102,7 @@ render_nickname_page = function(arg) {
   var render_content;
   ($('#left')).empty();
   render_content = "<nav id='login_nickname'>" + arg + "<br/><textarea id='text_nickname'>";
-  render_content += '</textarea><button id="send_nickname">send</button></nav>';
+  render_content += '</textarea><button id="send_nickname">用这个昵称</button></nav>';
   ($('#left')).append(render_content);
   return ($('#send_nickname')).click(function() {
     return socket.emit('nickname', ($('#text_nickname')).val());
@@ -121,18 +120,16 @@ render_post = function(thread_id, timestamp, username, content) {
 };
 
 try_scroll = function() {
-  if (text_box_off) {
-    if (($('#right')).scrollTop() + ($('#right')).height() + 200 > ($('#right'))[0].scrollHeight) {
-      return ($('#right')).scrollTop(($('#right'))[0].scrollHeight);
-    }
+  if (($('#right')).scrollTop() + ($('#right')).height() + 200 > ($('#right'))[0].scrollHeight) {
+    return ($('#right')).scrollTop(($('#right'))[0].scrollHeight);
   }
 };
 
 render_groups = function(topics) {
   var item, _i, _len, _results;
   ($('#left')).empty();
-  ($('#left')).append("<nav id='logout'>click to logout</nav>");
-  ($('#left')).append("<nav id='topic_id00'>Name, Time<br/>Content_of_posts</nav>");
+  ($('#left')).append("<nav id='logout'>点击这个区域退出登陆</nav>");
+  ($('#left')).append("<nav id='topic_id00'>注册昵称, 时间戳<br/>这里是登陆后默认群组, 点击按钮一下每一栏都是一个群</nav>");
   ($('#topic_id00')).click(function() {
     return socket.emit('join', "topic_id00");
   });
@@ -140,7 +137,7 @@ render_groups = function(topics) {
     navigator.id.logout();
     return socket.emit('logout');
   });
-  ($('#left')).append("<nav><textarea id='add_title'></textarea><br/><button id='send_title'>send</button></nav>");
+  ($('#left')).append("<nav>添加一个话题作为群组<br/><textarea id='add_title'></textarea><br/><button id='send_title'>添加此话题</button></nav>");
   ($('#send_title')).click(function() {
     socket.emit('add title', ($('#add_title')).val());
     return ($('#add_title')).val('');
