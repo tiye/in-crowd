@@ -1,4 +1,4 @@
-var app, check_nickname, filter_posts, fs, handler, io, new_thread, new_topic, nicknames, o, post_data, request, thread, timestamp, topic_id, topics, url;
+var app, check_email, check_nickname, filter_posts, fs, handler, io, new_thread, new_topic, nicknames, o, post_data, request, thread, timestamp, topic_id, topics, url;
 
 request = require('request');
 
@@ -67,7 +67,17 @@ check_nickname = function(nickname, email) {
     item = nicknames[_i];
     if (item[0] === nickname) return false;
   }
-  return nicknames.push([nickname, email]);
+  nicknames.push([nickname, email]);
+  return true;
+};
+
+check_email = function(email) {
+  var item, _i, _len;
+  for (_i = 0, _len = nicknames.length; _i < _len; _i++) {
+    item = nicknames[_i];
+    if (item[1] === email) return item[0];
+  }
+  return false;
 };
 
 io = (require('socket.io')).listen(app);
@@ -79,7 +89,8 @@ io.set("transports", ["xhr-polling"]);
 io.set("polling duration", 10);
 
 io.sockets.on('connection', function(socket) {
-  var current_room, join_room, username;
+  var current_room, email, join_room, username;
+  email = 'email_missing';
   username = 'name_missing';
   current_room = 'public room';
   socket.join(current_room);
@@ -111,12 +122,25 @@ io.sockets.on('connection', function(socket) {
       }
     };
     return request(options, function(err, request_res, body) {
-      username = body.email;
-      return socket.emit('get nickname', 'A nickname:');
+      var already_username;
+      email = body.email;
+      already_username = check_email(email);
+      if (!already_username) {
+        o('already_username');
+        return socket.emit('get nickname', 'A nickname:');
+      } else {
+        o('else');
+        username = already_username;
+        socket.join('list');
+        socket.emit('list groups', topics);
+        join_room('topic_id00');
+        return socket.emit('join', filter_posts(current_room));
+      }
     });
   });
-  socket.on('nickname', function(nickname) {
-    if (check_nickname(nickname, username)) {
+  socket.on('nickname', function(set_username) {
+    if (check_nickname(set_username, email)) {
+      username = set_username;
       socket.join('list');
       socket.emit('list groups', topics);
       join_room('topic_id00');
@@ -126,6 +150,7 @@ io.sockets.on('connection', function(socket) {
     }
   });
   socket.on('logout', function() {
+    email = 'email_missing';
     username = 'name_missing';
     socket.leave('list');
     join_room('public room');
@@ -141,9 +166,7 @@ io.sockets.on('connection', function(socket) {
       return socket.emit('join', filter_posts(current_room));
     }
   });
-  socket.on('begin', function() {
+  return socket.on('begin', function() {
     return socket.emit('render begin', filter_posts(current_room));
   });
-  o('herehr');
-  return socket.emit('get nickname', 'A nickname:');
 });

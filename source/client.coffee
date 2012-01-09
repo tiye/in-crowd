@@ -73,7 +73,7 @@ render_nickname_page = (arg) ->
 	render_content += '</textarea><button id="send_nickname">send</button></nav>'
 	($ '#left').append render_content
 	($ '#send_nickname').click () ->
-		socket.emit 'nickname', ($ '#left').val()
+		socket.emit 'nickname', ($ '#text_nickname').val()
 render_post = (thread_id, timestamp, username, content='') ->
 	render_content =  "<nav id='post_id#{thread_id}' class='posted_box'>"
 	render_content += "<nav class='posted_content_raw'>#{content} @ #{timestamp}</nav>"

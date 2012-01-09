@@ -23,7 +23,7 @@ timestamp = () ->
 	t = new Date()
 	tm = t.getMonth()+'-'+t.getDate()+' '+t.getHours()+':'+t.getMinutes()+':'+t.getSeconds()
 topics = []
-post_data =[]
+post_data = []
 filter_posts = (room_name) ->
 	new_list = []
 	for item in post_data
@@ -36,12 +36,19 @@ check_nickname = (nickname, email) ->
 		if item[0] is nickname
 			return false
 	nicknames.push [nickname, email]
+	return true
+check_email = (email) ->
+	for item in nicknames
+		if item[1] is email
+			return item[0]
+	return false
 
 io = (require 'socket.io').listen app
 io.set 'log level', 1
 io.set "transports", ["xhr-polling"]
 io.set "polling duration", 10
 io.sockets.on 'connection', (socket) ->
+	email = 'email_missing'
 	username = 'name_missing'
 	current_room = 'public room'
 	socket.join current_room
@@ -65,10 +72,20 @@ io.sockets.on 'connection', (socket) ->
 				'assertion': data
 				'audience': 'http://localhost:8000'
 		request options, (err, request_res, body) ->
-			username = body.email
-			socket.emit 'get nickname', 'A nickname:'
-	socket.on 'nickname', (nickname) ->
-		if check_nickname(nickname, username)
+			email = body.email
+			already_username = check_email email
+			unless already_username
+				socket.emit 'get nickname', 'A nickname:'
+			else
+				username = already_username
+				socket.join 'list'
+				socket.emit 'list groups', topics
+				join_room 'topic_id00'
+				socket.emit 'join', (filter_posts current_room)
+
+	socket.on 'nickname', (set_username) ->
+		if check_nickname(set_username, email)
+			username = set_username
 			socket.join 'list'
 			socket.emit 'list groups', topics
 			join_room 'topic_id00'
@@ -76,6 +93,7 @@ io.sockets.on 'connection', (socket) ->
 		else
 			socket.emit 'get nickname', 'Name Repeated..'
 	socket.on 'logout', () ->
+		email = 'email_missing'
 		username = 'name_missing'
 		socket.leave 'list'
 		join_room 'public room'

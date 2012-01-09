@@ -106,7 +106,7 @@ render_nickname_page = function(arg) {
   render_content += '</textarea><button id="send_nickname">send</button></nav>';
   ($('#left')).append(render_content);
   return ($('#send_nickname')).click(function() {
-    return socket.emit('nickname', ($('#left')).val());
+    return socket.emit('nickname', ($('#text_nickname')).val());
   });
 };
 
