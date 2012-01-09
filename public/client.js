@@ -66,8 +66,8 @@ main = function() {
     render_login_page();
     return render_posts_from(post_data);
   });
-  socket.on('add title', function(title_data, topic_id) {
-    ($('#left')).append("<nav id='topic_id" + topic_id + "'>" + title_data + "</nav>");
+  socket.on('add title', function(title_data, topic_id, username, timestamp) {
+    ($('#left')).append("<nav id='topic_id" + topic_id + "'>" + username + ", " + timestamp + "<br/>" + title_data + "</nav>");
     return ($("#topic_id" + topic_id)).click(function() {
       return socket.emit('join', "topic_id" + topic_id);
     });
@@ -131,19 +131,19 @@ try_scroll = function() {
 render_groups = function(topics) {
   var item, _i, _len, _results;
   ($('#left')).empty();
+  ($('#left')).append("<nav id='logout'>click to logout</nav>");
   ($('#left')).append("<nav id='topic_id00'>Name, Time<br/>Content_of_posts</nav>");
   ($('#topic_id00')).click(function() {
     return socket.emit('join', "topic_id00");
   });
-  ($('#left')).append("<nav id='logout'>click to logout</nav>");
+  ($('#logout')).click(function() {
+    navigator.id.logout();
+    return socket.emit('logout');
+  });
   ($('#left')).append("<nav><textarea id='add_title'></textarea><br/><button id='send_title'>send</button></nav>");
   ($('#send_title')).click(function() {
     socket.emit('add title', ($('#add_title')).val());
     return ($('#add_title')).val('');
-  });
-  ($('#logout')).click(function() {
-    navigator.id.logout();
-    return socket.emit('logout');
   });
   _results = [];
   for (_i = 0, _len = topics.length; _i < _len; _i++) {

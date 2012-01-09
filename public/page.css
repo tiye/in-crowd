@@ -8,8 +8,11 @@ body{font-family:'wenquanyi micro hei','Ubuntu';font-size:14px;line-height:26px}
 #post{position:relative;left:464px;bottom:200px;width:680px;height:28px;line-height:26px;font-size:13px;border:0;resize:none}
 .posted_box{min-height:26px;width:100%}
 .posted_content,.posted_content_raw{overflow-x:hidden;float:left;width:580px;padding-left:13px}
-.posted_content_raw{color:#eb4747}
+.posted_content_raw{color:#b81414}
 .posted_username{float:left;width:90px;overflow-x:hidden}
-#left>nav{width:100%;badkground:#f5a3a3}
-#left>*:nth-child(2n){background:#a3a3f5}
-#right>*:nth-child(2n){background:#f5daa3}
+#left>nav{width:100%;badkground:#f5a3a3;padding:0 13px}
+#left>*:nth-child(2n){background:#d1d1fa}
+#left>*:nth-child(2n+1){background:#fadfd1}
+#right>*:nth-child(2n){background:#d1fadf}
+#right>*:nth-child(2n+1){background:#d1d1fa}
+#add_title{width:90%}

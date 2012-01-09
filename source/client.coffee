@@ -46,8 +46,8 @@ main = ->
 	socket.on 'already logout', (post_data) ->
 		render_login_page()
 		render_posts_from post_data
-	socket.on 'add title', (title_data, topic_id) ->
-		($ '#left').append "<nav id='topic_id#{topic_id}'>#{title_data}</nav>"
+	socket.on 'add title', (title_data, topic_id, username, timestamp) ->
+		($ '#left').append "<nav id='topic_id#{topic_id}'>#{username}, #{timestamp}<br/>#{title_data}</nav>"
 		($ "#topic_id#{topic_id}").click () ->
 			socket.emit 'join', "topic_id#{topic_id}"
 	socket.on 'join', (post_data) ->
@@ -86,17 +86,17 @@ try_scroll = () ->
 			($ '#right').scrollTop ($ '#right')[0].scrollHeight
 render_groups = (topics) ->
 	($ '#left').empty()
+	($ '#left').append "<nav id='logout'>click to logout</nav>"
 	($ '#left').append "<nav id='topic_id00'>Name, Time<br/>Content_of_posts</nav>"
 	($ '#topic_id00').click () ->
 		socket.emit 'join', "topic_id00"
-	($ '#left').append "<nav id='logout'>click to logout</nav>"
+	($ '#logout').click () ->
+		navigator.id.logout()
+		socket.emit 'logout'
 	($ '#left').append "<nav><textarea id='add_title'></textarea><br/><button id='send_title'>send</button></nav>"
 	($ '#send_title').click () ->
 			socket.emit 'add title', ($ '#add_title').val()
 			($ '#add_title').val ''
-	($ '#logout').click () ->
-		navigator.id.logout()
-		socket.emit 'logout'
 	for item in topics
 		($ '#left').append "<nav id='topic_id#{item[0]}'>#{item[1]}, #{item[2]}<br/>#{item[3]}</nav>"
 		($ "#topic_id#{item[0]}").click () ->

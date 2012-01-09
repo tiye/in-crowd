@@ -126,10 +126,8 @@ io.sockets.on('connection', function(socket) {
       email = body.email;
       already_username = check_email(email);
       if (!already_username) {
-        o('already_username');
         return socket.emit('get nickname', 'A nickname:');
       } else {
-        o('else');
         username = already_username;
         socket.join('list');
         socket.emit('list groups', topics);
@@ -157,7 +155,7 @@ io.sockets.on('connection', function(socket) {
     return socket.emit('already logout', filter_posts(current_room));
   });
   socket.on('add title', function(title_data) {
-    (io.sockets["in"]('list')).emit('add title', title_data, new_topic());
+    (io.sockets["in"]('list')).emit('add title', title_data, new_topic(), username, timestamp());
     return topics.push([topic_id, username, timestamp(), title_data]);
   });
   socket.on('join', function(topic_room) {
