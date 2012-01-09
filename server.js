@@ -143,7 +143,7 @@ io.sockets.on('connection', function(socket) {
   });
   socket.on('logout', function() {
     email = 'email_missing';
-    username = 'name_missing';
+    username = '已游客';
     socket.leave('list');
     join_room('public room');
     return socket.emit('already logout', filter_posts(current_room));

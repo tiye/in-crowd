@@ -24,14 +24,14 @@ main = ->
 		# for Chrome, add if to filter if empty was synced..
 		if post_content.length > 0
 			socket.emit 'sync', my_thread, ($ '#post').val()
-		if post_content.length > 30
-			($ '#post').val (post_content.slice 0, 30)
+		if post_content.length > 40
+			($ '#post').val (post_content.slice 0, 40)
 	socket.on 'open post', (thread_id, timestamp, username) ->
 		render_post thread_id, timestamp, username
 	socket.on 'set id', (thread_id) ->
 		my_thread = thread_id
 	socket.on 'close post', (thread_id, post_content) ->
-		if post_content.length < 2
+		if post_content.length < 1
 			($ '#post_id'+thread_id).remove()
 		else
 			($ '#post_id'+thread_id).children().first().attr 'class', 'posted_content'
