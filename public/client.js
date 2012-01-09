@@ -39,15 +39,16 @@ main = function() {
     }
   });
   socket.on('open post', function(thread_id, timestamp, username) {
-    my_thread = thread_id;
     return render_post(thread_id, timestamp, username);
   });
-  socket.on('close post', function(id_num, post_content) {
-    console.log(($('#post_id' + my_thread)).children().first().text());
-    if (post_content === '') {
-      return ($('#post_id' + my_thread)).remove();
+  socket.on('set id', function(thread_id) {
+    return my_thread = thread_id;
+  });
+  socket.on('close post', function(thread_id, post_content) {
+    if (post_content.length < 2) {
+      return ($('#post_id' + thread_id)).remove();
     } else {
-      return ($('#post_id' + my_thread)).children().first().attr('class', 'posted_content');
+      return ($('#post_id' + thread_id)).children().first().attr('class', 'posted_content');
     }
   });
   socket.on('sync', function(sync_id, sync_data, timestamp, username) {

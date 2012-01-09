@@ -27,14 +27,14 @@ main = ->
 		if post_content.length > 30
 			($ '#post').val (post_content.slice 0, 30)
 	socket.on 'open post', (thread_id, timestamp, username) ->
-		my_thread = thread_id
 		render_post thread_id, timestamp, username
-	socket.on 'close post', (id_num, post_content) ->
-		console.log ($ '#post_id'+my_thread).children().first().text()
-		if post_content is ''
-			($ '#post_id'+my_thread).remove()
+	socket.on 'set id', (thread_id) ->
+		my_thread = thread_id
+	socket.on 'close post', (thread_id, post_content) ->
+		if post_content.length < 2
+			($ '#post_id'+thread_id).remove()
 		else
-			($ '#post_id'+my_thread).children().first().attr 'class', 'posted_content'
+			($ '#post_id'+thread_id).children().first().attr 'class', 'posted_content'
 	socket.on 'sync', (sync_id, sync_data, timestamp, username) ->
 		if ($ '#post_id'+sync_id)
 			elem = ($ '#post_id'+sync_id).children().first()

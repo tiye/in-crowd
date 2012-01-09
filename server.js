@@ -1,4 +1,4 @@
-var app, check_email, check_nickname, filter_posts, fs, handler, io, nicknames, o, post_data, request, timestamp, topics, url;
+var app, check_email, check_nickname, filter_posts, fs, handler, io, nicknames, o, post_data, request, thread, timestamp, topic_id, topics, url;
 
 request = require('request');
 
@@ -26,6 +26,10 @@ handler = function(req, res) {
 app = (require('http')).createServer(handler);
 
 app.listen(8000);
+
+thread = 0;
+
+topic_id = 0;
 
 topics = [];
 
@@ -77,15 +81,7 @@ io.set("transports", ["xhr-polling"]);
 io.set("polling duration", 10);
 
 io.sockets.on('connection', function(socket) {
-  var current_room, email, join_room, new_thread, new_topic, thread, topic_id, username;
-  thread = 0;
-  topic_id = 0;
-  new_thread = function() {
-    return thread += 1;
-  };
-  new_topic = function() {
-    return topic_id += 1;
-  };
+  var current_room, email, join_room, username;
   email = 'email_missing';
   username = '游客';
   current_room = 'public room';
@@ -96,7 +92,9 @@ io.sockets.on('connection', function(socket) {
     return socket.join(current_room);
   };
   socket.on('open post', function() {
-    return (io.sockets["in"](current_room)).emit('open post', new_thread(), timestamp(), username);
+    thread += 1;
+    (io.sockets["in"](current_room)).emit('open post', thread, timestamp(), username);
+    return socket.emit('set id', thread);
   });
   socket.on('close post', function(thread_id, post_content) {
     (io.sockets["in"](current_room)).emit('close post', thread_id, post_content);
@@ -151,7 +149,7 @@ io.sockets.on('connection', function(socket) {
     return socket.emit('already logout', filter_posts(current_room));
   });
   socket.on('add title', function(title_data) {
-    (io.sockets["in"]('list')).emit('add title', title_data, new_topic(), username, timestamp());
+    topic_id;    (io.sockets["in"]('list')).emit('add title', title_data, topic_id, username, timestamp());
     return topics.push([topic_id, username, timestamp(), title_data]);
   });
   socket.on('join', function(topic_room) {

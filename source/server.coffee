@@ -15,6 +15,8 @@ handler = (req, res) ->
 app = (require 'http').createServer handler
 app.listen 8000
 
+thread = 0
+topic_id = 0
 topics = []
 post_data = []
 filter_posts = (room_name) ->
@@ -44,10 +46,6 @@ io.set 'log level', 1
 io.set "transports", ["xhr-polling"]
 io.set "polling duration", 10
 io.sockets.on 'connection', (socket) ->
-	thread = 0
-	topic_id = 0
-	new_thread = () -> thread += 1
-	new_topic = () -> topic_id += 1
 	email = 'email_missing'
 	username = '游客'
 	current_room = 'public room'
@@ -57,7 +55,9 @@ io.sockets.on 'connection', (socket) ->
 		current_room = room
 		socket.join current_room
 	socket.on 'open post', () ->
-		(io.sockets.in current_room).emit 'open post', new_thread(), timestamp(), username
+		thread += 1
+		(io.sockets.in current_room).emit 'open post', thread, timestamp(), username
+		socket.emit 'set id', thread
 	socket.on 'close post', (thread_id, post_content) ->
 		(io.sockets.in current_room).emit 'close post', thread_id, post_content
 		if post_content != ''
@@ -94,12 +94,13 @@ io.sockets.on 'connection', (socket) ->
 			socket.emit 'get nickname', '被占用了.. 换一个试试'
 	socket.on 'logout', () ->
 		email = 'email_missing'
-		username = 'name_missing'
+		username = '已游客'
 		socket.leave 'list'
 		join_room 'public room'
 		socket.emit 'already logout', (filter_posts current_room)
 	socket.on 'add title', (title_data) ->
-		(io.sockets.in 'list').emit 'add title', title_data, new_topic(), username, timestamp()
+		topic_id
+		(io.sockets.in 'list').emit 'add title', title_data, topic_id, username, timestamp()
 		topics.push [topic_id, username, timestamp(), title_data]
 	socket.on 'join', (topic_room) ->
 		unless topic_room is current_room
