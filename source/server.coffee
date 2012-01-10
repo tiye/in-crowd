@@ -99,7 +99,7 @@ io.sockets.on 'connection', (socket) ->
 		join_room 'public room'
 		socket.emit 'already logout', (filter_posts current_room)
 	socket.on 'add title', (title_data) ->
-		topic_id
+		topic_id += 1
 		(io.sockets.in 'list').emit 'add title', title_data, topic_id, username, timestamp()
 		topics.push [topic_id, username, timestamp(), title_data]
 	socket.on 'join', (topic_room) ->

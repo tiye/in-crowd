@@ -149,7 +149,8 @@ io.sockets.on('connection', function(socket) {
     return socket.emit('already logout', filter_posts(current_room));
   });
   socket.on('add title', function(title_data) {
-    topic_id;    (io.sockets["in"]('list')).emit('add title', title_data, topic_id, username, timestamp());
+    topic_id += 1;
+    (io.sockets["in"]('list')).emit('add title', title_data, topic_id, username, timestamp());
     return topics.push([topic_id, username, timestamp(), title_data]);
   });
   socket.on('join', function(topic_room) {
