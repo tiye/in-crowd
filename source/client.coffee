@@ -97,9 +97,11 @@ render_groups = (topics) ->
 			socket.emit 'add title', ($ '#add_title').val()
 			($ '#add_title').val ''
 	for item in topics
-		($ '#left').append "<nav id='topic_id#{item[0]}'>#{item[1]}, #{item[2]}<br/>#{item[3]}</nav>"
-		($ "#topic_id#{item[0]}").click () ->
-			socket.emit 'join', "topic_id#{item[0]}"
+		((itemm) ->
+			($ '#left').append "<nav id='topic_id#{item[0]}'>#{itemm[1]}, #{itemm[2]}<br/>#{itemm[3]}</nav>"
+			($ "#topic_id#{itemm[0]}").click () =>
+				o 'topic_id', itemm
+				socket.emit 'join', "topic_id#{itemm[0]}") item
 render_posts_from = (post_data) ->
 	($ '#right').empty()
 	for item in post_data

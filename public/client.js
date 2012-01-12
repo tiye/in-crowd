@@ -146,10 +146,14 @@ render_groups = function(topics) {
   _results = [];
   for (_i = 0, _len = topics.length; _i < _len; _i++) {
     item = topics[_i];
-    ($('#left')).append("<nav id='topic_id" + item[0] + "'>" + item[1] + ", " + item[2] + "<br/>" + item[3] + "</nav>");
-    _results.push(($("#topic_id" + item[0])).click(function() {
-      return socket.emit('join', "topic_id" + item[0]);
-    }));
+    _results.push((function(itemm) {
+      var _this = this;
+      ($('#left')).append("<nav id='topic_id" + item[0] + "'>" + itemm[1] + ", " + itemm[2] + "<br/>" + itemm[3] + "</nav>");
+      return ($("#topic_id" + itemm[0])).click(function() {
+        o('topic_id', itemm);
+        return socket.emit('join', "topic_id" + itemm[0]);
+      });
+    })(item));
   }
   return _results;
 };
