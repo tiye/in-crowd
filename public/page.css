@@ -1,18 +1,14 @@
-body{font-family:'wenquanyi micro hei','Ubuntu';font-size:14px;line-height:26px}
-#box{width:1160px;height:640px;margin:20px auto;background:#b34d4d}
-#left,#right{height:640px;overflow-x:hidden;overflow-y:scroll}
-#left{width:460px;float:left;background:#fad1df}
-#right{float:right;width:700px;background:#faecd1}
-#login_image{margin:260px}
-#login_nickname{margin:240px 100px}
-#post{position:relative;left:464px;bottom:200px;width:680px;height:28px;line-height:26px;font-size:13px;border:0;resize:none}
-.posted_box{min-height:26px;width:100%}
-.posted_content,.posted_content_raw{overflow-x:hidden;float:left;width:580px;padding-left:13px}
-.posted_content_raw{color:#b81414}
-.posted_username{float:left;width:90px;overflow-x:hidden}
-#left>nav{width:100%;badkground:#f5a3a3;padding:0 13px}
-#left>*:nth-child(2n){background:#d1d1fa}
-#left>*:nth-child(2n+1){background:#fadfd1}
-#right>*:nth-child(2n){background:#d1fadf}
-#right>*:nth-child(2n+1){background:#d1d1fa}
-#add_title{width:90%}
+body{font-family:'wenquanyi micro hei','Ubuntu';font-size:13px;line-height:26px;-moz-box-orient:vertical;-webkit-box-orient:vertical}
+body>*{width:1100px;margin:26px auto;padding:13px;background:#decffc}
+*{-moz-box-sizing:border-box;-webkit-box-sizing:border-box}
+#send_name{width:200px;height:26px}
+p{padding:0;margin:0}
+#note{font-size:10px;display:none}
+#board{padding:0;display:-moz-box;display:-webkit-box;margin:26px auto;height:600px;-moz-box-orient:horizontal;-webkit-box-orient:horizontal}
+#left{width:500px;height:100%;background:#00f;-moz-box-orient:vertical;-webkit-box-orient:vertical}
+#topic{width:100%;height:576px;overflow-y:scroll}
+#create{width:100%;height:26px;background:#008000}
+#right{width:600px;height:100%;background:#f00;-moz-box-orient:vertical;-webkit-box-orient:vertical}
+#thread{width:100%;height:574px;overflow-y:scroll;overflow-x:hidden}
+#add{width:600px;height:26px;background:#808080}
+#box{width:500px;height:26px;display:none}

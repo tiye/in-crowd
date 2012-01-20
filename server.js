@@ -1,6 +1,4 @@
-var app, check_email, check_nickname, filter_posts, fs, handler, io, nicknames, o, post_data, request, thread, timestamp, topic_id, topics, url;
-
-request = require('request');
+var app, check_name, fs, handler, io, names, o, thread, time, url;
 
 fs = require('fs');
 
@@ -27,139 +25,78 @@ app = (require('http')).createServer(handler);
 
 app.listen(8000);
 
-thread = 0;
-
-topic_id = 0;
-
-topics = [];
-
-post_data = [];
-
-filter_posts = function(room_name) {
-  var item, new_list, _i, _len;
-  new_list = [];
-  for (_i = 0, _len = post_data.length; _i < _len; _i++) {
-    item = post_data[_i];
-    if (item[0] === room_name) new_list.push(item);
-  }
-  return new_list;
-};
-
-nicknames = [];
-
-check_nickname = function(nickname, email) {
-  var item, _i, _len;
-  for (_i = 0, _len = nicknames.length; _i < _len; _i++) {
-    item = nicknames[_i];
-    if (item[0] === nickname) return false;
-  }
-  nicknames.push([nickname, email]);
-  return true;
-};
-
-check_email = function(email) {
-  var item, _i, _len;
-  for (_i = 0, _len = nicknames.length; _i < _len; _i++) {
-    item = nicknames[_i];
-    if (item[1] === email) return item[0];
-  }
-  return false;
-};
-
-timestamp = function() {
-  var t, tm;
-  t = new Date();
-  return tm = t.getMonth() + '-' + t.getDate() + ' ' + t.getHours() + ':' + t.getMinutes() + ':' + t.getSeconds();
-};
-
 io = (require('socket.io')).listen(app);
 
 io.set('log level', 1);
 
-io.set("transports", ["xhr-polling"]);
+time = function() {
+  var t, tm;
+  t = new Date();
+  return tm = t.getHours() + ':' + t.getMinutes() + ':' + t.getSeconds();
+};
 
-io.set("polling duration", 10);
+names = [];
 
-io.sockets.on('connection', function(socket) {
-  var current_room, email, join_room, username;
-  email = 'email_missing';
-  username = '游客';
-  current_room = 'public room';
-  socket.join(current_room);
-  join_room = function(room) {
-    socket.leave(current_room);
-    current_room = room;
-    return socket.join(current_room);
-  };
-  socket.on('open post', function() {
-    thread += 1;
-    (io.sockets["in"](current_room)).emit('open post', thread, timestamp(), username);
-    return socket.emit('set id', thread);
+check_name = function(name) {
+  var item, _i, _len;
+  if (name.length < 2) return false;
+  for (_i = 0, _len = names.length; _i < _len; _i++) {
+    item = names[_i];
+    o('cmp: ', item, name);
+    if (item === name) return false;
+  }
+  names.push(name);
+  o(names);
+  return true;
+};
+
+thread = 0;
+
+io.sockets.on('connection', function(s) {
+  var my_name, my_topic, ss;
+  my_name = '';
+  my_topic = 'topic0';
+  s.join(my_topic);
+  ss = io.sockets["in"](my_topic);
+  s.on('auto login', function(t) {
+    t.status = check_name(t.name);
+    s.emit('auto login', t);
+    o('auto login msg: ', t);
+    if (t.status) return my_name = t.name;
   });
-  socket.on('close post', function(thread_id, post_content) {
-    (io.sockets["in"](current_room)).emit('close post', thread_id, post_content);
-    if (post_content !== '') {
-      return post_data.push([current_room, thread_id, post_content, timestamp(), username]);
-    }
-  });
-  socket.on('sync', function(sync_id, sync_data) {
-    return (io.sockets["in"](current_room)).emit('sync', sync_id, sync_data, timestamp(), username);
-  });
-  socket.on('login', function(data) {
-    var options;
-    options = {
-      'url': 'https://browserid.org/verify',
-      'method': 'post',
-      'json': {
-        'assertion': data,
-        'audience': 'http://localhost:8000'
-      }
-    };
-    return request(options, function(err, request_res, body) {
-      var already_username;
-      email = body.email;
-      already_username = check_email(email);
-      if (!already_username) {
-        return socket.emit('get nickname', '在下面输入一个昵称:');
+  s.on('disconnect', function() {
+    var i, _ref, _results;
+    o('disconnected:', names, my_name);
+    _results = [];
+    for (i = 0, _ref = names.length; 0 <= _ref ? i <= _ref : i >= _ref; 0 <= _ref ? i++ : i--) {
+      if (names[i] === my_name) {
+        _results.push(names.splice(i, 1));
       } else {
-        username = already_username;
-        socket.join('list');
-        socket.emit('list groups', topics);
-        join_room('topic_id00');
-        return socket.emit('join', filter_posts(current_room));
+        _results.push(void 0);
       }
-    });
-  });
-  socket.on('nickname', function(set_username) {
-    if (check_nickname(set_username, email)) {
-      username = set_username;
-      socket.join('list');
-      socket.emit('list groups', topics);
-      join_room('topic_id00');
-      return socket.emit('join', filter_posts(current_room));
-    } else {
-      return socket.emit('get nickname', '被占用了.. 换一个试试');
     }
+    return _results;
   });
-  socket.on('logout', function() {
-    email = 'email_missing';
-    username = '已游客';
-    socket.leave('list');
-    join_room('public room');
-    return socket.emit('already logout', filter_posts(current_room));
+  s.on('send name', function(t) {
+    t.status = check_name(t.name);
+    if (t.status) my_name = t.name;
+    return s.emit('send name', t);
   });
-  socket.on('add title', function(title_data) {
-    topic_id += 1;
-    (io.sockets["in"]('list')).emit('add title', title_data, topic_id, username, timestamp());
-    return topics.push([topic_id, username, timestamp(), title_data]);
+  s.on('open', function(t) {
+    thread += 1;
+    t = {
+      'name': my_name,
+      'state': 'raw',
+      'thread': thread
+    };
+    o('open thread');
+    ss.emit('open', t);
+    return s.emit('thread', t);
   });
-  socket.on('join', function(topic_room) {
-    if (topic_room !== current_room) {
-      join_room(topic_room);
-      return socket.emit('join', filter_posts(current_room));
-    }
+  s.on('sync', function(t) {
+    return ss.emit('sync', t);
   });
-  return socket.on('begin', function() {
-    return socket.emit('render begin', filter_posts(current_room));
+  return s.on('close', function(t) {
+    return ss.emit('close', t);
   });
 });

@@ -1,16 +1,27 @@
 
 html
 	head
-		title qingtan
+		title 轻谈
 		meta(charset='utf-8')
 		link(rel='shortcut icon',href='public/favicon.icon')
 		script(src='/socket.io/socket.io.js')
 		script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
 		script(src='public/client.js')
-		script(src='https://browserid.org/include.js')
+		script(src='public/jquery.cookie.js')
 		link(rel='stylesheet',href='public/page.css')
 	body
-		#box
+		#login
+			textarea#name_text
+			button#send_name 选这个名字
+			br
+			#note
+		#about
+			p 这里是通告
+		#board
 			#left
+				#topic
+				#create
 			#right
-			textarea#post
+				#thread
+				#add
+					textarea#box
