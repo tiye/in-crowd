@@ -120,7 +120,7 @@ io.sockets.on('connection', function(s) {
     return ss.emit('sync', r);
   });
   s.on('close', function(t) {
-    var d, i, r, _i, _j, _len, _len2;
+    var d, i, r, _i, _j, _len, _len2, _results;
     r = {
       'text': t.text,
       'thread': t.thread
@@ -134,22 +134,28 @@ io.sockets.on('connection', function(s) {
     };
     data.push(d);
     if (d.text.length < 2) {
+      _results = [];
       for (_i = 0, _len = topics.length; _i < _len; _i++) {
         i = topics[_i];
-        if (i === d.thread) topics.splice(i, 1);
+        if (i === d.thread) {
+          topics.splice(i, 1);
+          data[d.thread].topic = 'none';
+          s.join('topic0');
+          my_topic = 'topic0';
+          d = [];
+          for (_j = 0, _len2 = data.length; _j < _len2; _j++) {
+            i = data[_j];
+            if (i.topic === my_topic) d.push(i);
+          }
+          r = {
+            'data': d
+          };
+          _results.push(s.emit('new topic', r));
+        } else {
+          _results.push(void 0);
+        }
       }
-      data[d.thread].topic = 'none';
-      s.join('topic0');
-      my_topic = 'topic0';
-      d = [];
-      for (_j = 0, _len2 = data.length; _j < _len2; _j++) {
-        i = data[_j];
-        if (i.topic === my_topic) d.push(i);
-      }
-      r = {
-        'data': d
-      };
-      return s.emit('new topic', r);
+      return _results;
     }
   });
   s.on('create', function(t) {

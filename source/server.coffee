@@ -83,16 +83,16 @@ io.sockets.on 'connection', (s) ->
 			for i in topics
 				if i is d.thread
 					topics.splice i, 1
-			data[d.thread].topic = 'none'
-			s.join 'topic0'
-			my_topic = 'topic0'
-			d = []
-			for i in data
-				if i.topic is my_topic
-					d.push i
-			r =
-				'data': d
-			s.emit 'new topic', r
+					data[d.thread].topic = 'none'
+					s.join 'topic0'
+					my_topic = 'topic0'
+					d = []
+					for i in data
+						if i.topic is my_topic
+							d.push i
+					r =
+						'data': d
+					s.emit 'new topic', r
 	
 	s.on 'create', (t) ->
 		thread += 1
