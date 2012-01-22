@@ -50,7 +50,9 @@ io.sockets.on 'connection', (s) ->
 	s.on 'send name', (t) ->
 		r =
 			'status': (check_name t.name)
+			'name': t.name
 		if r.status then my_name = r.name
+		my_name = t.name
 		s.emit 'send name', r
 
 	s.on 'open', (t) ->

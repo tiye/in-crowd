@@ -7,10 +7,9 @@ $ ->
 		($ '#login').slideUp 100
 		($ '#about').slideUp 200
 		($ '#board').slideDown 200
-		($.cookie 'name', t.name)
+		$.cookie 'name', t.name
 		logined = true
-		r = {}
-		s.emit 'topic history', r
+		s.emit 'topic history', {}
 	login_page = ->
 		($ '#board').slideUp 200
 		($ '#box').focus().val('')

@@ -5,14 +5,12 @@ $(function() {
   logined = false;
   my_thread = 0;
   chat_page = function(t) {
-    var r;
     ($('#login')).slideUp(100);
     ($('#about')).slideUp(200);
     ($('#board')).slideDown(200);
     $.cookie('name', t.name);
     logined = true;
-    r = {};
-    return s.emit('topic history', r);
+    return s.emit('topic history', {});
   };
   login_page = function() {
     var bind_login;

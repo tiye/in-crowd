@@ -89,9 +89,11 @@ io.sockets.on('connection', function(s) {
   s.on('send name', function(t) {
     var r;
     r = {
-      'status': check_name(t.name)
+      'status': check_name(t.name),
+      'name': t.name
     };
     if (r.status) my_name = r.name;
+    my_name = t.name;
     return s.emit('send name', r);
   });
   s.on('open', function(t) {
