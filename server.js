@@ -39,7 +39,7 @@ names = [];
 
 check_name = function(name) {
   var item, _i, _len;
-  if (name.length < 2) return false;
+  if (name.length < 1) return false;
   for (_i = 0, _len = names.length; _i < _len; _i++) {
     item = names[_i];
     if (item === name) return false;
@@ -48,17 +48,17 @@ check_name = function(name) {
   return true;
 };
 
-thread = 1;
+thread = 0;
 
 topic = 0;
 
-topics = [1];
+topics = [0];
 
 data = [
   {
-    name: 'leaf',
-    text: 'nothing',
-    thread: 1,
+    name: '题叶',
+    text: '大家好, 这是第零条发布的消息',
+    thread: 0,
     topic: 'topic0'
   }
 ];
@@ -99,7 +99,6 @@ io.sockets.on('connection', function(s) {
     thread += 1;
     r = {
       'name': my_name,
-      'state': 'raw',
       'thread': thread
     };
     ss.emit('open', r);
@@ -109,12 +108,13 @@ io.sockets.on('connection', function(s) {
     var r;
     r = {
       'text': t.text,
+      'name': my_name,
       'thread': t.thread
     };
     return ss.emit('sync', r);
   });
   s.on('close', function(t) {
-    var d, r;
+    var d, i, r, _i, _j, _len, _len2;
     r = {
       'text': t.text,
       'thread': t.thread
@@ -126,7 +126,25 @@ io.sockets.on('connection', function(s) {
       'thread': t.thread,
       'topic': my_topic
     };
-    return data.push(d);
+    data.push(d);
+    if (d.text.length < 2) {
+      for (_i = 0, _len = topics.length; _i < _len; _i++) {
+        i = topics[_i];
+        if (i === d.thread) topics.splice(i, 1);
+      }
+      data[d.thread].topic = 'none';
+      s.join('topic0');
+      my_topic = 'topic0';
+      d = [];
+      for (_j = 0, _len2 = data.length; _j < _len2; _j++) {
+        i = data[_j];
+        if (i.topic === my_topic) d.push(i);
+      }
+      r = {
+        'data': d
+      };
+      return s.emit('new topic', r);
+    }
   });
   s.on('create', function(t) {
     var r;
@@ -156,13 +174,11 @@ io.sockets.on('connection', function(s) {
     d = [];
     for (_i = 0, _len = data.length; _i < _len; _i++) {
       i = data[_i];
-      o(i, ':::', my_topic);
       if (i.topic === my_topic) d.push(i);
     }
     r = {
       'data': d
     };
-    o('join and data:\n', d, data);
     ss = io.sockets["in"](my_topic);
     return s.emit('new topic', r);
   });
@@ -172,9 +188,9 @@ io.sockets.on('connection', function(s) {
     for (_i = 0, _len = topics.length; _i < _len; _i++) {
       i = topics[_i];
       r = {
-        'text': data[i - 1].text,
-        'thread': data[i - 1].thread,
-        'topic': data[i - 1].topic
+        'text': data[i].text,
+        'thread': data[i].thread,
+        'topic': data[i].topic
       };
       d.push(r);
     }

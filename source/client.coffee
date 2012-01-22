@@ -18,20 +18,23 @@ $ ->
 			# o 'sending name'
 			t =
 				'name': ($ '#name_text').val().replace /(\s*)|(\n*)/g, ''
-			s.emit 'auto login', t
+			s.emit 'send name', t
 		($ '#send_name').click () ->
 			bind_login()
 		($ '#name_text').keydown (e) ->
 			if e.keyCode is 13
 				bind_login()
+	($ '#note').slideUp 0
 	s.on 'send name', (t) ->
-		if t.status then (chat_page t)
+		if t.status is true then (chat_page t)
 		else
-			console.log 'name used'
-			($ '#note').text('name used').slideDown 500
+			console.log 'no'
+			($ '#note').text('name used')
+			($ '#note').slideDown 500
 			setTimeout (->
 				($ '#name_text').val ''
 				($ '#note').slideUp 500), 500
+		console.log 'got send'
 	
 	if ($.cookie 'name')
 		t =
@@ -45,8 +48,8 @@ $ ->
 	
 	box_open = false
 	b = $ '#box'
+	last_name = ''
 	render_post = (t) ->
-		console.log 'render 1 time'
 		post =
 			"<nav class='#{t.state}'
 				style='
@@ -62,7 +65,6 @@ $ ->
 						width: 500px;
 						height: 26px;
 						overflow: hidden;
-						background: hsl(40,80%,80%);
 						'>"
 		if t.text then post += t.text
 		post += "
@@ -72,30 +74,34 @@ $ ->
 						width: 100px;
 						height: 26px;
 						overflow: hidden;
-						background: hsl(300,80%,80%);
-						'>
-					#{t.name}
-				</nav>
-			</nav>"
+						'>"
+		if t.name is last_name
+			post += "&nbsp;"
+		else
+			post += t.name
+			last_name = t.name
+		post += "</nav></nav>"
 		($ '#thread').append post
+		scroll = ($ '#thread')
+		if scroll.scrollTop()+scroll.height()-scroll[0].scrollHeight > -100
+			scroll.scrollTop scroll[0].scrollHeight
 	($ document).keydown (e) ->
 		if e.keyCode is 13 and logined
 			if box_open
 				b.focus().slideUp 0
+				($ '#hide').show()
 				box_open = false
 				t =
 					'text': b.val()
 					'thread': my_thread
 				s.emit 'close', t
-				console.log 'box open'
 			else
+				($ '#hide').hide()
 				b.focus().val('').slideDown 0
 				box_open = true
 				s.emit 'open', {}
-				my_thread = 0
 				setTimeout (->
 					b.focus().val ''), 0
-				console.log 'box close'
 	($ '#add').click ->
 		if box_open
 			b.focus().slideUp 0
@@ -104,29 +110,35 @@ $ ->
 				'text': b.val()
 				'thread': my_thread
 			s.emit 'close', t
-			console.log 'box open'
+		($ '#hide').hide()
 		b.focus().slideDown 0
 		box_open = true
 		s.emit 'open', {}
-		my_thread = 0
 		setTimeout (->
 			b.focus().val ''), 1
-		console.log 'box close'
-
+	sync = false
 	s.on 'open', (t) ->
 		render_post t
 	s.on 'thread', (t) ->
 		my_thread = t.thread
+		sync = true
 	b.bind 'input', ->
-		t =
-			'text': b.val().slice 0, 37
-			'thread': my_thread
-		s.emit 'sync', t
+		if sync
+			t =
+				'text': b.val().slice 0, 37
+				'thread': my_thread
+			s.emit 'sync', t
 	s.on 'sync', (t) ->
-		console.log 'suny'
-		($ ".thread#{t.thread}").text t.text
+		target = ($ ".thread#{t.thread}")
+		if target
+			target.text t.text
+		else
+			render_post t
 	s.on 'close', (t) ->
+		sync = false
 		($ ".thread#{t.thread}").parent().attr 'class', 'closed'
+		if t.text.length < 2
+			($ ".thread#{t.thread}").parent().remove()
 	
 	render_topic = (t) ->
 		post = "
@@ -136,7 +148,6 @@ $ ->
 						width: 500px;
 						height: 26px;
 						overflow: hidden;
-						background: hsl(40,80%,80%);
 						'>
 				</nav>
 			</nav>"
@@ -149,43 +160,40 @@ $ ->
 				'text': b.val()
 				'thread': my_thread
 			s.emit 'close', t
-			console.log 'box open'
 		s.emit 'create'
 	s.on 'create', (t) ->
+		($ '#hide').hide()
 		render_topic t
 		b.focus().slideDown 1
 		setTimeout (->
 			b.focus().val ''), 1
 		box_open = true
-		console.log 'create'
 		($ ".#{t.topic}").click ->
 			r =
 				'topic': t.topic
 			s.emit 'join', r
 	s.on 'new topic', (t) ->
+		last_name = ''
 		($ '#thread').empty()
 		for i in t.data
 			render_post i
-		console.log 'new topic'
-		console.log t.name
 	s.on 'topic history', (t) ->
 		for i in t
-			post = "
-				<nav class='closed' id='#{i.topic}'>
-					<nav class='thread#{i.thread}'
-						style='
-						width: 500px;
-						height: 26px;
-						overflow: hidden;
-						background: hsl(40,80%,80%);
-						'>
-						#{i.text}
-					</nav>
-				</nav>"
-			($ '#topic').append post
-			($ "##{i.topic}").click ->
-				((itopic) ->
+			((i) ->
+				post = "
+					<nav class='closed' id='#{i.topic}'>
+						<nav class='thread#{i.thread}'
+							style='
+							width: 500px;
+							height: 26px;
+							overflow: hidden;
+							'>
+							#{i.text}
+						</nav>
+					</nav>"
+				($ '#topic').append post
+				($ "##{i.topic}").click ->
 					r =
-						'topic': itopic
-					s.emit 'join', r) i.topic
+						'topic': i.topic
+					s.emit 'join', r) i
 	s.emit 'join', {'topic': 'topic0'}

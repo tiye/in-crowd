@@ -23,15 +23,15 @@ time = () ->
 	tm = t.getHours()+':'+t.getMinutes()+':'+t.getSeconds()
 names = []
 check_name = (name) ->
-	if name.length < 2 then return false
+	if name.length < 1 then return false
 	for item in names
 		if item is name then return false
 	names.push name
 	true
-thread = 1
+thread = 0
 topic = 0
-topics = [1]
-data = [{ name: 'leaf', text: 'nothing', thread: 1, topic: 'topic0'}]
+topics = [0]
+data = [{ name: '题叶', text: '大家好, 这是第零条发布的消息', thread: 0, topic: 'topic0'}]
 
 io.sockets.on 'connection', (s) ->
 	my_name = ''
@@ -49,7 +49,7 @@ io.sockets.on 'connection', (s) ->
 				names.splice i, 1
 	s.on 'send name', (t) ->
 		r =
-			'status': check_name t.name
+			'status': (check_name t.name)
 		if r.status then my_name = r.name
 		s.emit 'send name', r
 
@@ -57,13 +57,13 @@ io.sockets.on 'connection', (s) ->
 		thread += 1
 		r =
 			'name': my_name
-			'state': 'raw'
 			'thread': thread
 		ss.emit 'open', r
 		s.emit 'thread', r
 	s.on 'sync', (t) ->
 		r =
 			'text': t.text
+			'name': my_name
 			'thread': t.thread
 		ss.emit 'sync', r
 	s.on 'close', (t) ->
@@ -77,6 +77,20 @@ io.sockets.on 'connection', (s) ->
 			'thread': t.thread
 			'topic': my_topic
 		data.push d
+		if d.text.length < 2
+			for i in topics
+				if i is d.thread
+					topics.splice i, 1
+			data[d.thread].topic = 'none'
+			s.join 'topic0'
+			my_topic = 'topic0'
+			d = []
+			for i in data
+				if i.topic is my_topic
+					d.push i
+			r =
+				'data': d
+			s.emit 'new topic', r
 	
 	s.on 'create', (t) ->
 		thread += 1
@@ -102,20 +116,18 @@ io.sockets.on 'connection', (s) ->
 		s.join my_topic
 		d = []
 		for i in data
-			o i, ':::', my_topic
 			if i.topic is my_topic
 				d.push i
 		r =
 			'data': d
-		o 'join and data:\n', d, data
 		ss = io.sockets.in my_topic
 		s.emit 'new topic', r
 	s.on 'topic history', (t) ->
 		d = []
 		for i in topics
 			r =
-				'text': data[i-1].text
-				'thread': data[i-1].thread
-				'topic': data[i-1].topic
+				'text': data[i].text
+				'thread': data[i].thread
+				'topic': data[i].topic
 			d.push r
 		s.emit 'topic history', d

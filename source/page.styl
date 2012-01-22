@@ -8,11 +8,9 @@ body>*
 	width 1100px
 	margin 26px auto
 	padding 13px
-	background hsl(260,90%,90%)
 *
 	-moz-box-sizing border-box
 	-webkit-box-sizing border-box
-
 #send_name
 	width 200px
 	height 26px
@@ -21,46 +19,58 @@ p
 	margin 0px
 #note
 	font-size 10px
-	display none
 
 #board
 	padding 0px
 	display -moz-box
 	display -webkit-box
 	margin 26px auto
-	height 300px
+	height 600px
 	-moz-box-orient horizontal
 	-webkit-box-orient horizontal
+	overflow-y hidden
 #left
+	border 1px solid hsl(0,96%,90%)
 	width 500px
 	height 100%
-	background blue
 	-moz-box-orient vertical
 	-webkit-box-orient vertical
+	overflow hidden
 #topic
-	width 100%
-	height 276px
+	width 110%
+	height 574px
 	overflow-y scroll
+#topic>*:nth-child(2n)
+	background hsl(0,95%,90%)
 #create
+	opacity 0.4
 	width 100%
 	height 26px
-	background green
+	background hsl(0,90%,90%)
 #right
+	border 1px solid hsl(200,96%,90%)
+	margin-left -30px
 	width 600px
 	height 100%
-	background red
 	-moz-box-orient vertical
 	-webkit-box-orient vertical
+	overflow hidden
+	background white
 #thread
-	width 100%
-	height 274px
+	width 110%
+	height 574px
 	overflow-y scroll
 	overflow-x hidden
+#thread>*:nth-child(2n)
+	background hsl(200,96%,90%)
 #add
 	width 600px
 	height 26px
-	background gray
+	background hsl(180,90%,90%)
 #box
 	width 500px
 	height 26px
 	display none
+
+#hide
+	opacity 0.4

@@ -16,12 +16,22 @@ html
 			br
 			#note
 		#about
-			p 这里是通告
+			p '轻谈'想测试实时聊天是否比聊天更好用
+			p 于是用 socket.io 搭了这个聊天室
+			p 本人新手, 遇到复杂的 bug 就丢不管了, 行的话改下
+			p 选择名字后默认进入一个群, 按下回车打开输入框, 回车提交
+			p 也可以点击左下的区块添加新的话题
+			p 或者点击左上的区块分别进入不同的群参加讨论
+			p 粗略设置了一些限制, 具体再说了
+			p 代码放在 github 上面, 比较乱, 自己都不想看
+			p 我是在 linux 桌面新版 Firefox / Chrome 调试的
+			p 其他的浏览器没有去做, 兼容性好可怕
 		#board
 			#left
 				#topic
-				#create
+				#create 点击这里创建新的群, 以一条信息作为群名
 			#right
 				#thread
 				#add
+					p#hide 点击这里或者回车开始聊天, 回车结束
 					textarea#box
