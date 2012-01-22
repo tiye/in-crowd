@@ -29,6 +29,10 @@ io = (require('socket.io')).listen(app);
 
 io.set('log level', 1);
 
+io.set("transports", ["xhr-polling"]);
+
+io.set("polling duration", 10);
+
 time = function() {
   var t, tm;
   t = new Date();
@@ -163,7 +167,9 @@ io.sockets.on('connection', function(s) {
     };
     topics.push(r.thread);
     ss = io.sockets["in"](my_topic);
-    s.emit('new topic', {});
+    s.emit('new topic', {
+      'data': []
+    });
     ss.emit('open', r);
     s.emit('thread', r);
     return ss.emit('create', r);

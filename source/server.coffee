@@ -15,8 +15,8 @@ app = (require 'http').createServer handler
 app.listen 8000
 io = (require 'socket.io').listen app
 io.set 'log level', 1
-# io.set "transports", ["xhr-polling"]
-# io.set "polling duration", 10
+io.set "transports", ["xhr-polling"]
+io.set "polling duration", 10
 
 time = () ->
 	t = new Date()
@@ -107,7 +107,7 @@ io.sockets.on 'connection', (s) ->
 			'topic': my_topic
 		topics.push r.thread
 		ss = io.sockets.in my_topic
-		s.emit 'new topic', {}
+		s.emit 'new topic', {'data': []}
 		ss.emit 'open', r
 		s.emit 'thread', r
 		ss.emit 'create', r
