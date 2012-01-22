@@ -1,4 +1,4 @@
-var app, check_name, fs, handler, io, names, o, thread, time, url;
+var app, check_name, data, fs, handler, io, names, o, thread, time, topic, topics, url;
 
 fs = require('fs');
 
@@ -42,15 +42,26 @@ check_name = function(name) {
   if (name.length < 2) return false;
   for (_i = 0, _len = names.length; _i < _len; _i++) {
     item = names[_i];
-    o('cmp: ', item, name);
     if (item === name) return false;
   }
   names.push(name);
-  o(names);
   return true;
 };
 
-thread = 0;
+thread = 1;
+
+topic = 0;
+
+topics = [1];
+
+data = [
+  {
+    name: 'leaf',
+    text: 'nothing',
+    thread: 1,
+    topic: 'topic0'
+  }
+];
 
 io.sockets.on('connection', function(s) {
   var my_name, my_topic, ss;
@@ -61,12 +72,10 @@ io.sockets.on('connection', function(s) {
   s.on('auto login', function(t) {
     t.status = check_name(t.name);
     s.emit('auto login', t);
-    o('auto login msg: ', t);
     if (t.status) return my_name = t.name;
   });
   s.on('disconnect', function() {
     var i, _ref, _results;
-    o('disconnected:', names, my_name);
     _results = [];
     for (i = 0, _ref = names.length; 0 <= _ref ? i <= _ref : i >= _ref; 0 <= _ref ? i++ : i--) {
       if (names[i] === my_name) {
@@ -78,25 +87,97 @@ io.sockets.on('connection', function(s) {
     return _results;
   });
   s.on('send name', function(t) {
-    t.status = check_name(t.name);
-    if (t.status) my_name = t.name;
-    return s.emit('send name', t);
+    var r;
+    r = {
+      'status': check_name(t.name)
+    };
+    if (r.status) my_name = r.name;
+    return s.emit('send name', r);
   });
   s.on('open', function(t) {
+    var r;
     thread += 1;
-    t = {
+    r = {
       'name': my_name,
       'state': 'raw',
       'thread': thread
     };
-    o('open thread');
-    ss.emit('open', t);
-    return s.emit('thread', t);
+    ss.emit('open', r);
+    return s.emit('thread', r);
   });
   s.on('sync', function(t) {
-    return ss.emit('sync', t);
+    var r;
+    r = {
+      'text': t.text,
+      'thread': t.thread
+    };
+    return ss.emit('sync', r);
   });
-  return s.on('close', function(t) {
-    return ss.emit('close', t);
+  s.on('close', function(t) {
+    var d, r;
+    r = {
+      'text': t.text,
+      'thread': t.thread
+    };
+    ss.emit('close', r);
+    d = {
+      'name': my_name,
+      'text': t.text,
+      'thread': t.thread,
+      'topic': my_topic
+    };
+    return data.push(d);
+  });
+  s.on('create', function(t) {
+    var r;
+    thread += 1;
+    topic += 1;
+    s.leave(my_topic);
+    my_topic = "topic" + topic;
+    s.join(my_topic);
+    r = {
+      'name': my_name,
+      'state': 'raw',
+      'thread': thread,
+      'topic': my_topic
+    };
+    topics.push(r.thread);
+    ss = io.sockets["in"](my_topic);
+    s.emit('new topic', {});
+    ss.emit('open', r);
+    s.emit('thread', r);
+    return ss.emit('create', r);
+  });
+  s.on('join', function(t) {
+    var d, i, r, _i, _len;
+    s.leave(my_topic);
+    my_topic = t.topic;
+    s.join(my_topic);
+    d = [];
+    for (_i = 0, _len = data.length; _i < _len; _i++) {
+      i = data[_i];
+      o(i, ':::', my_topic);
+      if (i.topic === my_topic) d.push(i);
+    }
+    r = {
+      'data': d
+    };
+    o('join and data:\n', d, data);
+    ss = io.sockets["in"](my_topic);
+    return s.emit('new topic', r);
+  });
+  return s.on('topic history', function(t) {
+    var d, i, r, _i, _len;
+    d = [];
+    for (_i = 0, _len = topics.length; _i < _len; _i++) {
+      i = topics[_i];
+      r = {
+        'text': data[i - 1].text,
+        'thread': data[i - 1].thread,
+        'topic': data[i - 1].topic
+      };
+      d.push(r);
+    }
+    return s.emit('topic history', d);
   });
 });

@@ -25,12 +25,13 @@ names = []
 check_name = (name) ->
 	if name.length < 2 then return false
 	for item in names
-		o 'cmp: ', item, name
 		if item is name then return false
 	names.push name
-	o names
 	true
-thread = 0
+thread = 1
+topic = 0
+topics = [1]
+data = [{ name: 'leaf', text: 'nothing', thread: 1, topic: 'topic0'}]
 
 io.sockets.on 'connection', (s) ->
 	my_name = ''
@@ -41,28 +42,80 @@ io.sockets.on 'connection', (s) ->
 	s.on 'auto login', (t) ->
 		t.status = check_name t.name
 		s.emit 'auto login', t
-		o 'auto login msg: ', t
 		if t.status then my_name = t.name
 	s.on 'disconnect', ->
-		o 'disconnected:', names, my_name
 		for i in [0..names.length]
 			if names[i] is my_name
 				names.splice i, 1
 	s.on 'send name', (t) ->
-		t.status = check_name t.name
-		if t.status then my_name = t.name
-		s.emit 'send name', t
+		r =
+			'status': check_name t.name
+		if r.status then my_name = r.name
+		s.emit 'send name', r
 
 	s.on 'open', (t) ->
 		thread += 1
-		t =
+		r =
 			'name': my_name
 			'state': 'raw'
 			'thread': thread
-		o 'open thread'
-		ss.emit 'open', t
-		s.emit 'thread', t
+		ss.emit 'open', r
+		s.emit 'thread', r
 	s.on 'sync', (t) ->
-		ss.emit 'sync', t
+		r =
+			'text': t.text
+			'thread': t.thread
+		ss.emit 'sync', r
 	s.on 'close', (t) ->
-		ss.emit 'close', t
+		r =
+			'text': t.text
+			'thread': t.thread
+		ss.emit 'close', r
+		d =
+			'name': my_name
+			'text': t.text
+			'thread': t.thread
+			'topic': my_topic
+		data.push d
+	
+	s.on 'create', (t) ->
+		thread += 1
+		topic += 1
+		s.leave my_topic
+		my_topic = "topic#{topic}"
+		s.join my_topic
+		r =
+			'name': my_name
+			'state': 'raw'
+			'thread': thread
+			'topic': my_topic
+		topics.push r.thread
+		ss = io.sockets.in my_topic
+		s.emit 'new topic', {}
+		ss.emit 'open', r
+		s.emit 'thread', r
+		ss.emit 'create', r
+	
+	s.on 'join', (t) ->
+		s.leave my_topic
+		my_topic = t.topic
+		s.join my_topic
+		d = []
+		for i in data
+			o i, ':::', my_topic
+			if i.topic is my_topic
+				d.push i
+		r =
+			'data': d
+		o 'join and data:\n', d, data
+		ss = io.sockets.in my_topic
+		s.emit 'new topic', r
+	s.on 'topic history', (t) ->
+		d = []
+		for i in topics
+			r =
+				'text': data[i-1].text
+				'thread': data[i-1].thread
+				'topic': data[i-1].topic
+			d.push r
+		s.emit 'topic history', d
