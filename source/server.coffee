@@ -60,39 +60,26 @@ io.sockets.on 'connection', (s) ->
 		r =
 			'name': my_name
 			'thread': thread
+			'text': ''
+			'topic': my_topic
 		ss.emit 'open', r
 		s.emit 'thread', r
+		data.push r
 	s.on 'sync', (t) ->
 		r =
 			'text': t.text
 			'name': my_name
 			'thread': t.thread
 		ss.emit 'sync', r
+		data[r.thread].text = t.text
 	s.on 'close', (t) ->
 		r =
 			'text': t.text
 			'thread': t.thread
 		ss.emit 'close', r
-		d =
-			'name': my_name
-			'text': t.text
-			'thread': t.thread
-			'topic': my_topic
-		data.push d
-		if d.text.length < 2
-			for i in topics
-				if i is d.thread
-					topics.splice i, 1
-					data[d.thread].topic = 'none'
-					s.join 'topic0'
-					my_topic = 'topic0'
-					d = []
-					for i in data
-						if i.topic is my_topic
-							d.push i
-					r =
-						'data': d
-					s.emit 'new topic', r
+		data[r.thread].text = r.text
+		if t.text is ''
+			data[r.thread].topic = 'none'
 	
 	s.on 'create', (t) ->
 		thread += 1
@@ -106,6 +93,11 @@ io.sockets.on 'connection', (s) ->
 			'thread': thread
 			'topic': my_topic
 		topics.push r.thread
+		data.push
+			'name': my_name
+			'thread': r.thread
+			'topic': my_topic
+			'text': ''
 		ss = io.sockets.in my_topic
 		s.emit 'new topic', {'data': []}
 		ss.emit 'open', r
@@ -131,5 +123,6 @@ io.sockets.on 'connection', (s) ->
 				'text': data[i].text
 				'thread': data[i].thread
 				'topic': data[i].topic
-			d.push r
+			if r.text.length >= 2
+				d.push r
 		s.emit 'topic history', d

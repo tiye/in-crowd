@@ -105,10 +105,13 @@ io.sockets.on('connection', function(s) {
     thread += 1;
     r = {
       'name': my_name,
-      'thread': thread
+      'thread': thread,
+      'text': '',
+      'topic': my_topic
     };
     ss.emit('open', r);
-    return s.emit('thread', r);
+    s.emit('thread', r);
+    return data.push(r);
   });
   s.on('sync', function(t) {
     var r;
@@ -117,46 +120,18 @@ io.sockets.on('connection', function(s) {
       'name': my_name,
       'thread': t.thread
     };
-    return ss.emit('sync', r);
+    ss.emit('sync', r);
+    return data[r.thread].text = t.text;
   });
   s.on('close', function(t) {
-    var d, i, r, _i, _j, _len, _len2, _results;
+    var r;
     r = {
       'text': t.text,
       'thread': t.thread
     };
     ss.emit('close', r);
-    d = {
-      'name': my_name,
-      'text': t.text,
-      'thread': t.thread,
-      'topic': my_topic
-    };
-    data.push(d);
-    if (d.text.length < 2) {
-      _results = [];
-      for (_i = 0, _len = topics.length; _i < _len; _i++) {
-        i = topics[_i];
-        if (i === d.thread) {
-          topics.splice(i, 1);
-          data[d.thread].topic = 'none';
-          s.join('topic0');
-          my_topic = 'topic0';
-          d = [];
-          for (_j = 0, _len2 = data.length; _j < _len2; _j++) {
-            i = data[_j];
-            if (i.topic === my_topic) d.push(i);
-          }
-          r = {
-            'data': d
-          };
-          _results.push(s.emit('new topic', r));
-        } else {
-          _results.push(void 0);
-        }
-      }
-      return _results;
-    }
+    data[r.thread].text = r.text;
+    if (t.text === '') return data[r.thread].topic = 'none';
   });
   s.on('create', function(t) {
     var r;
@@ -172,13 +147,20 @@ io.sockets.on('connection', function(s) {
       'topic': my_topic
     };
     topics.push(r.thread);
+    data.push({
+      'name': my_name,
+      'thread': r.thread,
+      'topic': my_topic,
+      'text': ''
+    });
     ss = io.sockets["in"](my_topic);
     s.emit('new topic', {
       'data': []
     });
     ss.emit('open', r);
     s.emit('thread', r);
-    return ss.emit('create', r);
+    ss.emit('create', r);
+    return o('data:\n', data);
   });
   s.on('join', function(t) {
     var d, i, r, _i, _len;
@@ -206,7 +188,7 @@ io.sockets.on('connection', function(s) {
         'thread': data[i].thread,
         'topic': data[i].topic
       };
-      d.push(r);
+      if (r.text.length >= 2) d.push(r);
     }
     return s.emit('topic history', d);
   });
