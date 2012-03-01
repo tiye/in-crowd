@@ -1,4 +1,5 @@
+
 {
-  "name": "zhongli-chat",
-  "main": "./server.js"
+  "name": "qingtan",
+  "main": "./app.js"
 }
