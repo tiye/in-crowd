@@ -1,5 +1,9 @@
 
 {
   "name": "qingtan",
-  "main": "./app.js"
+  "main": "./app.coffee",
+  "version": "0.0.2",
+  "dependencies": {
+    "socket.io": "0.8.7"
+  }
 }
