@@ -19,23 +19,24 @@ app.listen 8000
 url = 'mongodb://nodejs:nodepass@localhost:27017/zhongli'
 (require 'mongodb').connect url, (err, db) ->
   io.sockets.on 'connection', (socket) ->
+
     socket.emit 'ready'
     user_name = undefined
+    socket.join 'topic_list'
     ip = socket.handshake.address.address
 
-    send_topic_page = ->
-      db.collection 'topic', (err, collection) ->
-        collection.find {},
-          {author:1, date:1, id:1, reply:1, text:1, _id:0},
-          (err, cursor) ->
-            topic_arr = []
-            cursor.each (err, x) ->
-              if x?
-                topic_arr.push x
-              else
-                socket.emit 'topic_arr', topic_arr
+    topic_format = author:1, date:1, id:1, reply:1, text:1, _id:0
+    post_format = author:1, date:1, id:1, text:1, _id:0, topic:1
 
-    socket.on 'send_name', (set_name) ->
-      user_name = set_name
-      socket.emit 'save_name', user_name
+    send_topic_page = ->
+      db.collection 'topic', (err, coll) ->
+        coll.find {}, topic_format, (err, cursor) ->
+          topic_arr = []
+          cursor.each (err, x) ->
+            if x? then topic_arr.push x
+            else socket.emit 'topic_arr', topic_arr
+
+    socket.on 'send_local_name', (name_str) ->
+      user_name = name_str
+      socket.emit 'save_name_locally', user_name
       do send_topic_page

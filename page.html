@@ -1,28 +1,15 @@
 
+<!doctype html>
 <html>
 <head>
   <title>Page</title>
   <meta charset='utf-8'/>
   <style type="text/css">
-  body{
-    background: hsl(0,80%,96%);
-  }
-  .topic_date{
-    width: 80px;
-    color: hsl(10, 80%, 80%);
-  }
-  .topic_author{
-    width: 100px;
-    overflow: hidden;
-  }
-  .topic_text{
-    width: 600px;
-    overflow: hidden;
-  }
-  .topic_reply{
-    width: 100px;
-    overflow: hidden;
-  }
+    #name_area{
+      width: 300px;
+      height: 24px;
+      resize: none;
+    }
   </style>
   <script type='text/coffeescript'>@@@</script>
   <script src="/socket.io/socket.io.js"></script>
@@ -31,7 +18,7 @@
   </script>
 </head>
 <body>
-  <div id='paper'>
-  </div>
+  <table id='list'></table>
+  <div id='more'></div>
 </body>
 </html>
