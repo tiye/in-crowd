@@ -21,5 +21,16 @@ socket.on 'ready', ->
 socket.on 'save_name', (user_name) ->
   localStorage.zhongli = user_name
 
+render_topic = (arr) ->
+  page = ''
+  for item in arr
+    page += "<tr id='topic#{item.id}'>
+      <td class='topic_date'>#{item.date}</td>
+      <td id='#{item.id}' class='topic_reply'>#{item.reply}</td>
+      <td class='topic_author'>#{item.author}</td>
+      <td class='topic_text'>#{item.text}</td>
+      </tr>"
+  (tag 'paper').innerHTML = "<table>#{page}</table>"
+
 socket.on 'topic_arr', (topic_arr) ->
-  ll topic_arr
+  render_topic topic_arr
