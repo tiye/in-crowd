@@ -27,15 +27,18 @@ url = 'mongodb://nodejs:nodepass@localhost:27017/zhongli'
     ip = socket.handshake.address.address
     sync_id = undefined
 
-    socket.on 'send_local_name', (name_str) ->
-      user_name = name_str
-      socket.emit 'save_name_locally', user_name
+    give_topic_list = ->
       db.collection 'topic', (err, coll) ->
         coll.find {}, {_id:0}, (err, cursor) ->
           topic_list = []
           cursor.each (err, topic_item) ->
             if topic_item? then topic_list.push topic_item
             else socket.emit 'topic_list', topic_list
+
+    socket.on 'send_local_name', (name_str) ->
+      user_name = name_str
+      socket.emit 'save_name_locally', user_name
+      do give_topic_list
 
     socket.on 'add_topic', (topic_title, time_stemp) ->
       topic_item =
@@ -70,6 +73,12 @@ url = 'mongodb://nodejs:nodepass@localhost:27017/zhongli'
         coll.save post_item
       socket.emit 'refresh_post', post_item
       (socket.broadcast.to room).emit 'post_box_close', post_item
+      find_id = room.match /^([^:]+):(.+)$/
+      room_ip = find_id[1]
+      room_time = find_id[2]
+      db.collection 'topic', (err, coll) ->
+        coll.update {ip:room_ip, time:room_time}, {$inc: {reply: 1}}
+      (socket.broadcast.to 'topic_list').emit 'increase_reply', room
 
     socket.on 'post_box_open', (time_stemp) ->
       sync_id = ip + ':' + time_stemp
@@ -83,3 +92,9 @@ url = 'mongodb://nodejs:nodepass@localhost:27017/zhongli'
 
     socket.on 'post_box_sync', (post_box_value) ->
       (socket.broadcast.to room).emit 'post_box_sync', sync_id, post_box_value
+
+    socket.on 'home', ->
+      do give_topic_list
+      socket.leave room
+      room = 'topic_list'
+      socket.join room

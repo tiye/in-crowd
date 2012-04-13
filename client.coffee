@@ -13,6 +13,8 @@ create = (obj) ->
 
 more = tag 'more'
 list = tag 'list'
+(tag 'home').onclick = ->
+  socket.emit 'home'
 
 render_setname_page = ->
   name_area = create tag:'textarea', id:'name_area'
@@ -44,7 +46,8 @@ time_stemp = ->
   date   = now_date.getDate()
   hour   = now_date.getHours()
   minute = now_date.getMinutes()
-  return "#{month}/#{date} #{hour}:#{minute}"
+  second = now_date.getSeconds()
+  return "#{month}/#{date} #{hour}:#{minute}:#{second}"
 
 render_add_topic = ->
   add_topic = create tag:'button', id:'add_topic', text:'add topic'
@@ -82,6 +85,8 @@ render_a_topic = (topic) ->
 render_topic_list = (topic_list) ->
   while list.hasChildNodes()
     list.removeChild list.lastChild
+  while more.hasChildNodes()
+    more.removeChild more.lastChild
   for topic_item in topic_list
     render_a_topic topic_item
 
@@ -148,3 +153,7 @@ socket.on 'post_box_close', (post_item) ->
 
 socket.on 'post_box_sync', (sync_id, post_box_value) ->
   (tag sync_id).lastChild.innerText = post_box_value
+
+socket.on 'increase_reply', (topic_id) ->
+  reply_count = (tag topic_id).childNodes[1]
+  reply_count.innerText = (Number reply_count.innerText) + 1
