@@ -12,8 +12,8 @@ app = (require 'http').createServer (req, res) ->
 
 io = (require 'socket.io').listen app
 io.set 'log level', 1
-# io.set "transports", ["xhr-polling"]
-# io.set "polling duration", 10
+io.set "transports", ["xhr-polling"]
+io.set "polling duration", 10
 app.listen 8000
 
 url = 'mongodb://nodejs:nodepass@localhost:27017/zhongli'
