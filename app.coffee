@@ -22,21 +22,64 @@ url = 'mongodb://nodejs:nodepass@localhost:27017/zhongli'
 
     socket.emit 'ready'
     user_name = undefined
-    socket.join 'topic_list'
+    room = 'topic_list'
+    socket.join room
     ip = socket.handshake.address.address
-
-    topic_format = author:1, date:1, id:1, reply:1, text:1, _id:0
-    post_format = author:1, date:1, id:1, text:1, _id:0, topic:1
-
-    send_topic_page = ->
-      db.collection 'topic', (err, coll) ->
-        coll.find {}, topic_format, (err, cursor) ->
-          topic_arr = []
-          cursor.each (err, x) ->
-            if x? then topic_arr.push x
-            else socket.emit 'topic_arr', topic_arr
+    sync_id = undefined
 
     socket.on 'send_local_name', (name_str) ->
       user_name = name_str
       socket.emit 'save_name_locally', user_name
-      do send_topic_page
+      db.collection 'topic', (err, coll) ->
+        coll.find {}, {_id:0}, (err, cursor) ->
+          topic_list = []
+          cursor.each (err, topic_item) ->
+            if topic_item? then topic_list.push topic_item
+            else socket.emit 'topic_list', topic_list
+
+    socket.on 'add_topic', (topic_title, time_stemp) ->
+      topic_item =
+        time:   time_stemp
+        ip:     ip
+        author: user_name
+        text:   topic_title
+        reply:  0
+      db.collection 'topic', (err, coll) ->
+        coll.save topic_item
+      (io.sockets.in 'topic_list').emit 'new_topic', topic_item
+
+    socket.on 'goto_topic', (topic_id) ->
+      socket.leave room
+      room = topic_id
+      socket.join room
+      db.collection 'post', (err, coll) ->
+        coll.find {topic:topic_id}, {_id:0, topic:0}, (err, cursor) ->
+          post_list = []
+          cursor.each (err, post_item) ->
+            if post_item? then post_list.push post_item
+            else socket.emit 'post_list', post_list
+
+    socket.on 'post_box_close', (post_text, time_stemp) ->
+      post_item =
+        time:   time_stemp
+        ip:     ip
+        author: user_name
+        text:   post_text
+        topic: room
+      db.collection 'post', (err, coll) ->
+        coll.save post_item
+      socket.emit 'refresh_post', post_item
+      (socket.broadcast.to room).emit 'post_box_close', post_item
+
+    socket.on 'post_box_open', (time_stemp) ->
+      sync_id = ip + ':' + time_stemp
+      post_item =
+        time:   time_stemp
+        ip:     ip
+        author: user_name
+        text:   ''
+        topic: room
+      (socket.broadcast.to room).emit 'new_post', post_item
+
+    socket.on 'post_box_sync', (post_box_value) ->
+      (socket.broadcast.to room).emit 'post_box_sync', sync_id, post_box_value
