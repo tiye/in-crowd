@@ -26,6 +26,7 @@ url = 'mongodb://nodejs:nodepass@localhost:27017/zhongli'
     socket.join room
     ip = socket.handshake.address.address
     sync_id = undefined
+    post_thread_id = undefined
 
     give_topic_list = ->
       db.collection 'topic', (err, coll) ->
@@ -64,7 +65,7 @@ url = 'mongodb://nodejs:nodepass@localhost:27017/zhongli'
 
     socket.on 'post_box_close', (post_text, time_stemp) ->
       post_item =
-        time:   time_stemp
+        time:   post_thread_id
         ip:     ip
         author: user_name
         text:   post_text
@@ -82,6 +83,7 @@ url = 'mongodb://nodejs:nodepass@localhost:27017/zhongli'
 
     socket.on 'post_box_open', (time_stemp) ->
       sync_id = ip + ':' + time_stemp
+      post_thread_id = time_stemp
       post_item =
         time:   time_stemp
         ip:     ip

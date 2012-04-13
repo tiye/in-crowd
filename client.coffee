@@ -163,10 +163,12 @@ socket.on 'refresh_post', (new_post) ->
   post_box_td.innerText = new_post.text
 
 socket.on 'post_box_close', (post_item) ->
-  ll post_item
+  post_close_id = post_item.ip + ':' + post_item.time
+  (tag post_close_id).lastChild.style.color = 'black'
 
 socket.on 'post_box_sync', (sync_id, post_box_value) ->
   (tag sync_id).lastChild.innerText = post_box_value
+  (tag sync_id).lastChild.style.color = 'hsl(210,80%,70%)'
 
 socket.on 'increase_reply', (topic_id) ->
   reply_count = (tag topic_id).childNodes[1]
