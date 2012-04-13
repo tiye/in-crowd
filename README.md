@@ -43,4 +43,4 @@
 
 任意, 别害得别人折腾..  
 
-[ln1]: (http://www.cnblogs.com/silentcross/archive/2011/07/26/2116509.html)
+[ln1]: http://www.cnblogs.com/silentcross/archive/2011/07/26/2116509.html
