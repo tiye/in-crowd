@@ -13,8 +13,18 @@ create = (obj) ->
 
 more = tag 'more'
 list = tag 'list'
+title = tag 'title'
 (tag 'home').onclick = ->
   socket.emit 'home'
+
+window_focused = yes
+notification = 0
+window.onblur = ->
+  window_focused = off
+window.onfocus = ->
+  window_focused = on
+  notification = 0
+  title.innerText = 'Page'
 
 render_setname_page = ->
   name_area = create tag:'textarea', id:'name_area'
@@ -98,6 +108,8 @@ socket.on 'topic_list', (topic_list) ->
 
 socket.on 'new_topic', (topic_item) ->
   render_a_topic topic_item
+  notification += 1
+  title.innerText = notification + ' new topics'
 
 render_a_post = (post) ->
   post_id = "#{post.ip}:#{post.time}"
@@ -141,6 +153,8 @@ socket.on 'post_list', (post_list) ->
 
 socket.on 'new_post', (new_post) ->
   render_a_post new_post
+  notification += 1
+  title.innerText = notification + ' new posts'
 
 socket.on 'refresh_post', (new_post) ->
   post_box_td = (tag 'post_box').parentNode
