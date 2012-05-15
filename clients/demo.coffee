@@ -1,10 +1,10 @@
 
 window.onload = ->
   window.socket = io.connect '127.0.0.1:8000/chat'
-  socket.on 'ready', (data...) ->
-    console.log data
 
-  socket.on 'err', (msg) -> console.log 'ERROR:', msg
+  socket.on 'ready', (j) -> console.log j
+  socket.on 'logout', (j) -> console.log j
+  socket.on 'register', (j) -> console.log j
+  socket.on 'login', (j) -> console.log j
 
-  socket.on 'posts', (data) -> console.log 'Posts:', data
-  socket.on 'topics', (data) -> console.log 'Topics:', data
+  socket.on 'err', (j) -> console.log j
