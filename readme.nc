@@ -19,6 +19,8 @@ topic-list:
       mark: '1233423345'
 
 post-list:
+  <--
+    mark: '1233423345'
   -->
     []
       name: 'name'

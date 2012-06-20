@@ -13,17 +13,17 @@
         <div class="row">
           <div class="span9">
             <ul class="breadcrumb">
-              <li><i class="icon-home"></i><span>Home</span><span class="divider">/</span></li>
-              <li><span>?</span></li>
+              <li id="home"><i class="icon-home"></i><span>Home</span><span class="divider">/</span></li>
+              <li><span id="topic"></span></li>
             </ul>
-            <div id="list"></div>
+            <ul id="list" class="nav nav-tabs nav-stacked"></ul>
             <div id="box">
               <input id="say" placeholder="add words and hit the button to post" type="text" class="span8"/><a id="send" class="btn btn-primary"><i class="icon-share-alt icon-white"></i></a>
             </div>
           </div>
           <ul class="span3 nav nav-list sidebar">
             <li>
-              <div class="time"><span>05-17</span><span id="time">12:34</span></div>
+              <div class="clock"><span>05-17</span><span id="clock">12:34</span></div>
             </li>
             <li>
               <input id="name" placeholder="Your Name" type="text" class="span2"/>

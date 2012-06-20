@@ -2,7 +2,6 @@
 @import url(bootstrap/css/bootstrap.css);
 
 body {
-  background: #fef0e1;
 }
 
 section {
@@ -10,9 +9,11 @@ section {
 }
 
 #list {
-  background: hsl(0,95%,95%);
-  max-height: 600px;
+  box-sizing: border-box;
+  max-height: 400px;
   min-height: 200px;
+  overflow-y: scroll;
+  padding: 40px 0px 100px;
 }
 
 #say, #name {
@@ -24,7 +25,7 @@ section {
 .sidebar>* {
 }
 
-#time {
+#clock {
   /*font-family: 'Exo', sans-serif;*/
   font-size: 40px;
   margin: 12px 8px;
@@ -37,4 +38,35 @@ section {
 
 .alert {
   display: none;
+}
+
+.time {
+  color: hsl(0,10%,76%);
+}
+
+.name {
+  color: hsl(240,80%,75%);
+}
+
+.text {
+  font-size: 14px;
+}
+
+.item {
+  background: hsl(240,30%,96%);
+  margin: 8px 0px;
+  padding: 8px;
+}
+
+.item:hover {
+  background: hsl(240,30%,92%);
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  background: hsl(30,30%,90%);
+}
+::-webkit-scrollbar-thumb {
+  -webkit-border-radius: 4px;
+  background: hsl(0,20%,70%);
 }

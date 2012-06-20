@@ -13,22 +13,22 @@ html
         .row
           .span9
             ul.breadcrumb
-              li
+              li#home
                 i.icon-home
                 span Home
                 span.divider /
               li
-                span ?
-            #list
+                span#topic
+            ul#list.nav.nav-tabs.nav-stacked
             #box
               input.span8#say(placeholder='add words and hit the button to post',type='text')
               a.btn.btn-primary#send
                 i.icon-share-alt.icon-white
           ul.span3.nav.nav-list.sidebar
             li
-              .time
+              .clock
                 span 05-17
-                span#time 12:34
+                span#clock 12:34
             li
               input#name.span2(placeholder='Your Name',type='text')
             li
