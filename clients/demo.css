@@ -1,3 +1,35 @@
+
+@import url(bootstrap/css/bootstrap.css);
+
 body {
   background: #fef0e1;
+}
+
+section {
+  padding-top: 20px;
+}
+
+#list {
+  background: hsl(0,95%,95%);
+  max-height: 600px;
+  min-height: 200px;
+}
+
+#say, #name {
+  height: 28px;
+}
+
+.sidebar>* {
+  margin-top: 8px;
+}
+
+#time {
+  /*font-family: 'Exo', sans-serif;*/
+  font-size: 40px;
+  margin: 12px 8px;
+  color: hsl(30,40%,80%);
+}
+
+.nav-list {
+  padding: 0px;
 }

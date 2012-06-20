@@ -13,9 +13,8 @@ app.listen 8000
 
 time = -> (String (new Date().getTime()))[-10..]
 format2 = (num) -> if num<10 then '0'+(String num) else (String num)
-watch = ->
+date = ->
   now    = new Date()
-  year   = format2 (now.getFullYear() - 2000)
   month  = format2 (now.getMonth() + 1)
   date   = format2 now.getDate()
   hour   = format2 now.getHours()
