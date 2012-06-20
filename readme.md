@@ -1,54 +1,66 @@
 
-Noisy-Chat 想做实时聊天工具, Node.js 搭的, 没有数据库支持.  
-原先很想多有功能的, 可写这代码畏怯了, 规划结构的能力成问题啊.  
-现在我先录个半成品的视频放上土豆再说, 是否修补明天再说.  
+### json interface  
 
-### message protocals  
+set-name:  
 
-'visit-page'  
-
-    send =
-      title: 'topic'
-
-    get =
-      title: 'topic'
-      list: [topic]
-
-'set-name'  
-
-    send =
+    <--
       name: 'name'
 
-    get =
-      status: 'ok'
-      info: 'this name is ok'
+has-error:  
 
-'error'  
+    -->
+      info: 'details'
 
-    info: 'reason for error'
+topic-list:  
 
-'add-topic'  
+    <--
+      full: yes | no
+    -->
+      []
+        name: 'name'
+        date: '01:23'
+        time: '12:34'
+        text: 'texts'
+        mark: '1233423345'
 
-    send =
-      text: 'content'
+post-list:  
 
-    get =
-      type: 'topic'
-      name: 'name'
-      time: '23:45'
-      mark: mark()
-      text: 'content'
-      topic: mark()
+    <--
+      full: yes | no
+    -->
+      []
+        name: 'name'
+        date: '01:23'
+        time: '12:34'
+        text: 'texts'
+        mark: '1233423345'
 
-'add-post'  
+add-topic:  
 
-    send =
-      text: 'content'
+    <--
+      text: 'texts'
 
-    get =
-      topic: mark()
-      type: 'post'
-      name: 'name'
-      time: '23:45'
-      mark: mark()
-      text: 'content'
+add_post:  
+
+    <--
+      text: 'texts'
+
+sync-post:  
+
+    <--
+      head: 3
+      text: 'texts'
+    -->
+      head: 3
+      text: 'texts'
+      mark: '1233423345'
+
+rm-post:  
+
+    <--
+      mark: '1233423345'
+
+rm-topic:  
+
+    <--
+      mark: '1233423345'
