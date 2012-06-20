@@ -10,10 +10,9 @@ section {
 
 #list {
   box-sizing: border-box;
-  max-height: 400px;
-  min-height: 200px;
+  height: 420px;
   overflow-y: scroll;
-  padding: 40px 0px 100px;
+  padding: 60px 0px 300px;
 }
 
 #say, #name {
@@ -23,6 +22,7 @@ section {
 }
 
 .sidebar>* {
+  padding-top: 20px;
 }
 
 #clock {
@@ -53,13 +53,13 @@ section {
 }
 
 .item {
-  background: hsl(240,30%,96%);
+  background: hsl(240,30%,97%);
   margin: 8px 0px;
   padding: 8px;
 }
 
-.item:hover {
-  background: hsl(240,30%,92%);
+.point {
+  background: hsl(240,80%,94%);
 }
 
 ::-webkit-scrollbar {

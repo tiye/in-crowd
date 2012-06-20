@@ -31,23 +31,23 @@ url = 'mongodb://nodejs:nodepass@localhost:27017/zhongli'
     throw err if err?
     posts.ensureIndex {mark: 1}
     db.collection 'topics', (err, topics) ->
-      topics.ensureIndex {mark: 1}
+      topics.ensureIndex {topic:1, mark: 1}
       throw err if err?
       chat = io.of('/chat').on 'connection', (socket) ->
-        ll 'ok'
-        # setInterval (->
-        #   socket.emit 'has-error', {info: 'xxx'}
-        #   ll 'xxx'), 2000
+        room = undefined
+        thread = undefined
+
         error_handler = (info) ->
           socket.emit 'has-error', {info: info}
 
         name = undefined
         socket.on 'set-name', (data) ->
-          ll data
-          if data.name.trim().length is 0 then error_handler 'too short'
-          else if data.name.trim().length > 15 then error_handler 'too long'
-          else name = data.name.trim()
-          ll 'name:', name
+          try
+            if data.name.trim().length is 0 then error_handler 'too short'
+            else if data.name.trim().length > 15 then error_handler 'too long'
+            else name = data.name.trim()
+          catch error
+            error_handler error
 
         socket.on 'add-topic', (data) ->
           if name?
@@ -64,15 +64,69 @@ url = 'mongodb://nodejs:nodepass@localhost:27017/zhongli'
                 chat.emit 'add-topic', item
               else error_handler 'cant save empty text'
             catch error
-              error_handler (String error)
+              error_handler error
           else error_handler 'cant add topic as an anonyous'
 
         socket.on 'add-post', (data) ->
           if name?
-            console.log data
+            try
+              if data.text.length > 60 then error_handler 'too long, failed' else
+                now = time()
+                item =
+                  name: name
+                  date: now.date
+                  time: now.time
+                  text: data.text
+                  mark: mark()
+                  topic: room
+                posts.insert item
+                thread = undefined
+            catch error
+              error_handler error
           else error_handler 'cant post as an anonyous'
 
         socket.on 'topic-list', ->
           topics.find({}, {limit: 20, sort: {mark: -1}}).toArray (err, list) ->
             if err? then error_handler err
             else socket.emit 'topic-list', list
+
+        socket.on 'leave-topic', ->
+          try
+            socket.leave room
+            room = undefined
+          catch error
+            error_handler error
+        
+        socket.on 'post-list', (data) ->
+          try
+            room = data.mark
+            socket.join room
+            posts
+              .find({topic: data.mark}, {limit: 10, sort: {mark: -1}})
+              .toArray (err, list) ->
+                throw err if err?
+                socket.emit 'post-list', list
+          catch error
+            error_handler error
+
+        socket.on 'sync-post', (data) ->
+          try
+            if data.head + data.text.length > 60
+              error_handler 'too long, be short'
+            else if thread?
+              data.mark = thread
+              chat.in(room).emit 'sync-post', data
+            else
+              thread = mark()
+              now = time()
+              item =
+                name: name
+                date: now.date
+                time: now.time
+                text: data.text
+                mark: thread
+              socket.emit 'new-post', item
+          catch error
+            error_handler error
+      
+      # chat = io.of('/log').on 'connection', (socket) ->

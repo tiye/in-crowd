@@ -28,6 +28,7 @@ post-list:
       time: '12:34'
       text: 'texts'
       mark: '1233423345'
+      topic: '1233423345'
 
 add-topic:
   <--
@@ -49,5 +50,16 @@ sync-post:
     text: 'texts'
   -->
     head: 3
+    text: 'texts'
+    mark: '1233423345'
+
+leave-topic:
+  <--
+
+new-post:
+  -->
+    name: 'name'
+    date: '01:23'
+    time: '12:34'
     text: 'texts'
     mark: '1233423345'
