@@ -12,6 +12,13 @@ html
       section
         .row
           .span9
+            ul.breadcrumb
+              li
+                i.icon-home
+                span Home
+                span.divider /
+              li
+                span ?
             #list
             #box
               input.span8#say(placeholder='add words and hit the button to post',type='text')
@@ -19,21 +26,17 @@ html
                 i.icon-share-alt.icon-white
           ul.span3.nav.nav-list.sidebar
             li
-              a#home
-                i.icon-home
-                span Home
+              .time
+                span 05-17
+                span#time 12:34
+            li
+              input#name.span2(placeholder='Your Name',type='text')
             li
               a#log(href='/log',target='_blank')
                 i.icon-book
                 span Log
             li
-              input#name.span2(placeholder='Your Name',type='text')
-            li
-              .time
-                span 05-17
-                span#time 12:34
-            li
               .alert
                 //- button.close(data-dismiss="alert") x
                 strong Warning! 
-                span#warn not look good
+                span#warning not look good

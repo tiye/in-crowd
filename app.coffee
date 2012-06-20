@@ -33,3 +33,14 @@ url = 'mongodb://nodejs:nodepass@localhost:27017/zhongli'
       throw err if err?
       chat = io.of('/chat').on 'connection', (socket) ->
         ll 'ok'
+        # setInterval (->
+        #   socket.emit 'has-error', {info: 'xxx'}
+        #   ll 'xxx'), 2000
+
+        name = undefined
+        socket.on 'set-name', (data) ->
+          ll data
+          if data.name.length is 0 then socket.emit 'has-error', {info: 'too short'}
+          else if data.name.length > 15 then socket.emit 'has-error', {info: 'too long'}
+          else name = data.name
+          ll 'name:', name
