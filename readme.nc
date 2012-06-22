@@ -1,6 +1,8 @@
 
 ### json interface
 
+#### for chat
+
 set-name:
   <--
     name: 'name'
@@ -70,6 +72,52 @@ new-post:
     text: 'texts'
     mark: '1233423345'
 
+#### for log
+
+login-auth:
+  <--
+    name: 'name'
+    auth: 'texts'
+
+has-error:
+  -->
+    info: 'texts'
+
+topic-list:
+  <--
+    time: '2012 11-11 11:11'
+  -->
+    []
+      name: 'name'
+      date: '01:23'
+      time: '12:34'
+      text: 'texts'
+      mark: '1233423345'
+
+post-list:
+  <--
+    time: '2012 11-11 11:11'
+  -->
+    []
+      name: 'name'
+      date: '01:23'
+      time: '12:34'
+      text: 'texts'
+      mark: '1233423345'
+
+remove-topic:
+  <--
+    mark: '1233423345'
+  -->
+    mark: '1233423345'
+
+remove-post:
+  <--
+    mark: '1233423345'
+    topic: '1233423345'
+  -->
+    mark: '1233423345'
+    topic: '1233423345'
 
 ### dependencies
 
@@ -105,6 +153,7 @@ So, please notice the file tree of `clients/` folder.
 ### Shortcuts
 
 Several shortcuts are available:
+* `tab` to focus on the say box
 * `up arrow` move up for one item
 * `down arrow` move down for one item
 * `esc` toggle the page back and forth
