@@ -77,10 +77,11 @@ url = 'mongodb://nodejs:nodepass@localhost:27017/zhongli'
                   date: now.date
                   time: now.time
                   text: data.text
-                  mark: mark()
+                  mark: thread
                   topic: room
                 posts.insert item
                 thread = undefined
+                chat.in(room).emit 'add-post', item
             catch error
               error_handler error
           else error_handler 'cant post as an anonyous'
@@ -94,6 +95,7 @@ url = 'mongodb://nodejs:nodepass@localhost:27017/zhongli'
           try
             socket.leave room
             room = undefined
+            thread = undefined
           catch error
             error_handler error
         
@@ -125,7 +127,7 @@ url = 'mongodb://nodejs:nodepass@localhost:27017/zhongli'
                 time: now.time
                 text: data.text
                 mark: thread
-              socket.emit 'new-post', item
+              chat.in(room).emit 'new-post', item
           catch error
             error_handler error
       

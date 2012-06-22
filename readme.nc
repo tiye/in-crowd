@@ -43,6 +43,12 @@ add-topic:
 add_post:
   <--
     text: 'texts'
+  -->
+    name: 'name'
+    date: '01/23'
+    time: '12:34'
+    text: 'texts'
+    mark: '1233423345'
 
 sync-post:
   <--

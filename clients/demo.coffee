@@ -33,6 +33,7 @@ $ ->
     [0...n].forEach (i) ->
       if fine and a[i] is b[i] then head = i
       else fine = no
+    console.log 
     [head, b[head+1..]]
 
   $('#say').bind 'input', ->
@@ -54,6 +55,8 @@ $ ->
   $('#say').keydown (e) -> if e.keyCode is 13 then sayit()
   $('#send').click -> sayit()
 
+  home_say = '';
+  topic_say = '';
   draw_item = (item, link) ->
     $('<li/>').attr('id', item.mark).attr('class','item').appendTo $('#list')
     $('#'+item.mark).html "
@@ -62,10 +65,12 @@ $ ->
       <span class='text' id='post#{item.mark}'>#{item.text}</span>"
     if link is yes
       $('#'+item.mark).click ->
+        home_say = $('#say').val()
+        console.log 'store in home_say:', home_say
+        $('#say').val topic_say
         socket.emit 'post-list', {mark: item.mark}
         $('#topic').text item.text
         last = ''
-        $('#say').val ''
         view = item.mark
 
   topics = []
@@ -89,11 +94,13 @@ $ ->
     point.addClass 'point'
 
   jump_home = ->
+    topic_say = $('#say').val()
+    console.log 'take from home_say:', home_say
+    $('#say').val home_say
     view = 'home'
     $('#list').html ''
     topics.forEach (item) -> draw_item item, yes
     last = ''
-    $('#say').val ''
     $('#topic').text ''
     socket.emit 'leave-topic'
     $('#list').scrollTop home_scrolltop
@@ -105,12 +112,13 @@ $ ->
   socket.on 'post-list', (list) ->
     $('#list').html ''
     list.reverse().forEach draw_item
+    $('#list').scrollTop 0
   
   put_same = (diff, base) ->
     if base.length <= diff.head
       n = diff.head - base.length
       res = diff.text
-      [1..n].forEach (i) -> res = 'ᖘ' + res
+      [0..n].forEach (i) -> res = 'ᖘ' + res
       res
     else if diff.head < 0 then diff.text
     else base[..diff.head]+diff.text
@@ -126,7 +134,9 @@ $ ->
         draw_item item
       $('#post'+data.mark).text (put_same data, $('#post'+data.mark).text())
 
-  socket.on 'new-post', (item) -> draw_item item
+  socket.on 'new-post', (item) ->
+    # console.log 'got new-post:', item
+    draw_item item
 
   now = new Date()
   $('#date').text "#{now.getMonth()+1}/#{now.getDate()}"
@@ -141,7 +151,7 @@ $ ->
     ), 800
 
   $(document).keydown (e) ->
-    console.log e.keyCode
+    # console.log e.keyCode
     if e.keyCode is 9
       $('#say').focus()
       false
@@ -173,3 +183,9 @@ $ ->
     # else if e.keyCode is 34 # key pgdown
     #   $('#list').scrollTop ($('#list').scrollTop() + 60*6)
     #   false
+
+  socket.on 'add-post', (item) ->
+    console.log 'got item', item
+    $('#'+item.mark+' .time').text "#{item.date} #{item.time}"
+    $('#'+item.mark+' .name').text item.name
+    $('#post'+item.mark).text item.text
