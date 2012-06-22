@@ -97,7 +97,7 @@ has-error:
 topic-list:  
 
     <--
-      time: '2012 11-11 11:11'
+      mark: '1233423345'
     -->
       []
         name: 'name'
@@ -109,7 +109,7 @@ topic-list:
 post-list:  
 
     <--
-      time: '2012 11-11 11:11'
+      mark: '1233423345'
     -->
       []
         name: 'name'
