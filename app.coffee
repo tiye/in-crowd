@@ -11,7 +11,7 @@ io.set 'log level', 1
 # io.set "polling duration", 10
 app.listen 8000
 
-mark = -> (String (new Date().getTime()))[-10..]
+mark = -> String (new Date().getTime())
 format2 = (num) -> if num<10 then '0'+(String num) else (String num)
 time = ->
   now    = new Date()
@@ -87,9 +87,11 @@ url = 'mongodb://nodejs:nodepass@localhost:27017/zhongli'
           else error_handler 'cant post as an anonyous'
 
         socket.on 'topic-list', ->
-          topics.find({}, {limit: 20, sort: {mark: -1}}).toArray (err, list) ->
-            if err? then error_handler err
-            else socket.emit 'topic-list', list
+          topics
+            .find({hide: {$exists: no}}, {limit: 20, sort: {mark: -1}})
+            .toArray (err, list) ->
+              if err? then error_handler err
+              else socket.emit 'topic-list', list
 
         socket.on 'leave-topic', ->
           try
@@ -104,7 +106,9 @@ url = 'mongodb://nodejs:nodepass@localhost:27017/zhongli'
             room = data.mark
             socket.join room
             posts
-              .find({topic: data.mark}, {limit: 10, sort: {mark: -1}})
+              .find(
+                {topic: data.mark, hide: {$exists: no}},
+                {limit: 10, sort: {mark: -1}})
               .toArray (err, list) ->
                 throw err if err?
                 socket.emit 'post-list', list
@@ -131,4 +135,52 @@ url = 'mongodb://nodejs:nodepass@localhost:27017/zhongli'
           catch error
             error_handler error
       
-      # chat = io.of('/log').on 'connection', (socket) ->
+      log = io.of('/log').on 'connection', (socket) ->
+        auth = no
+        step = 86400000
+        error_handler = (info) ->
+          socket.emit 'has-error', {info: info}
+
+        socket.on 'login-auth', (data) ->
+          try
+            if data.name is 'admin' and data.auth is 'passwd'
+              auth = yes
+              console.log 'auth'
+            else error_handler 'failed to auth'
+          catch error
+            error_handler info
+
+        socket.on 'topic-list', (data) ->
+          try
+            start = data.mark
+            end = String ((Number data.mark) + step)
+            topics
+              .find({mark: {$gte: start, $lte: end}, hide: {$exists: no}})
+              .toArray (err, list) ->
+                socket.emit 'topic-list', list
+          catch error
+            error_handler error
+
+        socket.on 'post-list', (data) ->
+          try
+            posts
+              .find({topic: data.mark, hide: {$exists: no}})
+              .toArray (err, list) ->
+                socket.emit 'post-list', list
+          catch error
+            error_handler error
+
+        socket.on 'rm-topic', (data) ->
+          if auth
+            log.emit 'rm-topic', data
+            console.log 'update'
+            topics.update({mark: data.mark}, {$set: {hide: 1}})
+          else error_handler 'dont have auth'
+
+        socket.on 'rm-post', (data) ->
+          if auth
+            log.emit 'rm-post', data
+            posts.update(
+                {topic: data.topic, mark: data.mark},
+                {$set: {hide: 1}})
+          else error_handler 'dont have auth'

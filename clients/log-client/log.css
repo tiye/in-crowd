@@ -1,0 +1,37 @@
+
+@import url(../bootstrap/css/bootstrap.css);
+
+body {
+  margin: 0px;
+}
+
+.row>div>ul {
+  overflow-y: auto;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  background: hsl(30,30%,90%);
+}
+::-webkit-scrollbar-thumb {
+  -webkit-border-radius: 4px;
+  background: hsl(0,20%,70%);
+}
+
+li {
+  margin: 4px;
+  background: hsl(220,30%,97%);
+  padding: 4px;
+}
+
+li:hover {
+  background: hsl(220,30%,94%);
+}
+
+i[id^=rm] {
+  color: white;
+}
+
+i[id^=rm]:hover {
+  color: red;
+}
