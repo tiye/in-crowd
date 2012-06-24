@@ -4,7 +4,8 @@ html
     title Chat
     link(rel='stylesheet',href='demo.css')
     //- link(href='http://fonts.googleapis.com/css?family=Exo',rel='stylesheet',type='text/css')
-    script(src='http://127.0.0.1:8000/socket.io/socket.io.js')
+    //- script(src='http://127.0.0.1:8000/socket.io/socket.io.js')
+    script(src='http://zhongli.cnodejs.net/socket.io/socket.io.js')
     script(src='jquery.js')
     script(src='demo.js')
   body
@@ -32,7 +33,7 @@ html
             li
               input#name.span2(placeholder='Your Name',type='text')
             li
-              a#log(href='/log',target='_blank')
+              a#log(href='log-client/log.html',target='_blank')
                 i.icon-book
                 span Log
             li

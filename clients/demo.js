@@ -2,7 +2,7 @@
 
 $(function() {
   var check_same, draw_item, error_handler, f2, home_say, home_scrolltop, jump_home, last, level, now, old_clock, point, put_same, sayit, topic_say, topics, view, warning;
-  window.socket = io.connect('127.0.0.1:8000/chat');
+  window.socket = io.connect('http://zhongli.cnodejs.net:80/chat');
   warning = void 0;
   error_handler = function(data) {
     if (warning != null) {
@@ -17,6 +17,9 @@ $(function() {
     })();
   };
   socket.on('has-error', error_handler);
+  if (localStorage.name == null) {
+    localStorage.name = 'Guest';
+  }
   if (localStorage.name != null) {
     socket.emit('set-name', {
       name: localStorage.name.trim()

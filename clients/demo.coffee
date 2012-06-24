@@ -1,6 +1,7 @@
 
 $ ->
-  window.socket = io.connect '127.0.0.1:8000/chat'
+  # window.socket = io.connect '127.0.0.1:8000/chat'
+  window.socket = io.connect 'http://zhongli.cnodejs.net:80/chat'
   
   warning = undefined
   error_handler = (data) ->
@@ -12,6 +13,7 @@ $ ->
       warning = setTimeout (-> ($ '.alert').slideUp()), 1000
   socket.on 'has-error', error_handler
 
+  unless localStorage.name? then localStorage.name = 'Guest'
   if localStorage.name?
     socket.emit 'set-name', {name: localStorage.name.trim()}
     $('#name').val localStorage.name.trim()

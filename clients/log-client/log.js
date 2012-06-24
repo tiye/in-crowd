@@ -23,7 +23,7 @@ one_day = function(mark) {
   };
 };
 
-socket = io.connect('127.0.0.1:8000/log');
+socket = io.connect('http://zhongli.cnodejs.net:80/log');
 
 socket.on('has-error', function(data) {
   return console.dir(data.info);

@@ -14,7 +14,8 @@ one_day = (mark) ->
     str: "#{year} #{month}-#{date} #{hour}:#{min}"
     mark: String mark
 
-socket = io.connect '127.0.0.1:8000/log'
+# socket = io.connect '127.0.0.1:8000/log'
+socket = io.connect 'http://zhongli.cnodejs.net:80/log'
 socket.on 'has-error', (data) -> console.dir data.info
 auth = (name, passwd) ->
   socket.emit 'login-auth', {name:name, auth: passwd}
