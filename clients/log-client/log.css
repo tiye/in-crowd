@@ -5,6 +5,11 @@ body {
   margin: 0px;
 }
 
+.row>div {
+  height: 100%;
+  overflow: auto;
+}
+
 .row>div>ul {
   overflow-y: auto;
 }
