@@ -2,12 +2,38 @@
 html
   head
     title Site
+    link(
+        href='http://fonts.googleapis.com/css?family=Lato',
+        rel='stylesheet',
+        type='text/css')
     link(rel='stylesheet',href='/s.css')
     script(src='/socket.io/socket.io.js')
     script(src='/sync.js')
     script(src='/jquery.min.js')
     script(src='/handle.js')
   body
-    #main
-      #box
-      #nav
+    #topic
+    #chat
+    #name
+    #msg
+    #config
+      .form.login
+        span login with github
+      .unit#preview
+        header.icon
+          img.icon
+        .detail
+          p
+            span.name your name
+            span.mark mark
+          p content
+      br
+      .form
+        span nickname:
+        input#nickname
+      .form
+        span state
+        input#state
+      .form
+        span about you:
+        input#about

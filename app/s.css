@@ -1,31 +1,73 @@
-body {
-  padding: 0px auto;
-  margin: 0px;
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
 }
-#main {
-  margin: 0px auto;
-  width: 934px;
+::-webkit-scrollbar-track {
+  width: 4px;
+  background: #fee7e7;
 }
-#main #box {
-  margin: 0px auto;
-  padding: 0px;
-  width: 900px;
-  box-shadow: 0px 0px 4px #808080;
-  height: 99%;
-  padding: 60px 0px 400px 0px;
+::-webkit-scrollbar-thumb {
+  background: #bf4040;
+  border-radius: 2px;
+}
+* {
   box-sizing: border-box;
-  display: inline-block;
 }
-#main #box p {
-  padding: 20px 40px;
+body {
+  padding: 0px;
+  margin: 0px 10px;
+  display: -webkit-box;
+  -webkit-box-orient: horizontal;
+  width: 4700px;
+  overflow: hidden;
+  background: #efe9e7;
+  font-family: 'Lato', sans-serif;
+  font-weight: 300;
+}
+body > div {
+  width: 800px;
+  height: 100%;
+  margin: 0px 10px;
+  background: #fff;
+}
+.unit {
   margin: 0px;
-  box-shadow: 0px 0px 10px #808080;
+  padding: 10 30px;
+  display: -webkit-box;
+  -webkit-box-orient: horizontal;
 }
-#main #nav {
-  width: 30px;
+.unit header.icon {
+  width: 50px;
+  height: 50px;
+  box-shadow: 0px 0px 8px #808080;
+}
+.unit p {
+  margin: 10px;
+}
+.unit img {
+  width: 100%;
+}
+.unit .name {
+  margin-right: 20px;
+}
+.unit .mark {
+  color: #8cd98c;
+}
+#config .login {
+  text-align: right;
+  color: #cfcffc;
+}
+#config .form {
+  line-height: 20px;
+  padding: 10px 30px;
+}
+#config .form input {
+  width: 500px;
   height: 30px;
-  display: inline-block;
-  box-shadow: 0px 0px 4px #808080;
-  vertical-align: top;
-  margin: 0px;
+  outline: none;
+  border: none;
+  box-shadow: 0px 1px 0px #808080;
+  font-family: 'Lato', sans-serif;
+  font-size: 16px;
+  padding: 4px 8px;
 }

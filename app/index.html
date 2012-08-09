@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>Site</title>
+    <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css"/>
     <link rel="stylesheet" href="/s.css"/>
     <script src="/socket.io/socket.io.js"></script>
     <script src="/sync.js"></script>
@@ -9,9 +10,28 @@
     <script src="/handle.js"></script>
   </head>
   <body>
-    <div id="main">
-      <div id="box"></div>
-      <div id="nav"></div>
+    <div id="topic"></div>
+    <div id="chat"></div>
+    <div id="name"></div>
+    <div id="msg"></div>
+    <div id="config">
+      <div class="form login"><span>login with github</span></div>
+      <div id="preview" class="unit">
+        <header class="icon"><img class="icon"/></header>
+        <div class="detail">
+          <p><span class="name">your name</span><span class="mark">mark</span></p>
+          <p>content</p>
+        </div>
+      </div><br/>
+      <div class="form"><span>nickname:</span>
+        <input id="nickname"/>
+      </div>
+      <div class="form"><span>state</span>
+        <input id="state"/>
+      </div>
+      <div class="form"><span>about you:</span>
+        <input id="about"/>
+      </div>
     </div>
   </body>
 </html>

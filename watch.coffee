@@ -15,14 +15,17 @@ output = (error, stdout, stderr) ->
 
 {exec} = require 'child_process'
 fs = require 'fs'
-fs.watchFile 'src/handle.coffee', ->
+interval = interval: 1000
+fs.watchFile 'src/handle.coffee', interval, ->
   exec 'coffee -o app/ -bc src/handle.coffee', {}, output
-fs.watchFile 'src/sync.coffee', ->
+fs.watchFile 'src/sync.coffee', interval, ->
   exec 'coffee -o app/ -bc src/sync.coffee', {}, output
-fs.watchFile 'src/s.styl', ->
+fs.watchFile 'src/s.styl', interval, ->
   exec 'stylus -o app/ src/s.styl', {}, output
-fs.watchFile 'src/index.jade', ->
-  exec 'jade -O app/ --pretty src/*jade', {}, output
+fs.watchFile 'src/index.jade', interval, ->
+  exec 'jade -O app/ --pretty src/index.jade', {}, output
+fs.watchFile 'src/login.jade', interval, ->
+  exec 'jade -O app/ --pretty src/login.jade', {}, output
 
 url = require 'url'
 handler = (req, res) ->
@@ -47,6 +50,10 @@ handler = (req, res) ->
     when '/jquery.min.js'
       fs.readFile 'lib/jquery.min.js', 'utf-8', (err, data) ->
         res.writeHead 200, 'Content-Type': 'text/javascript'
+        res.end data
+    when '/login.html'
+      fs.readFile 'app/login.html', 'utf-8', (err, data) ->
+        res.writeHead 200, 'Content-Type': 'text/html'
         res.end data
     else res.end 'not here'
 
