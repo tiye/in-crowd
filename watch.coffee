@@ -1,7 +1,8 @@
 
+colors = require 'colors'
 stemp = ''
 do refresh = ->
-  console.log '%%%%%%%%%%%%'
+  console.log '@@@@@@@@@@@@'.rainbow
   s = new Date().getTime()
   stemp = String s
 
@@ -16,6 +17,8 @@ output = (error, stdout, stderr) ->
 fs = require 'fs'
 fs.watchFile 'src/handle.coffee', ->
   exec 'coffee -o app/ -bc src/handle.coffee', {}, output
+fs.watchFile 'src/sync.coffee', ->
+  exec 'coffee -o app/ -bc src/sync.coffee', {}, output
 fs.watchFile 'src/s.styl', ->
   exec 'stylus -o app/ src/s.styl', {}, output
 fs.watchFile 'src/index.jade', ->
@@ -27,12 +30,23 @@ handler = (req, res) ->
   switch pathname
     when '/' or '/index.html'
       fs.readFile 'app/index.html', 'utf-8', (err, data) ->
+        res.writeHead 200, 'Content-Type': 'text/html'
         res.end data
     when '/s.css'
       fs.readFile 'app/s.css', 'utf-8', (err, data) ->
+        res.writeHead 200, 'Content-Type': 'text/css'
+        res.end data
+    when '/sync.js'
+      fs.readFile 'app/sync.js', 'utf-8', (err, data) ->
+        res.writeHead 200, 'Content-Type': 'text/javascript'
         res.end data
     when '/handle.js'
       fs.readFile 'app/handle.js', 'utf-8', (err, data) ->
+        res.writeHead 200, 'Content-Type': 'text/javascript'
+        res.end data
+    when '/jquery.min.js'
+      fs.readFile 'lib/jquery.min.js', 'utf-8', (err, data) ->
+        res.writeHead 200, 'Content-Type': 'text/javascript'
         res.end data
     else res.end 'not here'
 

@@ -1,23 +1,14 @@
-var count, counting, w;
+var nav;
 
-w = io.connect();
+nav = "  <p> Topic List </p>  <p> Set Name </p>  ";
 
-if (w != null) {
-  localStorage.removeItem('stemp');
-  w.on('ready', function() {
-    return console.log('ready');
+$(function() {
+  var b, h, view;
+  h = $('#nav');
+  b = $('#box');
+  view = 'room';
+  return h.click(function() {
+    console.log(nav);
+    return b.html(nav);
   });
-  counting = 0;
-  w.on('stemp', function(stemp) {
-    if (localStorage.stemp != null) {
-      if (localStorage.stemp !== stemp) location.reload();
-    }
-    localStorage.stemp = stemp;
-    return counting = 0;
-  });
-  count = function() {
-    counting += 1;
-    if (counting >= 2) return location.reload;
-  };
-  setInterval(count, 1000);
-}
+});
