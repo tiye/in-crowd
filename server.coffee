@@ -49,10 +49,10 @@ get_login = (err, data, key, s, users) ->
   if err? then s.emit 'err', 'login' else
     s.emit 'login', data
     s.emit 'key', key
-    name = data.login
-    s.join "user:#{name}"
+    login = data.login
+    s.join "user:#{login}"
 
-    s.set 'name', name
+    s.set 'login', name
     diff =
       avatar_url: data.avatar_url
       login: name
@@ -64,9 +64,50 @@ auto_login = (key, s, users) ->
     if err? then s.emit 'err', err else
       if data.length is 0 then s.emit 'err', 'no user' else
         show 'auto_login'
-        s.set 'name', data.login
+        s.set 'login', data.login
+        s.set 'nick', data.nick
+        s.set 'state', data.state
+        s.set 'avatar_url', data.avatar_url
         s.emit 'login', data
+
+set_nick = (nick, s, users) ->
+  s.set 'nick', nick
+  s.get 'login', (err, login) ->
+    diff = nick: nick
+    upsert_user users, login, diff
+
+set_state = (state, s, users) ->
+  s.get 'login', (err, login) ->
+    diff = state: state
+    upsert_user users, login, diff
+
+add_topic = (value, topic_id, clock, s, topics) ->
+  s.get 'login', (err, login) ->
+    s.get 'nick', (err, nick) ->
+      s.get 'avatar_url', (err, avatar_url) ->
+        data =
+          login: login
+          nick: nick
+          clock: clock
+          state: value
+          avatar_url: avatar_url
+          topic_id: topic_id
+          reply: 0
+        s.broadcast.emit 'add_topic', data
+        topics.insert data
+
+start_page = (s, topics) ->
+  criteria = {}
+  options = limit: 20
+  topics.find(criteria, options).toArray (err, list) ->
+    s.emit 'start_page', list
 
 each_socket = (s, users, topics, posts) ->
   s.on 'token', (token) -> change token, get_login, s, users
   s.on 'key', (key) -> auto_login key, s, users
+  s.on 'nick', (nick) -> set_nick nick, s, users
+  s.on 'state', (state) -> set_state state, s, users
+  s.on 'add_topic', (value, topic_id, clock) ->
+    add_topic value, topic_id, clock, s, topics
+  start_page s, topics
+  s.on 'topic', (topic_id) -> show topic_id

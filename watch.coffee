@@ -62,8 +62,8 @@ app = http.createServer handler
 io = (require 'socket.io').listen app
 app.listen 8001
 io.set 'log level', 1
-io.set "transports", ["xhr-polling"]
-io.set "polling duration", 10
+# io.set "transports", ["xhr-polling"]
+# io.set "polling duration", 10
 
 io.sockets.on 'connection', (s) ->
   s.emit 'ready'
