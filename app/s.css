@@ -47,10 +47,14 @@ body > div {
 .unit img {
   width: 100%;
 }
-.unit .name {
+.unit .detail {
+  width: 680px;
+  margin-left: 10px;
+}
+.unit .nick {
   margin-right: 20px;
 }
-.unit .mark {
+.unit .name {
   color: #8cd98c;
 }
 #config .login {
