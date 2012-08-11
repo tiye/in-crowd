@@ -14,6 +14,15 @@
 *
   box-sizing border-box
 
+input, .input
+  color hsl(0,90,50)
+  font-size 16px
+  outline none
+  border none
+  box-shadow 0px 1px 0px hsl(0, 90%, 80%)
+  width 80%
+  margin 10px 8%
+
 body
   padding 0px
   margin 0px 10px
@@ -26,21 +35,26 @@ body
   font-weight 300
 
 body > div
+  padding 20px 0px 100px
   width 800px
   height 100%
   margin 0px 10px
   background white
+  overflow scroll
 
 .unit
   margin 0px
-  padding 10px 30px
+  padding 6px 30px
   display -webkit-box
   -webkit-box-orient horizontal
-  height 64px
+  height 54px
+
+  &:hover
+    background hsl(240,90,97)
 
   header.icon
-    width 44px
-    height 44px
+    width 40px
+    height 40px
     box-shadow 0px 0px 8px gray
 
   p
@@ -55,6 +69,8 @@ body > div
 
   .info
     text-align right
+    margin 0px
+    font-size 14px
 
   .nick
     margin-right 10px
@@ -73,7 +89,6 @@ body > div
 
 #config
   .login
-    text-align right
     color hsl(240,90,90)
 
   .form
@@ -97,8 +112,10 @@ body > div
   border: none;
   font-size: 16px
   font-family: 'wenquanyi micro hei';
-  box-shadow: 0px 1px 0px hsl(0, 90%, 90%);
   outline none
   white-space: nowrap
   text-overflow: ellipsis
   overflow: hidden
+
+.curr
+  background hsl(250,90,94)

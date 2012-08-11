@@ -13,6 +13,16 @@
 * {
   box-sizing: border-box;
 }
+input,
+.input {
+  color: #f20d0d;
+  font-size: 16px;
+  outline: none;
+  border: none;
+  box-shadow: 0px 1px 0px #fa9e9e;
+  width: 80%;
+  margin: 10px 8%;
+}
 body {
   padding: 0px;
   margin: 0px 10px;
@@ -25,21 +35,26 @@ body {
   font-weight: 300;
 }
 body > div {
+  padding: 20px 0px 100px;
   width: 800px;
   height: 100%;
   margin: 0px 10px;
   background: #fff;
+  overflow: scroll;
 }
 .unit {
   margin: 0px;
-  padding: 10px 30px;
+  padding: 6px 30px;
   display: -webkit-box;
   -webkit-box-orient: horizontal;
-  height: 64px;
+  height: 54px;
+}
+.unit:hover {
+  background: #f0f0fe;
 }
 .unit header.icon {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   box-shadow: 0px 0px 8px #808080;
 }
 .unit p {
@@ -54,6 +69,8 @@ body > div {
 }
 .unit .info {
   text-align: right;
+  margin: 0px;
+  font-size: 14px;
 }
 .unit .nick {
   margin-right: 10px;
@@ -71,7 +88,6 @@ body > div {
   margin-right: 10px;
 }
 #config .login {
-  text-align: right;
   color: #cfcffc;
 }
 #config .form {
@@ -95,9 +111,11 @@ body > div {
   border: none;
   font-size: 16px;
   font-family: 'wenquanyi micro hei';
-  box-shadow: 0px 1px 0px #fccfcf;
   outline: none;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
+}
+.curr {
+  background: #e7e2fd;
 }

@@ -28,6 +28,31 @@ found = (elems) -> elems.length > 0
 login_url = 'https://github.com/login/oauth/authorize' +
   '?client_id=1b9a3afb748a45643c8d'
 
+post_box = (data) ->
+  if data.reply? then data.reply = String data.reply
+  if data.time then time = data.time else time = clock()
+  t = "#{time.date or ''} #{time.time or ''}"
+  id =
+    if data.cid? then "cid_#{data.cid}"
+    else if data.tid? then "tid_#{data.tid}" else ''
+
+  """<div class="unit" id="#{id}">
+    <header class="icon">
+      <img class="icon" src="#{data.avatar_url}"/>
+    </header>
+    <div class="detail">
+      <p class="info">
+        <span class="nick"> #{data.nick or ''} </span>
+        <span class="name"> #{data.login or ''} </span>
+        <span class="reply"> #{data.reply or ''} </span>
+        <span class="time"> #{t} </span>
+      </p>
+      <p class="value #{data.input or ''}">
+        #{data.value or ''}
+      </p>
+    </div>
+  </div>"""
+
 ls = localStorage
 sight = undefined
 
@@ -42,6 +67,7 @@ slide_left = (next) ->
     slide_tag sight.attr('id')
 
 s = io.connect 'http://localhost:8002'
+s.on 'err', (err) -> show 'API ERROR: ', err
 
 addEventListener 'message', (child) ->
   token = child.data.match(/code=([0-9a-f]+)/)[1]
@@ -78,69 +104,43 @@ $ ->
         show 'key_down'
     if ls.authed? then switch e.keyCode
       when key_enter
-        if ls.sight is 'topic' then toggle_topic()
-        else if ls.sight is 'chat' then toggle_chat()
+        if ls.sight is 'topic'
+          if found $('#topic input') then finish_topic()
+          else start_topic()
+        else if ls.sight is 'chat'
+          if found $('#chat input') then finish_chat()
+          else start_chat()
 
-  post_box = (data) ->
-    if data.reply? then data.reply = String data.reply
-    if data.time then time = data.time else
-      time = clock()
-    t = "#{time.date or ''} #{time.time or ''}"
+  start_topic = ->
+    $('#topic').append '<input class="input"/>'
+    $('#topic input').focus().hide().slideDown()
 
-    me = """<input class="state"></input>"""
-    other = """<p class="state" id="#{data.topic_id or ''}">
-      #{data.state or ''}</p>"""
-    """<div class="unit">
-      <header class="icon">
-        <img class="icon" src="#{data.avatar_url}"/>
-      </header>
-      <div class="detail">
-        <p class="info">
-          <span class="nick">
-            #{data.nick or ''}
-          </span>
-          <span class="name">
-            #{data.login or ''}
-          </span>
-          <span class="reply">
-            #{data.reply or ''}
-          </span>
-          <span class="time">
-            #{t}
-          </spam>
-        </p>
-        #{if data.nick is '.me' then me else other}
-      </div>
-    </div>"""
+  finish_topic = ->
+    input = $("#topic input")
+    value = input.val().trim()
+    tid = "#{ls.login}_#{mark()}"
+    if value.length > 0
+      s.emit 'add_topic', value, tid, clock()
+    input.slideUp -> input.remove()
 
-  toggle_topic = ->
-    if found $("#topic input")
-      elem = $("#topic input")
-      value = elem.val().trim()
-      if value.length is 0
-        parent = elem.parent().parent()
-        parent.slideUp -> parent.remove()
-      else
-        elem[0].outerHTML = "<div class='state'>" +
-          value + "</div>"
-        s.emit 'add_topic', value, ls.topic_id, clock()
-    else
-      box = post_box {
-        avatar_url: ls.avatar_url
-        nick: '.me'
-        reply: 0
-      }
-      $("#topic").append(box)
-        .children().last().hide().slideDown()
-      input = $("#topic input").focus()
-      tmp = ls.topic_id = "#{ls.login}_#{mark()}"
-      input.parent().click -> s.emit 'topic', tmp
+  start_chat = ->
+    $('#chat').append '<input class="input"/>'
+    ls.cid = "#{ls.login}_#{mark()}"
+    input = $('#chat input').focus()
+    input.bind 'input', ->
+      s.emit 'chat', ls.tid, ls.cid,
+        input.val().trim(), clock(), no
 
+  finish_chat = ->
+    input = $("#chat input")
+    value = input.val().trim()
+    s.emit 'end_chat', ls.tid, ls.cid, value, clock(), yes
+    input.slideUp -> input.remove()
 
   login_link = -> open login_url
   logout_link = ->
     s.emit 'logout'
-    preview '?', '?'
+    preview '404', '.guest'
     logio.unbind 'click', logout_link
     logio.click login_link
     ls.removeItem 'authed'
@@ -150,7 +150,6 @@ $ ->
   logio = $('#config .login span')
   logio.click login_link
 
-  s.on 'err', (err) -> show err
 
   preview = (avatar_url, login) ->
     $('#config img').attr 'src', avatar_url
@@ -158,17 +157,23 @@ $ ->
 
   render_login = (data) ->
     preview data.avatar_url, data.login
+
     if data.nick?
       $('#config .nick').text data.nick
       $('#nick').val data.nick
-    if data.state?
-      $('#config .state').text data.state
-      $('#state').val data.state
+      ls.nick = nick
+
+    if data.value?
+      $('#config .value').text data.value
+      $('#value').val data.value
+      ls.value = data.value
+
     logio.unbind 'click', login_link
     logio.click logout_link
+    logio.text 'logout'
+
     ls.authed = 'yes'
     ls.login = data.login
-    logio.text 'logout'
     ls.avatar_url = data.avatar_url
 
   s.on 'login', render_login
@@ -177,23 +182,57 @@ $ ->
     get_nick = $('#nick').val()[..20]
     $('#config .unit .nick').text get_nick
     s.emit 'nick', get_nick
+    ls.nick = nick
 
-  $('#state').blur ->
-    get_state = $('#state').val()[..20]
-    $('#config .unit .state').text get_state
-    s.emit 'state', get_state
+  $('#value').blur ->
+    get_value = $('#value').val()[..20]
+    $('#config .unit .value').text get_value
+    s.emit 'value', get_value
+    ls.value = ls.value
 
-  s.on 'add_topic', (data) ->
+  add_topic = (data) ->
     box = post_box data
-    elem = $("#topic").append(box).children().last()
-    elem.hide().slideDown ->
-      $("##{data.topic_id}").parent().click ->
-        s.emit 'topic', data.topic_id
+    $('#topic').append(box)
+    elem = $('#topic').children().last()
+    elem.hide().slideDown()
+    elem.click -> see_chat data.tid
 
-  s.on 'start_page', (list) ->
-    list.forEach (data) ->
+  set_chat = (data) ->
+    tid = data.tid
+    cid = data.cid
+    scope = $("#chat #scope_#{tid}")
+    unless found scope
+      if found $('#chat>div:visible') then hide = yes
+      $("#chat").append "<div id='scope_#{tid}'/>"
+      scope = $("#chat #scope_#{tid}")
+      if hide then scope.hide()
+    target = scope.find("#cid_#{cid}")
+    if found target
+      $("#chat #cid_#{cid}").find('.value').text data.value
+    else
       box = post_box data
-      elem = $("#topic").append(box).children().last()
-      elem.hide().slideDown ->
-        $("##{data.topic_id}").parent().click ->
-          s.emit 'topic', data.topic_id
+      scope.append box
+      target = scope.find("#cid_#{cid}")
+      target.hide().slideDown()
+    if data.value.length is 0
+      target.slideUp -> target.remove()
+
+  see_chat = (tid) ->
+    $('#chat>div:visible').hide()
+    $("#chat #scope_#{tid}").slideDown()
+    ls.tid = tid
+    s.emit 'topic', tid
+    elem = $('#topic .curr')
+    if found elem then elem.removeClass 'curr'
+    $("#topic #tid_#{tid}").addClass 'curr'
+
+  s.on 'add_topic', add_topic
+  s.on 'start_page', (list) ->
+    list.forEach add_topic
+    tid = $('#topic').children().last().attr('id')[4..]
+    see_chat tid
+  s.on 'topic', (list) ->
+    show list
+    list.forEach set_chat
+  s.on 'chat', (data) -> set_chat data
+  s.on 'end_chat', (data) -> set_chat data

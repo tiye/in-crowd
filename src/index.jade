@@ -12,13 +12,7 @@ html
     script(src='/jquery.min.js')
     script(src='/handle.js')
   body
-    #topic
-    #chat
-    #name
-    #msg
     #config
-      .form.login
-        span click to login
       .unit#preview
         header.icon
           img.icon
@@ -30,9 +24,15 @@ html
             span.time 00/00 00:00
           p.state content
       br
+      .form.login
+        span click to login
       .form
         span nick:
         input#nick
       .form
         span state:
         input#state
+    #topic
+    #chat
+    #msg
+    #name
