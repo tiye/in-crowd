@@ -29,6 +29,7 @@ mongodb.connect url, (err, db) ->
         cast_stemp = -> io.sockets.emit 'stemp', stemp
         setInterval cast_stemp, 1000
 
+book = {}
 
 each_socket = (s, users, topics, chats) ->
   $authed = no
@@ -42,16 +43,17 @@ each_socket = (s, users, topics, chats) ->
     criteria = login: $login
     update = $set: diff
     options = upsert: true
-    users.update criteria, update, options
+    users.update criteria, update, options if $authed
 
   get_login = (err, data, key) ->
-    show 'get_login'
     if err? then s.emit 'err', 'login' else
       s.emit 'login', data
       s.emit 'key', key
+      s.broadcast.emit 'msg_login', data
+      book[$login] = data
       $login = data.login
       $avatar_url = data.avatar_url
-      s.join "user:#{$login}"
+      $authed = yes
       diff =
         avatar_url: data.avatar_url
         login: $login
@@ -79,17 +81,29 @@ each_socket = (s, users, topics, chats) ->
           $nick = data.nick
           $value = data.value
           $avatar_url = data.avatar_url
+          $authed = yes
           s.emit 'login', data
+          s.broadcast.emit 'msg_login', data
+          book[$login] = data
+
+  get_data = ->
+    data =
+      login: $login
+      nick: $nick
+      avatar_url: $avatar_url
+      value: $value
 
   s.on 'nick', (nick) ->
     $nick = nick
     diff = nick: nick
     upsert_user diff
+    io.sockets.emit 'msg_nick', get_data()
   
   s.on 'value', (value) ->
     $value = value
     diff = value: value
     upsert_user diff
+    io.sockets.emit 'msg_value', get_data()
 
   s.on 'add_topic', (value, tid, clock) ->
     data =
@@ -101,13 +115,13 @@ each_socket = (s, users, topics, chats) ->
       tid: tid
       reply: 0
     io.sockets.emit 'add_topic', data
-    topics.insert data
+    topics.insert data if $authed
 
   start_page = ->
     criteria = {}
     options = limit: 20
     topics.find(criteria, options).toArray (err, list) ->
-      s.emit 'start_page', list
+      s.emit 'start_page', list, book
   start_page()
 
   s.on 'topic', (tid) ->
@@ -127,6 +141,13 @@ each_socket = (s, users, topics, chats) ->
       avatar_url: $avatar_url
     aim = if save then 'end_chat' else 'chat'
     io.sockets.emit aim, data
-    if (value.length > 0) and save then chats.insert data
+    if (value.length > 0) and save
+      if $authed then chats.insert data
   s.on 'chat', sync_chat
   s.on 'end_chat', sync_chat
+  s.on 'logout', ->
+    $authed = no
+    delete book[$login]
+    s.emit 'logout', login
+  s.on 'disconnect', ->
+    io.sockets.emit 'msg_left', get_data()

@@ -84,6 +84,7 @@ s.on 'key', (key) -> ls.key = key
 if ls.authed? then s.emit 'key', ls.key
 
 $ ->
+  $.fx.speeds._default = 200
   body = $('body')
   if slide_tag()?
     tag = slide_tag()
@@ -227,12 +228,43 @@ $ ->
     $("#topic #tid_#{tid}").addClass 'curr'
 
   s.on 'add_topic', add_topic
-  s.on 'start_page', (list) ->
+  s.on 'topic', (list) -> list.forEach set_chat
+  s.on 'chat', (data) -> set_chat data
+  s.on 'end_chat', (data) -> set_chat data
+
+  s.on 'start_page', (list, book) ->
     list.forEach add_topic
     tid = $('#topic').children().last().attr('id')[4..]
     see_chat tid
-  s.on 'topic', (list) ->
-    show list
-    list.forEach set_chat
-  s.on 'chat', (data) -> set_chat data
-  s.on 'end_chat', (data) -> set_chat data
+    for k, v of book
+      box = post_box v
+      $('#name').append box
+
+  s.on 'msg_left', (data) ->
+    data.value = 'just left'
+    box = post_box data
+    $('#msg').append box
+    target = $("#name .name:contains('#{data.login}')")
+    target = target.parent().parent().parent()
+    target.slideUp -> target.remove()
+
+  s.on 'msg_login', (data) ->
+    box = post_box data
+    $('#name').append box
+    data.value = 'just login'
+    box = post_box data
+    $('#msg').append box
+
+  s.on 'msg_nick', (data) ->
+    target = $("#name .name:contains('#{data.login}')")
+    target = target.prev().text data.nick
+    data.value = 'changed nick: ' + data.nick
+    box = post_box data
+    $('#msg').append box
+
+  s.on 'msg_value', (data) ->
+    target = $("#name .name:contains('#{data.login}')")
+    target = target.parent().next().text data.value
+    data.value = 'changed state: ' + data.value
+    box = post_box data
+    $('#msg').append box

@@ -123,6 +123,7 @@ if (ls.authed != null) s.emit('key', ls.key);
 
 $(function() {
   var add_topic, body, finish_chat, finish_topic, login_link, logio, logout_link, next, preview, render_login, see_chat, set_chat, start_chat, start_topic, tag;
+  $.fx.speeds._default = 200;
   body = $('body');
   if (slide_tag() != null) {
     tag = slide_tag();
@@ -296,20 +297,61 @@ $(function() {
     return $("#topic #tid_" + tid).addClass('curr');
   };
   s.on('add_topic', add_topic);
-  s.on('start_page', function(list) {
-    var tid;
-    list.forEach(add_topic);
-    tid = $('#topic').children().last().attr('id').slice(4);
-    return see_chat(tid);
-  });
   s.on('topic', function(list) {
-    show(list);
     return list.forEach(set_chat);
   });
   s.on('chat', function(data) {
     return set_chat(data);
   });
-  return s.on('end_chat', function(data) {
+  s.on('end_chat', function(data) {
     return set_chat(data);
+  });
+  s.on('start_page', function(list, book) {
+    var box, k, tid, v, _results;
+    list.forEach(add_topic);
+    tid = $('#topic').children().last().attr('id').slice(4);
+    see_chat(tid);
+    _results = [];
+    for (k in book) {
+      v = book[k];
+      box = post_box(v);
+      _results.push($('#name').append(box));
+    }
+    return _results;
+  });
+  s.on('msg_left', function(data) {
+    var box, target;
+    data.value = 'just left';
+    box = post_box(data);
+    $('#msg').append(box);
+    target = $("#name .name:contains('" + data.login + "')");
+    target = target.parent().parent().parent();
+    return target.slideUp(function() {
+      return target.remove();
+    });
+  });
+  s.on('msg_login', function(data) {
+    var box;
+    box = post_box(data);
+    $('#name').append(box);
+    data.value = 'just login';
+    box = post_box(data);
+    return $('#msg').append(box);
+  });
+  s.on('msg_nick', function(data) {
+    var box, target;
+    target = $("#name .name:contains('" + data.login + "')");
+    target = target.prev().text(data.nick);
+    data.value = 'changed nick: ' + data.nick;
+    box = post_box(data);
+    return $('#msg').append(box);
+  });
+  return s.on('msg_value', function(data) {
+    var box, target;
+    target = $("#name .name:contains('" + data.login + "')");
+    target = target.parent().next().text(data.value);
+    data.value = 'changed state: ' + data.value;
+    box = post_box(data);
+    return $('#msg').append(box);
   });
 });

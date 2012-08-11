@@ -117,5 +117,5 @@ body > div {
   overflow: hidden;
 }
 .curr {
-  background: #e7e2fd;
+  box-shadow: inset 0px 0px 10px #fa9efa;
 }
