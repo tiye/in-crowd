@@ -1,5 +1,5 @@
 #!/usr/bin/env coffee
-project = 'repo/apus-forum'
+project = 'repo/in-crowd'
 
 require 'shelljs/make'
 path = require 'path'
@@ -78,7 +78,7 @@ target.rsync = ->
   target.build()
   mission.rsync
     file: './'
-    dest: 'tiye:~/repo/apus-forum'
+    dest: 'tiye:~/repo/in-crowd'
     options:
       exclude: [
         'node_modules/'
