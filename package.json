@@ -1,0 +1,27 @@
+{
+  "name": "in-crowd",
+  "version": "0.0.0",
+  "description": "In Crowd ------",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jiyinyiyong/in-crowd.git"
+  },
+  "author": "jiyinyiyong",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jiyinyiyong/in-crowd/issues"
+  },
+  "homepage": "https://github.com/jiyinyiyong/in-crowd",
+  "devDependencies": {
+    "mission": "0.0.7-6",
+    "shelljs": "^0.3.0",
+    "ws-json-browser": "0.0.5-0"
+  },
+  "dependencies": {
+    "ws-json-server": "0.0.5-1"
+  }
+}

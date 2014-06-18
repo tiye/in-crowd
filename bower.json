@@ -1,0 +1,19 @@
+{
+  "name": "in-crowd",
+  "version": "0.0.4",
+  "homepage": "https://github.com/jiyinyiyong/in-crowd",
+  "authors": [
+    "jiyinyiyong <jiyinyiyong@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "react": "~0.10.0"
+  }
+}

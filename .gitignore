@@ -1,1 +1,7 @@
 
+node_modules/
+bower_components/
+js/
+build/
+
+index.html
