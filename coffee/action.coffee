@@ -8,10 +8,20 @@ states = require './models/states'
 
 exports.draft = (draft) ->
   topics.updateDraft draft
-  ws.emit 'draft', draft, (topic) ->
-    topics.save topic
+  ws.emit 'draft', draft
 
-exports.post = (draft) ->
+exports.post = ->
   topics.updateDraft ''
-  ws.emit 'post', draft, (topic) ->
-    topics.save topic
+  ws.emit 'post'
+
+exports.read = (topicId) ->
+  ws.emit 'read', topicId
+  states.read topicId
+
+exports.say = (say) ->
+  messages.updateSay say
+  ws.emit 'say', say
+
+exports.finish = (say) ->
+  messages.updateSay ''
+  ws.emit 'finish', draft

@@ -1,5 +1,6 @@
 
 Dispatcher = require '../util/dispatcher'
+ws = require '../util/ws'
 
 store =
   topics: []
@@ -28,3 +29,14 @@ model.updateDraft = (draft) ->
 
 model.getDraft = ->
   store.draft
+
+ws.onload ->
+  ws.on 'post', (topic) ->
+    model.save topic
+
+  ws.on 'draft', (topic) ->
+    model.save topic
+
+  ws.on 'topics', (topics) ->
+    store.topics = topics
+    model.emit()

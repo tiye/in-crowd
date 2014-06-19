@@ -14,3 +14,6 @@ module.exports =
       topic.text = data.text
     else
       topics.unshift data
+
+  get: ->
+    topics

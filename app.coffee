@@ -4,6 +4,7 @@ server = require('ws-json-server')
 
 User = require './src/user'
 topics = require './src/topics'
+messages = require './src/messages'
 
 port = 5031
 
@@ -14,19 +15,34 @@ store =
 console.log 'listening', port
 server.listen port, (ws) ->
   user = new User
-  console.log user
 
   ws.on 'draft', (draft, res) ->
-    draft = draft.trimLeft()
     user.updateDraft draft
     topic = user.getTopic()
     topics.save topic
     res topic
 
-  ws.on 'post', (draft, res) ->
-    draft = draft.trimLeft()
+  ws.on 'post', (_, res) ->
     topic = user.getTopic()
     res topic
     user.post()
+
+  ws.on 'read', (topicId, res) ->
+    user.read topicId
+    res (messages.getBy topicId)
+
+  ws.emit 'topics', topics.get()
+
+  ws.on 'say', (say, res) ->
+    user.updateSay say
+    message = user.getMessage()
+    messages.save message
+    ws.emit 'saying', message.messageId
+    res message
+
+  ws.on 'finish', (_, res) ->
+    message = user.getMessage()
+    res message
+    user.finish()
 
   ws.on 'name', (name, res) ->

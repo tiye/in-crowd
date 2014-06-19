@@ -1,7 +1,27 @@
 
 Dispatcher = require '../util/dispatcher'
+ws = require '../util/ws'
 
-states = {}
+store =
+  reading: undefined
+  saying: undefined
 
 module.exports = model = new Dispatcher
 
+model.read = (topicId) ->
+  store.reading = topicId
+  @emit()
+
+model.getReading = ->
+  store.reading
+
+model.say = (messageId) ->
+  store.saying = messageId
+  @emit()
+
+model.getSaying = ->
+  store.saying
+
+ws.onload ->
+  ws.on 'saying', (messageId) ->
+    model.say messageId

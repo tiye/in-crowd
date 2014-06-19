@@ -1,4 +1,6 @@
 
+onLoadCalls = []
+
 require('ws-json-browser')
 .connect 5031, (ws) ->
 
@@ -8,4 +10,8 @@ require('ws-json-browser')
   exports.on = (args...) ->
     ws.on args...
 
-  exports.onload?()
+  for cb in onLoadCalls
+    cb ws
+
+exports.onload = (cb) ->
+  onLoadCalls.push cb
