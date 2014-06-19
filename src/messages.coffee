@@ -13,7 +13,7 @@ module.exports =
     if message?
       message.text = data.text
     else
-      messages.unshift data
+      messages.push data
 
   getBy: (topicId) ->
     messages.filter (message) ->

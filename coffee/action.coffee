@@ -24,4 +24,5 @@ exports.say = (say) ->
 
 exports.finish = (say) ->
   messages.updateSay ''
-  ws.emit 'finish', draft
+  ws.emit 'finish'
+  states.unsetSaying()

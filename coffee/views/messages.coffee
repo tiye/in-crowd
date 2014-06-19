@@ -12,6 +12,9 @@ MessageItem = React.createClass
 
   componentDidMount: ->
     @listenTo states, @_onChange
+    input = @refs.input
+    if input
+      input.getDOMNode().focus()
 
   getInitialState: ->
     saying: states.getSaying()
@@ -26,22 +29,31 @@ MessageItem = React.createClass
     $$.if isSaying,
       =>
         $.div
-          className: 'message-item message-saying'
+          className: 'message-item message-saying row-start'
           $.input
-            className: 'username'
+            className: 'message-username'
+            onChange: =>
             value: @props.data.username
           $.input
-            className: 'message-text'
+            ref: 'input'
+            className: 'message-text flex-fill'
             value: @props.data.text
+            onChange: (event) =>
+              say = event.target.value
+              action.say say
+            onKeyDown: (event) =>
+              if event.keyCode is 13
+                action.finish()
+                @refs.input.getDOMNode().blur()
       =>
         $.div
-          className: 'message-item'
+          className: 'message-item row-start'
           $.span
-            className: 'username'
+            className: 'message-username'
             @props.data.username
           $.span
-            className: 'message-text'
-            value: @props.data.text
+            className: 'message-text flex-fill'
+            @props.data.text
 
 module.exports = React.createClass
   displayName: 'messages-view'
@@ -64,8 +76,6 @@ module.exports = React.createClass
       reading: states.getReading()
 
   render: ->
-
-    console.log 'state:', @state
 
     if @state.reading?
       messageItems = @state.messages.map (message) =>

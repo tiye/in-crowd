@@ -18,11 +18,10 @@ model.save = (data) ->
   if message?
     message.text = data.text
   else
-    store.messages.unshift data
+    store.messages.push data
   @emit()
 
 model.getBy = (topicId) ->
-  console.log store.messages, topicId
   store.messages.filter (message) ->
     message.topicId is topicId
 

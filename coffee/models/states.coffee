@@ -22,6 +22,10 @@ model.say = (messageId) ->
 model.getSaying = ->
   store.saying
 
+model.unsetSaying = ->
+  store.saying = undefined
+  @emit()
+
 ws.onload ->
   ws.on 'saying', (messageId) ->
     model.say messageId

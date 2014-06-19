@@ -1,6 +1,7 @@
 
 action = require '../action'
 mixins = require '../util/mixins'
+format = require '../util/format'
 
 topics = require '../models/topics'
 states = require '../models/states'
@@ -34,10 +35,12 @@ TopicItem = React.createClass
         $.div {},
           @props.data.text
         $.div {},
-          $.span {},
+          $.span
+            className: 'topic-username'
             @props.data.username
-          $.span {},
-            @props.data.time
+          $.span
+            className: 'topic-time'
+            format.today @props.data.time
 
 module.exports = React.createClass
   displayName: 'topics-view'

@@ -21,6 +21,7 @@ server.listen port, (ws) ->
     topic = user.getTopic()
     topics.save topic
     res topic
+    ws.broadcast 'draft', topic
 
   ws.on 'post', (_, res) ->
     topic = user.getTopic()
@@ -39,10 +40,17 @@ server.listen port, (ws) ->
     messages.save message
     ws.emit 'saying', message.messageId
     res message
+    ws.broadcast 'say', message
 
   ws.on 'finish', (_, res) ->
     message = user.getMessage()
     res message
     user.finish()
+
+  ws.bind 'draft', (data) ->
+    ws.emit 'draft', data
+
+  ws.bind 'say', (data) ->
+    ws.emit 'say', data
 
   ws.on 'name', (name, res) ->
