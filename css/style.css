@@ -1,2 +1,10 @@
 
 @import url('../bower_components/origami-ui/lib/index.css');
+
+body {
+    background-image: url('../wallpaper/blur.jpg');
+}
+
+#topics-view {}
+
+#messages-view {}

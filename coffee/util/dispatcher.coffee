@@ -1,5 +1,5 @@
 
-exports.Dispacher = class
+module.exports = class Dispacher
   constructor: ->
     @_queue = []
 

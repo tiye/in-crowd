@@ -50,7 +50,15 @@ target.build = ->
   browserify()
 
 target.watch = ->
+  target.dev()
   station = mission.reload()
+
+  mission.watch
+    files: ['app.coffee', 'src/']
+    trigger: ->
+      setTimeout =>
+        station.reload project
+      , 400
 
   mission.watch
     files: ['cirru/', 'coffee/']

@@ -1,20 +1,13 @@
 
-require('./extend')
+require('./util/extend')
 
 store = require './store'
+ws = require './util/ws'
 
-MembersView = require('./views/members')
-MesssagesView = require('./views/messages')
+AppView = require './views/app'
 
-AppView = React.createClass
-  displayName: 'app-view'
-
-  render: ->
-    $.div
-      id: 'app-view'
-      className: 'row-strech'
-      MembersView({})
-      MesssagesView({})
+ws.onload = ->
+  console.log 'connected'
 
 React.renderComponent AppView({}), document.body
 
@@ -23,3 +16,4 @@ body.addEventListener 'keydown', (event) =>
   if event.target is body
     if event.keyCode is 13
       store.startMessage()
+      alert 'ok'
