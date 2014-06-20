@@ -13,3 +13,37 @@ body {
     overflow: auto;
     padding: 130px 0 400px 0;
 }
+
+.topic-item {
+    padding: 6px 9px;
+    cursor: pointer;
+}
+
+.topic-item.topic-reading,
+.topic-item:hover {
+    background: rgba(95, 53, 94, 0.22);
+}
+
+.topic-username {
+    margin-right: 20px;
+}
+
+.topic-time {}
+
+.message-item {
+}
+
+.message-username {
+    width: 100px;
+}
+
+.message-text {}
+
+.darken {
+    background: rgba(155, 67, 102, 0.22);
+}
+
+#topic-list {
+    overflow: auto;
+    padding-bottom: 400px;
+}
