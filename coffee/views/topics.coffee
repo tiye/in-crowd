@@ -25,7 +25,7 @@ TopicItem = React.createClass
     isReading = @props.data.topicId is @state.reading
 
     $.div
-      className: $$.concat 'topic-item',
+      className: $$.concat 'topic-item darken',
         if isReading then 'topic-reading'
       onClick: =>
         action.read @props.data.topicId
@@ -53,12 +53,10 @@ module.exports = React.createClass
   _onChange: ->
     @setState
       topics: topics.get()
-      draft: topics.getDraft()
       reading: states.getReading()
 
   getInitialState: ->
     topics: topics.get()
-    draft: ''
     reading: states.getReading()
 
   render: ->
@@ -71,7 +69,7 @@ module.exports = React.createClass
       className: 'app-sidebar column-strech'
       $.input
         id: 'topics-input'
-        value: @state.draft
+        className: 'darken'
         ref: 'input'
         placeholder: 'Create topic and post with Enter'
         onChange: =>
@@ -80,5 +78,8 @@ module.exports = React.createClass
         onKeyDown: (event) =>
           if event.keyCode is 13
             action.post()
-
-      topicItems
+            @refs.input.getDOMNode().value = ''
+      $.div
+        id: 'topic-list'
+        className: 'flex-fill'
+        topicItems

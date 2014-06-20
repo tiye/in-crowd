@@ -24,12 +24,6 @@ model.save = (data) ->
 model.get = ->
   store.topics
 
-model.updateDraft = (draft) ->
-  store.draft = draft
-
-model.getDraft = ->
-  store.draft
-
 ws.onload ->
   ws.on 'post', (topic) ->
     model.save topic

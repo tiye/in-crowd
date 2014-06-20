@@ -25,13 +25,6 @@ model.getBy = (topicId) ->
   store.messages.filter (message) ->
     message.topicId is topicId
 
-model.updateSay = (say) ->
-  store.say = say
-
-model.getSay = ->
-  store.say
-
-
 ws.onload ->
   ws.on 'read', (messages) ->
     store.messages = messages

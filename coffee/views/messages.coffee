@@ -29,7 +29,7 @@ MessageItem = React.createClass
     $$.if isSaying,
       =>
         $.div
-          className: 'message-item message-saying row-start'
+          className: 'message-item message-saying row-start darken'
           $.input
             className: 'message-username'
             onChange: =>
@@ -37,7 +37,6 @@ MessageItem = React.createClass
           $.input
             ref: 'input'
             className: 'message-text flex-fill'
-            value: @props.data.text
             onChange: (event) =>
               say = event.target.value
               action.say say
@@ -47,7 +46,7 @@ MessageItem = React.createClass
                 @refs.input.getDOMNode().blur()
       =>
         $.div
-          className: 'message-item row-start'
+          className: 'message-item row-start darken'
           $.span
             className: 'message-username'
             @props.data.username
@@ -66,13 +65,11 @@ module.exports = React.createClass
 
   getInitialState: ->
     messages: messages.getBy states.getReading()
-    say: ''
     reading: states.getReading()
 
   _onChange: ->
     @setState
       messages: messages.getBy states.getReading()
-      say: messages.getSay()
       reading: states.getReading()
 
   render: ->

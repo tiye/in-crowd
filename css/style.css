@@ -5,6 +5,11 @@ body {
     background-image: url('../wallpaper/blur.jpg');
 }
 
-#topics-view {}
+#topics-view {
+    overflow: auto;
+}
 
-#messages-view {}
+#messages-view {
+    overflow: auto;
+    padding: 130px 0 400px 0;
+}
