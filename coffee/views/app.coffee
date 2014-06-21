@@ -1,6 +1,6 @@
 
-TopicsView = require './topics'
-MesssagesView = require './messages'
+TopicsView = require './topics-list'
+MesssagesView = require './messages-list'
 
 module.exports = React.createClass
   displayName: 'app-view'

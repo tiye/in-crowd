@@ -2,16 +2,18 @@
 action = require '../action'
 mixins = require '../util/mixins'
 
-messages = require '../models/messages'
 states = require '../models/states'
+members = require '../models/members'
 
-MessageItem = React.createClass
+module.exports = React.createClass
   displayName: 'message-item'
 
   mixins: [mixins.listenTo]
 
   componentDidMount: ->
     @listenTo states, @_onChange
+    @listenTo members, @_onChange
+
     input = @refs.input
     if input
       input.getDOMNode().focus()
@@ -25,6 +27,10 @@ MessageItem = React.createClass
   render: ->
 
     isSaying = @props.data.messageId is @state.saying
+    member = members.findBy @props.data.userId
+    username = member.name.trim()
+    if username.length is 0
+      username = '/anonym/'
 
     $$.if isSaying,
       =>
@@ -33,7 +39,7 @@ MessageItem = React.createClass
           $.input
             className: 'message-username'
             onChange: =>
-            value: @props.data.username
+            value: name
           $.input
             ref: 'input'
             className: 'message-text flex-fill'
@@ -53,41 +59,3 @@ MessageItem = React.createClass
           $.span
             className: 'message-text flex-fill'
             @props.data.text
-
-module.exports = React.createClass
-  displayName: 'messages-view'
-
-  mixins: [mixins.listenTo]
-
-  componentDidMount: ->
-    @listenTo messages, @_onChange
-    @listenTo states, @_onChange
-
-  getInitialState: ->
-    messages: messages.getBy states.getReading()
-    reading: states.getReading()
-
-  _onChange: ->
-    @setState
-      messages: messages.getBy states.getReading()
-      reading: states.getReading()
-
-  render: ->
-
-    if @state.reading?
-      messageItems = @state.messages.map (message) =>
-        MessageItem data: message, key: message.messageId
-    else
-      messageItems = []
-
-    $.div
-      id: 'messages-view'
-      className: 'app-body flex-fill'
-      messageItems
-
-body = document.body
-body.addEventListener 'keydown', (event) =>
-  if event.target is body
-    if event.keyCode is 13
-      if states.getReading()?
-        action.say ''

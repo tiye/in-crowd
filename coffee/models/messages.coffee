@@ -8,13 +8,13 @@ store =
 
 module.exports = model = new Dispatcher
 
-model.findOne = (messageId) ->
+model.findBy = (messageId) ->
   for message in store.messages
     if message.messageId is messageId
       return message
 
 model.save = (data) ->
-  message = @findOne data.messageId
+  message = @findBy data.messageId
   if message?
     message.text = data.text
   else

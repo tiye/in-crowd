@@ -5,6 +5,7 @@ server = require('ws-json-server')
 User = require './src/user'
 topics = require './src/topics'
 messages = require './src/messages'
+members = require './src/members'
 
 port = 5031
 
@@ -32,7 +33,8 @@ server.listen port, (ws) ->
     user.read topicId
     res (messages.getBy topicId)
 
-  ws.emit 'topics', topics.get()
+  ws.on 'topics', (_, res) ->
+    res topics.get()
 
   ws.on 'say', (say, res) ->
     user.updateSay say
@@ -52,5 +54,22 @@ server.listen port, (ws) ->
 
   ws.bind 'say', (data) ->
     ws.emit 'say', data
+
+  ws.on 'user', (data, res) ->
+    console.log 'client sent user:', data
+    if data?
+      console.log 'all members:', members.get()
+      member = members.findBy data.userId, data.secret
+    if member?
+      console.log 'found user:', member
+      user.updateId member
+    else
+      member = user.getMember()
+      console.log 'add new user:', member
+      members.save member
+    res member
+
+  ws.on 'members', (_, res) ->
+    res members.get()
 
   ws.on 'name', (name, res) ->

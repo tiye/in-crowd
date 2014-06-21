@@ -1,46 +1,11 @@
 
 action = require '../action'
 mixins = require '../util/mixins'
-format = require '../util/format'
 
 topics = require '../models/topics'
 states = require '../models/states'
 
-TopicItem = React.createClass
-  displayName: 'topic-item'
-
-  mixins: [mixins.listenTo]
-
-  componentDidMount: ->
-    @listenTo states, @_onChange
-
-  getInitialState: ->
-    reading: states.getReading()
-
-  _onChange: ->
-    @setState @getInitialState()
-
-  render: ->
-
-    isReading = @props.data.topicId is @state.reading
-
-    $.div
-      className: $$.concat 'topic-item darken',
-        if isReading then 'topic-reading'
-      onClick: =>
-        action.read @props.data.topicId
-      $.div {},
-        @props.data.text
-      $$.if isReading, =>
-        $.div {},
-          @props.data.text
-        $.div {},
-          $.span
-            className: 'topic-username'
-            @props.data.username
-          $.span
-            className: 'topic-time'
-            format.today @props.data.time
+TopicItem = require './topic-item'
 
 module.exports = React.createClass
   displayName: 'topics-view'

@@ -4,7 +4,8 @@ uuid = require 'node-uuid'
 module.exports = class User
   constructor: ->
     @id = uuid.v1()
-    @name = 'Anonym'
+    @secret = uuid.v1()
+    @name = ''
     @reading = undefined
 
     @drafting = undefined
@@ -47,9 +48,18 @@ module.exports = class User
     text: @say
     time: @sayTime
     userId: @id
-    username: @name
     topicId: @reading
 
   finish: ->
     @saying = undefined
     @say = ''
+
+  getMember: ->
+    name: @name
+    userId: @id
+    secret: @secret
+
+  updateId: (data) ->
+    @id = data.userId
+    @secret = data.secret
+    console.log 'updateId:', data
