@@ -63,3 +63,6 @@ module.exports = class User
     @id = data.userId
     @secret = data.secret
     console.log 'updateId:', data
+
+  updateName: (name) ->
+    @name = name

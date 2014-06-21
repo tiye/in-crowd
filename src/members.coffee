@@ -19,3 +19,9 @@ exports.save = (data) ->
       member.name = data.name
       return
   members.push data
+
+exports.updateMember = (user) ->
+  for member in members
+    if member.userId is user.userId
+      member.name = user.name
+      break

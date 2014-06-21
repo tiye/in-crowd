@@ -27,8 +27,16 @@ model.reset = (data) ->
   store.members = data
   @emit()
 
+model.update = (data) ->
+  member = @findBy data.userId
+  member.name = data.name
+  @emit()
+
 ws.onload ->
   ws.on 'members', (data) ->
     console.log 'got member list:', data
     model.reset data
     ws.emit 'topics'
+
+  ws.on 'memberUpdate', (member) ->
+    model.update member

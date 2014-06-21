@@ -73,3 +73,11 @@ server.listen port, (ws) ->
     res members.get()
 
   ws.on 'name', (name, res) ->
+    user.updateName name
+    member = user.getMember()
+    members.updateMember member
+    ws.emit 'memberUpdate', member
+    ws.broadcast 'memberUpdate', member
+
+  ws.bind 'memberUpdate', (member) ->
+    ws.emit 'memberUpdate', member

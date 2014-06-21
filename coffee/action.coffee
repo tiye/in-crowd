@@ -22,3 +22,7 @@ exports.say = (say) ->
 exports.finish = (say) ->
   ws.emit 'finish'
   states.unsetSaying()
+
+exports.name = (name) ->
+  ws.emit 'name', name, (data) ->
+    console.log name

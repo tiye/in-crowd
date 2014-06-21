@@ -14,8 +14,14 @@ module.exports = React.createClass
     @listenTo states, @_onChange
     @listenTo members, @_onChange
 
+    name = @refs.name
+    if name?
+      member = members.findBy @props.data.userId
+      username = member.name.trim()
+      name.getDOMNode().value = username
+
     input = @refs.input
-    if input
+    if input?
       input.getDOMNode().focus()
 
   getInitialState: ->
@@ -23,6 +29,10 @@ module.exports = React.createClass
 
   _onChange: ->
     @setState @getInitialState()
+    console.log 'message update'
+
+  componentDidUpdate: ->
+    name = @refs.name
 
   render: ->
 
@@ -38,8 +48,13 @@ module.exports = React.createClass
           className: 'message-item message-saying row-start darken'
           $.input
             className: 'message-username'
-            onChange: =>
-            value: name
+            ref: 'name'
+            onChange: (event) =>
+              name = event.target.value
+              action.name name
+            onKeyDown: (event) =>
+              if event.keyCode is 13
+                @refs.input.getDOMNode().focus()
           $.input
             ref: 'input'
             className: 'message-text flex-fill'
@@ -55,7 +70,7 @@ module.exports = React.createClass
           className: 'message-item row-start darken'
           $.span
             className: 'message-username'
-            @props.data.username
+            username
           $.span
             className: 'message-text flex-fill'
             @props.data.text
