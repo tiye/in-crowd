@@ -18,3 +18,9 @@ module.exports =
   getBy: (topicId) ->
     messages.filter (message) ->
       message.topicId is topicId
+
+  get: ->
+    messages
+
+  reset: (data) ->
+    messages = data

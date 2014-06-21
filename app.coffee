@@ -1,4 +1,6 @@
 
+fs = require 'fs'
+
 uuid = require 'node-uuid'
 server = require('ws-json-server')
 
@@ -9,9 +11,24 @@ members = require './src/members'
 
 port = 5031
 
-store =
-  topics: []
-  messages: []
+dataFile = 'data/local.json'
+
+save = ->
+  local =
+    messages: messages.get()
+    topics: topics.get()
+    members: members.get()
+  raw = JSON.stringify local, null, 2
+  fs.writeFileSync dataFile, raw
+
+setInterval save, (1000 * 10)
+
+if fs.existsSync dataFile
+  raw = fs.readFileSync dataFile
+  local = JSON.parse raw
+  if local.messages? then messages.reset local.messages
+  if local.topics? then topics.reset local.topics
+  if local.members? then members.reset local.members
 
 console.log 'listening', port
 server.listen port, (ws) ->

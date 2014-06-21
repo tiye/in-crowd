@@ -17,3 +17,6 @@ module.exports =
 
   get: ->
     topics
+
+  reset: (data) ->
+    topics = data

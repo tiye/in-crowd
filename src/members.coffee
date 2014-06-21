@@ -25,3 +25,6 @@ exports.updateMember = (user) ->
     if member.userId is user.userId
       member.name = user.name
       break
+
+exports.reset = (data) ->
+  members = data

@@ -15,6 +15,6 @@
   ],
   "dependencies": {
     "react": "~0.10.0",
-    "origami-ui": "0.0.1"
+    "origami-ui": "master"
   }
 }
